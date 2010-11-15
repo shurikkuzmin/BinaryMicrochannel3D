@@ -1,0 +1,53 @@
+Alex
+
+Following is a list of papers that might be helpful for you. Includes both CFD modeling papers and film thickness. 
+Some of them are for square geometry. You can follow up the references from these papers and find data for rectangular channels.
+
+Hope this will be helpful. Please let me know if I can be of any help.
+
+ 
+
+Best Regards
+
+ 
+
+Shahnawaz
+
+ 
+
+1. M.K. Akbar, andS.M. Ghiaasiaan, "Simulation of Taylor flow in capillaries based on the volume-of-fluid technique", Industrial & Engineering Chemistry Research Vol.45, No.15, 2006, pp. 5396-5403.
+
+2. P. Aussillous, andD. Quere, "Quick deposition of a fluid on the wall of a tube", Physics of Fluids Vol.12, No.10, 2000, pp. 2367-2371.
+
+3. R. Gupta, D.F. Fletcher, andB.S. Haynes, "On the CFD modelling of Taylor flow in microchannels", Chemical Engineering Science Vol.64, No.12, 2009, pp. 2941-2950.
+
+4. Y. Han, andN. Shikazono, "Measurement of liquid film thickness in micro square channel", International Journal of Multiphase Flow Vol.35, No.10, 2009, pp. 896-903.
+
+5. A.L. Hazel, andM. Heil, "The steady propagation of a semi-infinite bubble into a tube of elliptical or rectangular cross-section", Journal of Fluid Mechanics Vol.470, 2002, pp. 91-114.
+
+6. W.B. Kolb, andR.L. Cerro, "Film Flow in the Space between a Circular Bubble and a Square Tube", Journal of Colloid and Interface Science Vol.159, No.2, 1993, pp. 302-311.
+
+7.M.T. Kreutzer, F. Kapteijn, andJ.A. Moulijn, "Inertial and Interfacial Effects on Pressure Drop of Taylor Flow in Capillaries", AIChE Vol.51, No.9, 2005.
+
+8. D.S. Liu, andS.D. Wang, "Hydrodynamics of Taylor flow in noncircular capillaries", Chemical Engineering and Processing Vol.47, No.12, 2008, pp. 2098-2106.
+
+9. C.B. Tibiriçá, F.J. do Nascimento, andG. Ribatski, "Film thickness measurement techniques applied to micro-scale two-phase flow systems", Experimental Thermal and Fluid Science Vol.34, No.4, 2010, pp. 463-473.
+
+10. M.J.F. Warnier, E. Rebrov, M.H.J.M. De Croon, V. Hessel, andJ.C. Schouten, "Gas hold-up and liquid film thickness in Taylor flow in rectangular microchannels", Chemical Engineering Journal Vol.135, 2008, pp. S153-S158.
+
+ 
+
+Alex
+
+For CFD you can start with Akbar(1) and Kreutzer(7) papers.
+
+Based on my quick literature review  on film thickness I haven’t seen many papers on film thickness in rectangular microchannels. But you can rely on ref. 2,4,5,6. 
+There is no single author who is considered an expert in these experiments. I suggest you look all at the experimental data for square/rectangular channels and try to see which fits your simulation parameters.
+
+ 
+
+Good luck
+
+ 
+
+Shahnawaz
