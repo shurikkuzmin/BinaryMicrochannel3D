@@ -18,12 +18,12 @@
 //Lattice Boltzmann initialization and parameters
 const int NX=30;
 const int NY=30;
-const int NZ=450;
+const int NZ=451;
 const int NPOP=19;
 const int NUM=NX*NY*NZ;
 const int NUMTOTAL=NUM*NPOP;
-const int NUMTIME=100;
-const int NUMOUTPUT=20;
+const int NUMTIME=5000;
+const int NUMOUTPUT=200;
 const int NUMSIGNAL=20;
 
 //Binary-liquid initialization
@@ -49,7 +49,7 @@ int main(int argc,char* argv[])
     //Specify parameters
  	ParamsList params;
 	params.add("aconst", 0.04);
-	params.add("kconst", 0.04);
+	params.add("kconst", 0.01);
 	params.add("gammaconst",1.0);
 	params.add("omega",1.0);
 	params.add("phase_gradient",0.0);
@@ -79,41 +79,45 @@ int main(int argc,char* argv[])
 
     Solver solver(geometry,params);
 
+    //Solver initialization from the file
+    solver.load_file("phase04800");
+    return 1;
+
 	//Density and phase fields initialization
 	double rho_temp;
 	double phase_temp;
 	double u_temp[3];
-	for (int counter=0; counter<NUM; counter++)
-	{
-		int iZ=counter/(NX*NY);
-		int iY=(counter%(NX*NY))/NX;
-		int iX=(counter%(NX*NY))%NX;
-
-        //Initialization of the part of the channel
-
-		if ((iZ>=NZ/3)&&(iZ<=2*NZ/3)&&(iX>=width)&&(iX<NX-width-1)&&(iY>=width)&&(iY<NY-width-1))
-		{
-			rho_temp=rhog;
-			phase_temp=-1.0;
-            u_temp[0]=0.0;
-            u_temp[1]=0.0;
-            u_temp[2]=0.0;
-
-        }
-		else
-        {
-			rho_temp=rhol;
-			phase_temp=1.0;
-            u_temp[0]=0.0;
-            u_temp[1]=0.0;
-            u_temp[2]=0.0;
-
-		}
-
-		solver.putDensity(iX,iY,iZ,iX,iY,iZ,rho_temp);
-		solver.putPhase(iX,iY,iZ,iX,iY,iZ,phase_temp);
-		solver.putVelocity(iX,iY,iZ,iX,iY,iZ,u_temp);
-    }
+//	for (int counter=0; counter<NUM; counter++)
+//	{
+//		int iZ=counter/(NX*NY);
+//		int iY=(counter%(NX*NY))/NX;
+//		int iX=(counter%(NX*NY))%NX;
+//
+//        //Initialization of the part of the channel
+//
+//		if ((iZ>=(NZ-1)/3)&&(iZ<=2*(NZ-1)/3)&&(iX>=width)&&(iX<=NX-width-1)&&(iY>=width)&&(iY<=NY-width-1))
+//		{
+//			rho_temp=rhog;
+//			phase_temp=-1.0;
+//            u_temp[0]=0.0;
+//            u_temp[1]=0.0;
+//            u_temp[2]=0.0;
+//
+//        }
+//		else
+//        {
+//			rho_temp=rhol;
+//			phase_temp=1.0;
+//            u_temp[0]=0.0;
+//            u_temp[1]=0.0;
+//            u_temp[2]=0.0;
+//
+//		}
+//
+//		solver.putDensity(iX,iY,iZ,iX,iY,iZ,rho_temp);
+//		solver.putPhase(iX,iY,iZ,iX,iY,iZ,phase_temp);
+//		solver.putVelocity(iX,iY,iZ,iX,iY,iZ,u_temp);
+//    }
 
     //Initialization of the populations
     solver.init();

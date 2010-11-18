@@ -1,4 +1,5 @@
 #include <vtkXMLStructuredGridWriter.h>
+#include <vtkXMLStructuredGridReader.h>
 #include <vtkSmartPointer.h>
 #include <vtkStructuredGrid.h>
 #include <vtkIdList.h>
@@ -377,8 +378,6 @@ void Solver::getWholeVelocity()
 }
 
 
-
-
 void Solver::writeWholeDensity(std::string name)
 {
 	getWholeDensity();
@@ -498,6 +497,122 @@ void Solver::writeWholeVelocity(std::string name)
         writer->Write();
     }
 }
+
+void Solver::load_file(std::string name)
+{
+    if (rank==0)
+    {
+
+        vtkSmartPointer<vtkXMLStructuredGridReader> reader=vtkSmartPointer<vtkXMLStructuredGridReader>::New();
+        name=name+".vts";
+        reader->SetFileName(name.c_str());
+        reader->Update();
+
+        vtkStructuredGrid* data = vtkStructuredGrid::New();
+        data->ShallowCopy(reader->GetOutput());
+
+        int* dims = data->GetDimensions();
+
+        std::cout << "Number of points: " << data->GetNumberOfPoints() << std::endl;
+
+        std::cout<<"Something"<<data->->GetNumberOfElements
+        for (int z = 0; z < dims[2]; z++)
+            for (int y = 0; y < dims[1]; y++)
+                for (int x = 0; x < dims[0]; x++)
+                {
+                    //double* pixel = static_cast<double*>(data->GetScalarPointer(x,y,z));
+                    //cout<<pixel[0]<<"\n";
+                }
+
+
+    }
+//  // Fill every entry of the image data with "2.0"
+//  for (int z = 0; z < dims[2]; z++)
+//    {
+//    for (int y = 0; y < dims[1]; y++)
+//      {
+//      for (int x = 0; x < dims[0]; x++)
+//        {
+//        double* pixel = static_cast<double*>(imageData->GetScalarPointer(x,y,z));
+//        pixel[0] = 2.0;
+//        }
+//      }
+//    }
+//
+//  // Retrieve the entries from the image data and print them to the screen
+//  for (int z = 0; z < dims[2]; z++)
+//    {
+//    for (int y = 0; y < dims[1]; y++)
+//      {
+//      for (int x = 0; x < dims[0]; x++)
+//        {
+//        double* pixel = static_cast<double*>(imageData->GetScalarPointer(x,y,z));
+//        // do something with v
+//        std::cout << pixel[0] << " ";
+//        }
+//      std::cout << std::endl;
+//      }
+//    std::cout << std::endl;
+//    }
+//            int zbegin=lattice->getZbegin();
+//    int zend=lattice->getZend();
+//    if (iZbegin>zend)
+//        return;
+//    if (iZend<zbegin)
+//        return;
+//    if (iZend>zend) iZend=zend;
+//    if (iZbegin<zbegin) iZbegin=zbegin;
+//
+//    lattice->putPhase(iXbegin,iYbegin,iZbegin-zbegin,iXend,iYend,iZend-zbegin,phase);
+//
+//
+//        name=name+".vts";
+//
+//
+//        for(int counterZ=0;counterZ<NZ;counterZ++)
+//            for(int counterY=0;counterY<NY;counterY++)
+//                for(int counterX=0;counterX<NX;counterX++)
+//                    points->InsertNextPoint(counterX,counterY,counterZ);
+//
+//        vtkSmartPointer<vtkDoubleArray> data_phase = vtkSmartPointer<vtkDoubleArray>::New();
+//        vtkSmartPointer<vtkDoubleArray> data_density = vtkSmartPointer<vtkDoubleArray>::New();
+//        vtkSmartPointer<vtkDoubleArray> data_velocity = vtkSmartPointer<vtkDoubleArray>::New();
+//
+//        data_phase->SetNumberOfComponents(1);
+//        data_phase->SetName("Phase");
+//        data_density->SetNumberOfComponents(1);
+//        data_density->SetName("Density");
+//        data_velocity->SetNumberOfComponents(3);
+//        data_velocity->SetName("Velocity");
+//
+//
+//
+//        for(vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
+//        {
+//            double * temp_velocity=&velocity[3*i];
+//            double * temp_density=&density[i];
+//            double * temp_phase=&phase[i];
+//            data_velocity->InsertNextTupleValue(temp_velocity);
+//            data_density->InsertNextTupleValue(temp_density);
+//            data_phase->InsertNextTupleValue(temp_phase);
+//        }
+//
+//        vtkSmartPointer<vtkStructuredGrid> structuredGrid = vtkSmartPointer<vtkStructuredGrid>::New();
+//        structuredGrid->SetDimensions(NX,NY,NZ);
+//        structuredGrid->SetPoints(points);
+//        structuredGrid->GetPointData()->AddArray(data_velocity);
+//        structuredGrid->GetPointData()->AddArray(data_phase);
+//        structuredGrid->GetPointData()->AddArray(data_density);
+//
+//        vtkSmartPointer<vtkXMLStructuredGridWriter> writer = vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
+//        writer->SetFileName(name.c_str());
+//        writer->SetInput(structuredGrid);
+//        writer->Write();
+//    }
+
+}
+
+
 
 void Solver::writeWholeDensityPhaseVelocity(std::string name)
 {

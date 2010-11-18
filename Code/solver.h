@@ -26,6 +26,8 @@ class Solver
 
     bool checkNAN();
 
+    void load_file(std::string name);
+
     void putDensity(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,int iZend,double dense);
     void putDensity(double dense);
     void putPhase(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,int iZend,double dense);
