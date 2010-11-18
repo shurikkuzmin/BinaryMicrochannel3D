@@ -11,8 +11,6 @@
 #include "dynamics_simple_BGK.h"
 #include "dynamics_simple_special.h"
 #include "dynamics_none.h"
-#include "dynamics_zouhe_pressure.h"
-#include "dynamics_zouhe_simple_pressure.h"
 #include <mpi.h>
 #include <iostream>
 #include <sstream>
@@ -49,31 +47,6 @@ Solver::Solver(Geometry * _geom,ParamsList _params_list):
     Dynamics * dynamics_special;
     Dynamics * dynamics_none = destroyer_list.take_ownership(new DynamicsNONE(this,params_list));
 
-    //At this moment we just assume that pressure boundaries are on Z location
-
-
-    Dynamics * dynamics_pressure_inlet;
-    Dynamics * dynamics_pressure_outlet;
-
-	params_list.add("rho_press",params_list("rho_press_inlet").value<double>());
-	params_list.add("phase_press",params_list("phase_press_inlet").value<double>());
-    params_list.add("normx",0);
-    params_list.add("normy",0);
-    params_list.add("normz",1);
-
-    #ifdef HYDRO
-        dynamics_pressure_inlet=destroyer_list.take_ownership(new DynamicsZouHeSimplePressure(this,params_list));
-    #else
-        dynamics_pressure_inlet=destroyer_list.take_ownership(new DynamicsZouHePressure(this,params_list));
-    #endif
-    params_list.change("rho_press",params_list("rho_press_outlet").value<double>());
-    params_list.change("phase_press",params_list("phase_press_outlet").value<double>());
-    params_list.change("normz",-1);
-    #ifdef HYDRO
-        dynamics_pressure_outlet=destroyer_list.take_ownership(new DynamicsZouHeSimplePressure(this,params_list));
-    #else
-        dynamics_pressure_outlet=destroyer_list.take_ownership(new DynamicsZouHePressure(this,params_list));
-    #endif
 	//Allocation of memory
 	if (rank==0)
 	{
@@ -116,19 +89,6 @@ Solver::Solver(Geometry * _geom,ParamsList _params_list):
                         }
                         else
                             lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_bgk;
-                    }
-       				else if (geom->getType(iX,iY,iZ)==PressureNode)
-       				{
-                        //We do it simple without derivation of normals right now
-                        if (iZ==0)
-                        {
-                            lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_pressure_inlet;
-                        }
-                        else if (iZ==NZ-1)
-                        {
-                            lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_pressure_outlet;
-                        }
-
                     }
        				else
                         lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_none;
@@ -500,8 +460,8 @@ void Solver::writeWholeVelocity(std::string name)
 
 void Solver::load_file(std::string name)
 {
-    if (rank==0)
-    {
+    if (size==1)
+	{
 
         vtkSmartPointer<vtkXMLStructuredGridReader> reader=vtkSmartPointer<vtkXMLStructuredGridReader>::New();
         name=name+".vts";
@@ -511,104 +471,112 @@ void Solver::load_file(std::string name)
         vtkStructuredGrid* data = vtkStructuredGrid::New();
         data->ShallowCopy(reader->GetOutput());
 
-        int* dims = data->GetDimensions();
+        vtkPointData* point_data = data->GetPointData();
+        vtkDataArray* density_data=point_data->GetScalars("Density");
+        vtkDataArray* phase_data=point_data->GetScalars("Phase");
+        vtkDataArray* velocity_data=point_data->GetVectors("Velocity");
 
-        std::cout << "Number of points: " << data->GetNumberOfPoints() << std::endl;
+        for (int counter=0;counter<density_data->GetNumberOfTuples();counter++)
+        {
+            double* density_value=density_data->GetTuple(counter);
+            double* phase_value=phase_data->GetTuple(counter);
+            double* velocity_value=velocity_data->GetTuple(counter);
+            lattice->rho[counter]=density_value[0];
+            lattice->phase[counter]=phase_value[0];
+            lattice->ux[counter]=velocity_value[0];
+            lattice->uy[counter]=velocity_value[1];
+            lattice->uz[counter]=velocity_value[2];
+        }
 
-        std::cout<<"Something"<<data->->GetNumberOfElements
-        for (int z = 0; z < dims[2]; z++)
-            for (int y = 0; y < dims[1]; y++)
-                for (int x = 0; x < dims[0]; x++)
-                {
-                    //double* pixel = static_cast<double*>(data->GetScalarPointer(x,y,z));
-                    //cout<<pixel[0]<<"\n";
-                }
-
-
+      	return;
     }
-//  // Fill every entry of the image data with "2.0"
-//  for (int z = 0; z < dims[2]; z++)
-//    {
-//    for (int y = 0; y < dims[1]; y++)
-//      {
-//      for (int x = 0; x < dims[0]; x++)
-//        {
-//        double* pixel = static_cast<double*>(imageData->GetScalarPointer(x,y,z));
-//        pixel[0] = 2.0;
-//        }
-//      }
-//    }
-//
-//  // Retrieve the entries from the image data and print them to the screen
-//  for (int z = 0; z < dims[2]; z++)
-//    {
-//    for (int y = 0; y < dims[1]; y++)
-//      {
-//      for (int x = 0; x < dims[0]; x++)
-//        {
-//        double* pixel = static_cast<double*>(imageData->GetScalarPointer(x,y,z));
-//        // do something with v
-//        std::cout << pixel[0] << " ";
-//        }
-//      std::cout << std::endl;
-//      }
-//    std::cout << std::endl;
-//    }
-//            int zbegin=lattice->getZbegin();
-//    int zend=lattice->getZend();
-//    if (iZbegin>zend)
-//        return;
-//    if (iZend<zbegin)
-//        return;
-//    if (iZend>zend) iZend=zend;
-//    if (iZbegin<zbegin) iZbegin=zbegin;
-//
-//    lattice->putPhase(iXbegin,iYbegin,iZbegin-zbegin,iXend,iYend,iZend-zbegin,phase);
-//
-//
-//        name=name+".vts";
-//
-//
-//        for(int counterZ=0;counterZ<NZ;counterZ++)
-//            for(int counterY=0;counterY<NY;counterY++)
-//                for(int counterX=0;counterX<NX;counterX++)
-//                    points->InsertNextPoint(counterX,counterY,counterZ);
-//
-//        vtkSmartPointer<vtkDoubleArray> data_phase = vtkSmartPointer<vtkDoubleArray>::New();
-//        vtkSmartPointer<vtkDoubleArray> data_density = vtkSmartPointer<vtkDoubleArray>::New();
-//        vtkSmartPointer<vtkDoubleArray> data_velocity = vtkSmartPointer<vtkDoubleArray>::New();
-//
-//        data_phase->SetNumberOfComponents(1);
-//        data_phase->SetName("Phase");
-//        data_density->SetNumberOfComponents(1);
-//        data_density->SetName("Density");
-//        data_velocity->SetNumberOfComponents(3);
-//        data_velocity->SetName("Velocity");
-//
-//
-//
-//        for(vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
-//        {
-//            double * temp_velocity=&velocity[3*i];
-//            double * temp_density=&density[i];
-//            double * temp_phase=&phase[i];
-//            data_velocity->InsertNextTupleValue(temp_velocity);
-//            data_density->InsertNextTupleValue(temp_density);
-//            data_phase->InsertNextTupleValue(temp_phase);
-//        }
-//
-//        vtkSmartPointer<vtkStructuredGrid> structuredGrid = vtkSmartPointer<vtkStructuredGrid>::New();
-//        structuredGrid->SetDimensions(NX,NY,NZ);
-//        structuredGrid->SetPoints(points);
-//        structuredGrid->GetPointData()->AddArray(data_velocity);
-//        structuredGrid->GetPointData()->AddArray(data_phase);
-//        structuredGrid->GetPointData()->AddArray(data_density);
-//
-//        vtkSmartPointer<vtkXMLStructuredGridWriter> writer = vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
-//        writer->SetFileName(name.c_str());
-//        writer->SetInput(structuredGrid);
-//        writer->Write();
-//    }
+    else
+	{
+		if (rank==0)
+		{
+
+            vtkSmartPointer<vtkXMLStructuredGridReader> reader=vtkSmartPointer<vtkXMLStructuredGridReader>::New();
+            name=name+".vts";
+            reader->SetFileName(name.c_str());
+            reader->Update();
+
+            vtkStructuredGrid* data = vtkStructuredGrid::New();
+            data->ShallowCopy(reader->GetOutput());
+
+            vtkPointData* point_data = data->GetPointData();
+            vtkDataArray* density_data=point_data->GetScalars("Density");
+            vtkDataArray* phase_data=point_data->GetScalars("Phase");
+            vtkDataArray* velocity_data=point_data->GetVectors("Velocity");
+
+       		for(int counter=0;counter<lattice->getNUMLOCAL();counter++)
+            {
+                double* density_value=density_data->GetTuple(counter);
+                double* phase_value=phase_data->GetTuple(counter);
+                double* velocity_value=velocity_data->GetTuple(counter);
+                lattice->rho[counter]=density_value[0];
+                lattice->phase[counter]=phase_value[0];
+                lattice->ux[counter]=velocity_value[0];
+                lattice->uy[counter]=velocity_value[1];
+                lattice->uz[counter]=velocity_value[2];
+            }
+
+			int offset=lattice->getNUMLOCAL();
+			for (int nproc=1;nproc<size;nproc++)
+			{
+				MPI_Status status;
+				int sizes[2];
+
+				MPI_Recv(sizes,2,MPI_INT,nproc,2,MPI_COMM_WORLD,&status);
+
+				double * temp_density=new double[(sizes[1]-sizes[0]+1)*NX*NY];
+				double * temp_phase  =new double[(sizes[1]-sizes[0]+1)*NX*NY];
+				double * temp_array_x=new double[(sizes[1]-sizes[0]+1)*NX*NY];
+				double * temp_array_y=new double[(sizes[1]-sizes[0]+1)*NX*NY];
+				double * temp_array_z=new double[(sizes[1]-sizes[0]+1)*NX*NY];
+
+ 				for(int iCount=0;iCount<(sizes[1]-sizes[0]+1)*NX*NY;iCount++)
+				{
+					double* density_value=density_data->GetTuple(iCount+offset);
+                    double* phase_value=phase_data->GetTuple(iCount+offset);
+                    double* velocity_value=velocity_data->GetTuple(iCount+offset);
+
+					temp_density[iCount]=density_value[0];
+					temp_phase[iCount]=phase_value[0];
+					temp_array_x[iCount]=velocity_value[0];
+					temp_array_y[iCount]=velocity_value[1];
+					temp_array_z[iCount]=velocity_value[2];
+				}
+
+				MPI_Send(temp_density,(sizes[1]-sizes[0]+1)*NX*NY,MPI_DOUBLE,nproc,3,MPI_COMM_WORLD);
+				MPI_Send(temp_phase,(sizes[1]-sizes[0]+1)*NX*NY,MPI_DOUBLE,nproc,3,MPI_COMM_WORLD);
+				MPI_Send(temp_array_x,(sizes[1]-sizes[0]+1)*NX*NY,MPI_DOUBLE,nproc,3,MPI_COMM_WORLD);
+				MPI_Send(temp_array_y,(sizes[1]-sizes[0]+1)*NX*NY,MPI_DOUBLE,nproc,3,MPI_COMM_WORLD);
+				MPI_Send(temp_array_z,(sizes[1]-sizes[0]+1)*NX*NY,MPI_DOUBLE,nproc,3,MPI_COMM_WORLD);
+
+
+				offset=offset+(sizes[1]-sizes[0]+1)*NX*NY;
+
+				delete[] temp_density;
+				delete[] temp_phase;
+				delete[] temp_array_x;
+				delete[] temp_array_y;
+				delete[] temp_array_z;
+			}
+		}
+		else
+		{
+			MPI_Status status;
+			int sizes[2]={lattice->getZbegin(),lattice->getZend()};
+			MPI_Send(sizes,2,MPI_INT,0,2,MPI_COMM_WORLD);
+
+			MPI_Recv(lattice->rho,(lattice->getZend()-lattice->getZbegin()+1)*NX*NY,MPI_DOUBLE,0,3,MPI_COMM_WORLD,&status);
+			MPI_Recv(lattice->phase,(lattice->getZend()-lattice->getZbegin()+1)*NX*NY,MPI_DOUBLE,0,3,MPI_COMM_WORLD,&status);
+			MPI_Recv(lattice->ux,(lattice->getZend()-lattice->getZbegin()+1)*NX*NY,MPI_DOUBLE,0,3,MPI_COMM_WORLD,&status);
+			MPI_Recv(lattice->uy,(lattice->getZend()-lattice->getZbegin()+1)*NX*NY,MPI_DOUBLE,0,3,MPI_COMM_WORLD,&status);
+			MPI_Recv(lattice->uz,(lattice->getZend()-lattice->getZbegin()+1)*NX*NY,MPI_DOUBLE,0,3,MPI_COMM_WORLD,&status);
+		}
+		MPI_Barrier(MPI_COMM_WORLD);
+	}
 
 }
 

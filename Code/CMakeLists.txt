@@ -44,6 +44,5 @@ ENDIF(PERFORMANCE)
 
 SET(LIBS vtkCommon vtkIO vtkFiltering)
 ADD_EXECUTABLE(main.out main.cpp mpi_wrapper.cpp mpi_singleton.cpp solver.cpp lattice.cpp dynamics_BGK.cpp
-    dynamics_special.cpp dynamics_simple_BGK.cpp dynamics_simple_special.cpp dynamics_zouhe_pressure.cpp
-    dynamics_zouhe_simple_pressure.cpp)
+    dynamics_special.cpp dynamics_simple_BGK.cpp dynamics_simple_special.cpp)
 TARGET_LINK_LIBRARIES(main.out ${LIBS})

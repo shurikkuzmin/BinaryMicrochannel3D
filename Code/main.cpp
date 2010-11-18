@@ -32,7 +32,45 @@ const int radius=6;
 const int rhol=1.0;
 const int rhog=1.0;
 
-//Parameters of the binary liquid model
+void macro_init(Solver & solver)
+{
+    //Density and phase field initialization
+	double rho_temp;
+	double phase_temp;
+	double u_temp[3];
+	for (int counter=0; counter<NUM; counter++)
+	{
+		int iZ=counter/(NX*NY);
+		int iY=(counter%(NX*NY))/NX;
+		int iX=(counter%(NX*NY))%NX;
+
+        //Initialization of the part of the channel
+
+		if ((iZ>=(NZ-1)/3)&&(iZ<=2*(NZ-1)/3)&&(iX>=width)&&(iX<=NX-width-1)&&(iY>=width)&&(iY<=NY-width-1))
+		{
+			rho_temp=rhog;
+			phase_temp=-1.0;
+            u_temp[0]=0.0;
+            u_temp[1]=0.0;
+            u_temp[2]=0.0;
+
+        }
+		else
+        {
+			rho_temp=rhol;
+			phase_temp=1.0;
+            u_temp[0]=0.0;
+            u_temp[1]=0.0;
+            u_temp[2]=0.0;
+
+		}
+
+		solver.putDensity(iX,iY,iZ,iX,iY,iZ,rho_temp);
+		solver.putPhase(iX,iY,iZ,iX,iY,iZ,phase_temp);
+		solver.putVelocity(iX,iY,iZ,iX,iY,iZ,u_temp);
+    }
+
+}
 
 int main(int argc,char* argv[])
 {
@@ -59,7 +97,7 @@ int main(int argc,char* argv[])
     params.add("tau_gas",0.7);
     params.add("force_x",0.0);
     params.add("force_y",0.0);
-    params.add("force_z",0.0);
+    params.add("force_z",0.000001);
 
     //Useless parameters to be deleted after
     params.add("rho_press_inlet",1.0);
@@ -80,44 +118,7 @@ int main(int argc,char* argv[])
     Solver solver(geometry,params);
 
     //Solver initialization from the file
-    solver.load_file("phase04800");
-    return 1;
-
-	//Density and phase fields initialization
-	double rho_temp;
-	double phase_temp;
-	double u_temp[3];
-//	for (int counter=0; counter<NUM; counter++)
-//	{
-//		int iZ=counter/(NX*NY);
-//		int iY=(counter%(NX*NY))/NX;
-//		int iX=(counter%(NX*NY))%NX;
-//
-//        //Initialization of the part of the channel
-//
-//		if ((iZ>=(NZ-1)/3)&&(iZ<=2*(NZ-1)/3)&&(iX>=width)&&(iX<=NX-width-1)&&(iY>=width)&&(iY<=NY-width-1))
-//		{
-//			rho_temp=rhog;
-//			phase_temp=-1.0;
-//            u_temp[0]=0.0;
-//            u_temp[1]=0.0;
-//            u_temp[2]=0.0;
-//
-//        }
-//		else
-//        {
-//			rho_temp=rhol;
-//			phase_temp=1.0;
-//            u_temp[0]=0.0;
-//            u_temp[1]=0.0;
-//            u_temp[2]=0.0;
-//
-//		}
-//
-//		solver.putDensity(iX,iY,iZ,iX,iY,iZ,rho_temp);
-//		solver.putPhase(iX,iY,iZ,iX,iY,iZ,phase_temp);
-//		solver.putVelocity(iX,iY,iZ,iX,iY,iZ,u_temp);
-//    }
+    solver.load_file("equili");
 
     //Initialization of the populations
     solver.init();
