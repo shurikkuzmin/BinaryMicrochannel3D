@@ -131,7 +131,7 @@ void DynamicsSpecial::update_wall_phase(int iX,int iY,int iZ)
         wall_densities[k]=phase_temp;
     }
 
-    if (abs(normx)>tol)
+    if (fabs(normx)>tol)
     {
         int signx = (normx > 0) - (normx < 0);
         dirx=-signx;
@@ -148,7 +148,7 @@ void DynamicsSpecial::update_wall_phase(int iX,int iY,int iZ)
 
     }
 
-    if (abs(normy)>tol)
+    if (fabs(normy)>tol)
     {
         int signy = (normy > 0) - (normy < 0);
         diry=-signy;
@@ -165,7 +165,7 @@ void DynamicsSpecial::update_wall_phase(int iX,int iY,int iZ)
 
     }
 
-    if (abs(normz)>tol)
+    if (fabs(normz)>tol)
     {
         int signz = (normz > 0) - (normz < 0);
         dirz=-signz;
@@ -230,7 +230,7 @@ void DynamicsSpecial::init(int iX,int iY,int iZ)
 
     double TOL=0.000001;
 
-    if (abs(normx)>TOL)
+    if (fabs(normx)>TOL)
         if (normx>0.0)
             gradx_temp=-phase_gradient;
         else
@@ -239,7 +239,7 @@ void DynamicsSpecial::init(int iX,int iY,int iZ)
         gradx_temp=0.5*(grad[1]+grad[2]);
 
 
-    if (abs(normy)>TOL)
+    if (fabs(normy)>TOL)
         if (normy>0.0)
             grady_temp=-phase_gradient;
         else
@@ -247,7 +247,7 @@ void DynamicsSpecial::init(int iX,int iY,int iZ)
     else
         grady_temp=0.5*(grad[3]+grad[4]);
 
-    if (abs(normz)>0.0)
+    if (fabs(normz)>0.0)
         if (normz>0.0)
             gradz_temp=-phase_gradient;
         else
@@ -308,24 +308,12 @@ void DynamicsSpecial::collide_stream(int iX,int iY, int iZ)
 
 	int counter=iZ*NX*NY+iY*NX+iX;
 
-    //Old version
-    //update_wall_phase(iX,iY,iZ);
-
-    //Update gradients
     update_all_gradients(iX,iY,iZ);
 
 	double gradx_temp=0.0,grady_temp=0.0,gradz_temp=0.0,laplace_temp=0.0;
-//	for (int k=0;k<19;k++)
-//	{
-//		gradx_temp+=gradx_stencil[k]*wall_densities[k];
-//		grady_temp+=grady_stencil[k]*wall_densities[k];
-//		gradz_temp+=gradz_stencil[k]*wall_densities[k];
-//		laplace_temp+=laplace_stencil[k]*wall_densities[k];
-//	}
-
     double TOL=0.000001;
 
-    if (abs(normx)>TOL)
+    if (fabs(normx)>TOL)
         if (normx>0.0)
             gradx_temp=-phase_gradient;
         else
@@ -334,7 +322,7 @@ void DynamicsSpecial::collide_stream(int iX,int iY, int iZ)
         gradx_temp=0.5*(grad[1]+grad[2]);
 
 
-    if (abs(normy)>TOL)
+    if (fabs(normy)>TOL)
         if (normy>0.0)
             grady_temp=-phase_gradient;
         else
@@ -342,7 +330,7 @@ void DynamicsSpecial::collide_stream(int iX,int iY, int iZ)
     else
         grady_temp=0.5*(grad[3]+grad[4]);
 
-    if (abs(normz)>0.0)
+    if (fabs(normz)>0.0)
         if (normz>0.0)
             gradz_temp=-phase_gradient;
         else

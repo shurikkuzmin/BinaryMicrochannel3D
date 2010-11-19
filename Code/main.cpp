@@ -22,15 +22,15 @@ const int NZ=451;
 const int NPOP=19;
 const int NUM=NX*NY*NZ;
 const int NUMTOTAL=NUM*NPOP;
-const int NUMTIME=5000;
-const int NUMOUTPUT=200;
+const int NUMTIME=10000;
+const int NUMOUTPUT=1000;
 const int NUMSIGNAL=20;
 
 //Binary-liquid initialization
 const int width=4;
 const int radius=6;
-const int rhol=1.0;
-const int rhog=1.0;
+const double rhol=1.0;
+const double rhog=1.0;
 
 void macro_init(Solver & solver)
 {
@@ -97,7 +97,7 @@ int main(int argc,char* argv[])
     params.add("tau_gas",0.7);
     params.add("force_x",0.0);
     params.add("force_y",0.0);
-    params.add("force_z",0.000001);
+    params.add("force_z",0.0001);
 
     //Useless parameters to be deleted after
     params.add("rho_press_inlet",1.0);

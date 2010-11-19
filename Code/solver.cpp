@@ -1,7 +1,10 @@
 #include <vtkXMLStructuredGridWriter.h>
 #include <vtkXMLStructuredGridReader.h>
+#include <vtkXMLImageDataWriter.h>
+#include <vtkXMLImageDataReader.h>
 #include <vtkSmartPointer.h>
 #include <vtkStructuredGrid.h>
+#include <vtkImageData.h>
 #include <vtkIdList.h>
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
@@ -636,6 +639,48 @@ void Solver::writeWholeDensityPhaseVelocity(std::string name)
     }
 
 }
+
+void Solver::writeWholeImageDensityPhaseVelocity(std::string name)
+{
+
+    Solver::getWholeDensity();
+    Solver::getWholePhase();
+    Solver::getWholeVelocity();
+    if (rank==0)
+    {
+        name=name+".vti";
+
+        vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
+        imageData->SetDimensions(NX,NY,NZ);
+        imageData->SetOrigin(0,0,0);
+        imageData->SetSpacing(1,1,1);
+        imageData->SetNumberOfScalarComponents(5);
+        imageData->SetScalarTypeToDouble();
+
+
+        for(vtkIdType i = 0; i < NX*NY*NZ; i++)
+        {
+            int iZ=i/(NX*NY);
+            int iY=(i%(NX*NY))/NX;
+            int iX=(i%(NX*NY))%NX;
+
+            double* pixel = static_cast<double*>(imageData->GetScalarPointer(iX,iY,iZ));
+            pixel[0] = density[i];
+            pixel[1] = phase[i];
+            pixel[2] = velocity[3*i];
+            pixel[3] = velocity[3*i+1];
+            pixel[4] = velocity[3*i+2];
+        }
+
+        vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
+        writer->SetFileName(name.c_str());
+        writer->SetInput(imageData);
+        writer->Write();
+    }
+
+}
+
+
 
 void Solver::writeTextXZVelocity(std::string name)
 {
