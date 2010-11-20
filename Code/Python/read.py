@@ -9,54 +9,37 @@ def read(name):
     gridreader.file_name = name
     gridreader.update()
 
-    grid = gridreader.output
-    data = grid.point_data
+    grid  = gridreader.output
+    data  = grid.point_data
     points=grid.points
+    dims  =grid.dimensions
+    dims=dims.tolist()
+    dims.reverse()
     phase= numpy.array(data.get_array("Phase"))
-    print reversed(grid.dimensions)
-    phase_numpy=phase.reshape(grid.dimensions)
-    #phase = mlab.pipeline.scalar_field(phase.transpose())
+    velocity=numpy.array(data.get_array("Velocity"))
+    velx=velocity[:,0]
+    vely=velocity[:,1]
+    velz=velocity[:,2]
+    phase_numpy=phase.reshape(dims)
+    velx_numpy =velx.reshape(dims)
+    vely_numpy =vely.reshape(dims)
+    velz_numpy =velz.reshape(dims)
+    
+    fig=mlab.figure()
+    src = mlab.pipeline.scalar_field(phase_numpy)
+    v= mlab.pipeline.vector_field(velx_numpy,vely_numpy,velz_numpy)
+    vx=mlab.pipeline.scalar_field(velx_numpy)
+    vy=mlab.pipeline.scalar_field(vely_numpy)
+    vz=mlab.pipeline.scalar_field(velz_numpy)
+    
+    extract=mlab.pipeline.extract_grid(src)
+    extract.set(z_min=1,z_max=dims[2]-2,y_min=1,y_max=dims[1]-2)
+    surf = mlab.pipeline.contour_surface(extract)
  
-    #mlab.pipeline.image_plane_widget(self.vx, plane_orientation='x_axes', slice_index=10)
-#mlab.pipeline.image_plane_widget(self.vx, plane_orientation='y_axes', slice_index=10)
-#mlab.pipeline.image_plane_widget(self.vx, plane_orientation='z_axes', slice_index=10)
-    mlab.contour3d(phase_numpy)
+    mlab.pipeline.image_plane_widget(vx, plane_orientation='x_axes', slice_index=250)
+    #mlab.pipeline.vectors(v, mask_points=20, scale_factor=3.)
+    mlab.pipeline.vector_cut_plane(v, mask_points=2, scale_factor=3)
     mlab.show()
-    #mlab.axes()
-
-#       mlab.pipeline.vector_cut_plane(self.velocity, mask_points=2, scale_factor=3, plane_orientation='y_axes')
-#       mlab.pipeline.vectors(self.velocity, mask_points=20, scale_factor=3.)
-    #mlab.outline()
-
-
-#        # FIXME: Gracefully handle the case when there are no scalar fields.
-#        fields = self.sim.output_fields.keys()
-#        ffld = fields[0]
-#        fields = fields[1:]
-
-#        id.point_data.scalars = self.sim.output_fields[ffld].flatten()
-#        id.point_data.scalars.name = ffld
-
-#        for fld in fields:
-#            tmp = id.point_data.add_array(self.sim.output_fields[fld].flatten())
-#            id.point_data.get_array(tmp).name = fld
-
-#        id.update()
-
-#        for k, v in self.sim.output_vectors.iteritems():
-#            if self.sim.grid.dim == 3:
-#                tmp = id.point_data.add_array(numpy.c_[v[0].flatten(), v[1].flatten(), v[2].flatten()])
-#            else:
-#                tmp = id.point_data.add_array(numpy.c_[v[0].flatten(), v[1].flatten(), numpy.zeros_like(v[0].flatten())])
-#            id.point_data.get_array(tmp).name = k
-
-#        if self.sim.grid.dim == 3:
-#            id.dimensions = list(reversed(self.sim.output_fields[ffld].shape))
-#        else:
-#            id.dimensions = list(reversed(self.sim.output_fields[ffld].shape)) + [1]
-#        w = tvtk.XMLPImageDataWriter(input=id, file_name=('%s%0' + self.digits + 'd.xml') % (self.fname, i))
-#        w.write()
-
 
 if __name__=="__main__":
     read("../phase00000.vts")
