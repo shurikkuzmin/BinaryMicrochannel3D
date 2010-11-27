@@ -41,5 +41,36 @@ def read(name):
     mlab.pipeline.vector_cut_plane(v, mask_points=2, scale_factor=3)
     mlab.show()
 
+def show(name,slice):
+    from enthought.tvtk.api import tvtk
+    import pylab
+    import numpy
+
+
+    gridreader = tvtk.XMLStructuredGridReader()
+    gridreader.file_name = name
+    gridreader.update()
+
+    grid  = gridreader.output
+    data  = grid.point_data
+    points=grid.points
+    dims  =grid.dimensions
+    dims=dims.tolist()
+    dims.reverse()
+    phase= numpy.array(data.get_array("Phase"))
+    velocity=numpy.array(data.get_array("Velocity"))
+    velx=velocity[:,0]
+    vely=velocity[:,1]
+    velz=velocity[:,2]
+    phase_numpy=phase.reshape(dims)
+    velx_numpy =velx.reshape(dims)
+    vely_numpy =vely.reshape(dims)
+    velz_numpy =velz.reshape(dims)
+    
+    pylab.imshow(phase_numpy[slice,:,:])
+    pylab.show()
+
 if __name__=="__main__":
-    read("../phase00000.vts")
+    name="../../Temp/equili.vts"
+    read(name)
+    #show(name,300)

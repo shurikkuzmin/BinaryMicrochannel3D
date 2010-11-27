@@ -1,0 +1,95 @@
+\documentclass{article}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{color}
+\begin{document}
+\begin{abstract}
+Recently we investigated the applicability and parameters choice for the two-dimensional case
+Bretherton problem. This paper is focused on the three-dimensional case to validate the continuous
+interface methods to simulate phenomena happening in the Bretherton/Taylor flow for rectangular
+and square capillaries. 
+\end{abstract}
+\section{Introduction}
+While for two-dimensional Bretherton flow the results are usually limited to the circular shape and
+only some of them are for the plane-symmetric case \cite{giavedoni-numerical,heil-planar},
+vast number of experimental results and simulations are available for the three-dimensional case.
+It was found that the for rectangular and/or square shaped capillaries there is a transition for
+certain capillary number, where the flow changes from the non axi symmetric to axis symmetric case.
+The number is indicated in a number of works of as $Ca=0.04$ \cite{cerro-bubble-train}, $Ca=0.1$
+\cite{cerro-space}, $Ca=0.033$ and for $Ca>4$ \cite{heil-threedim} measured at 11 half-widths behind
+the finger tip. 
+
+
+\section{Variation bubble length}
+The work of \cite{heil-threedim} shows the variation of the bubble thickness through the length of
+bubble. The length variation is presented in Fig. \ref{fig:thickness:variation:ca:ten}
+\begin{figure}
+\includegraphics[width=0.97\textwidth]{Figures/variationoverlength.eps}
+\caption{The variation of the bubble length for capillary number $Ca=10$. The x-axis scaled to
+half-width of the microchannel height.  \label{fig:thickness:variation:ca:ten}}
+\end{figure}
+We want to obtain the same characteristics as indicated in Fig.
+\ref{fig:thickness:variation:ca:ten}. One can see that the difference between diagonal radius and
+usual radius is of order of $4\%$. That means it's 2 percent of the channel height. If the
+simulation is conducted by the grid $50\mathrm{x}50$ in the cross section that means that we will
+see the difference in one grid node. Therefore the grid is $52\mathrm{x}52\mathrm{750}$. Here we
+conduct a scaling:
+\begin{equation}
+Ca=\frac{\mu_{liq} U_{bubble}}{\gamma}
+\end{equation}
+The parameters for the binary liquid problem are chosen as $A=0.04$ and $k=0.01$. Therefore the
+surface tension is:
+\begin{equation}
+\sigma = \sqrt{\frac{8 k A}{9}}=0.0596
+\end{equation}
+The relaxation times for liquid and gas are taken as, $\tau_{gas}=0.7$ and $\tau_{liq}=2.5$,
+therefore the viscosities ratio is $10$.
+\begin{equation}
+\begin{aligned}
+&10=\frac{\frac{2}{3} U_{bubble}}{0.0596},
+&U_{bubble}=0.894
+\end{aligned}
+\end{equation}
+which is quite high for the lattice Boltzmann method. We can decrease the ratio by scaling
+parameters $k$ and $A$ while keeping the interface thickness. Let us choose parameters as $k=0.001$
+and $A=0.004$, therefore the mobility should be adjusted to address the issue with small parameters
+and small surface tension in this case. It parameters are chosen as $A=0.004$ and $k=0.001$ then
+the velocity of the bubble is  $0.0894$. Therefore we can adjust the pressure gradient to plug it
+into the bubble initialization:
+\begin{equation}
+\frac{\mathrm{d}P}{\mathrm{d}x}=\frac{8}{N_y^2} \gamma Ca=0.0001907,
+\end{equation}
+which is quite high for lattice Boltzmann simulations. Therefore probably one more time the surface
+tension needs to be reduced. {\color{red} Many authors state that increasing mobility kills the
+proper results of simulations}. 
+The film thickness as it is seen from the picture is taken as $70$ percent of the half channel.
+Therefore the initalization width is $0.15*50=7.5$. 
+
+\section{Non-axisymmetric case}
+That could be fucking difficult. For example according to \cite{heil-threed} for the capillary
+number $Ca=0.01$, the radiuses converge as $r_h=0.99$ and $r_d=1.1$. Therefore one needs to resolve
+as the $0.5\%$ of whole channel width to see the difference. That certainly implies so large grid
+that can kill the simulation at least $200x200x3000$. However, we can refer to artificially made
+interface as $1-2$ lattice Boltzmann units but keeping the capillary number as it is required. In
+this case we can refer like we can't resolve the interface but we can certainly to attribute it to
+the wall gradient as extreme case. The dimnesionalization case is therefore as follows:
+\begin{equation}
+Ca=\frac{\mu_{liq} U_{bubble}}{\gamma},
+\end{equation}
+therefore let us pick up the same parameters as for the previous case and just change use the
+pressure gradient reduced by $1000$ as $Ca=10$ and $Ca=0.01$ are different. 
+Let us wait for simulation.
+
+\section{Capillary number region}
+
+
+
+\section{Simulation setup}
+
+
+\bibliographystyle{unsrtnat}
+\bibliography{paper}
+\end{document}
+
+
