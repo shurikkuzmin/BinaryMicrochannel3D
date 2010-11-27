@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{bm}
 \usepackage{color}
 \begin{document}
@@ -12,7 +14,7 @@ and square capillaries.
 \end{abstract}
 \section{Introduction}
 While for two-dimensional Bretherton flow the results are usually limited to the circular shape and
-only some of them are for the plane-symmetric case \cite{giavedoni-numerical,heil-planar},
+only some of them are for the plane-symmetric case \cite{giavedoni-numerical,heil-bretherton},
 vast number of experimental results and simulations are available for the three-dimensional case.
 It was found that the for rectangular and/or square shaped capillaries there is a transition for
 certain capillary number, where the flow changes from the non axi symmetric to axis symmetric case.
@@ -67,7 +69,7 @@ The film thickness as it is seen from the picture is taken as $70$ percent of th
 Therefore the initalization width is $0.15*50=7.5$. 
 
 \section{Non-axisymmetric case}
-That could be fucking difficult. For example according to \cite{heil-threed} for the capillary
+That could be fucking difficult. For example according to \cite{heil-threedim} for the capillary
 number $Ca=0.01$, the radiuses converge as $r_h=0.99$ and $r_d=1.1$. Therefore one needs to resolve
 as the $0.5\%$ of whole channel width to see the difference. That certainly implies so large grid
 that can kill the simulation at least $200x200x3000$. However, we can refer to artificially made
