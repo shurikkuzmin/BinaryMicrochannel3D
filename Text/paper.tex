@@ -8,20 +8,78 @@
 \begin{document}
 \begin{abstract}
 Recently we investigated the applicability and parameters choice for the two-dimensional case
-Bretherton problem. This paper is focused on the three-dimensional case to validate the continuous
-interface methods to simulate phenomena happening in the Bretherton/Taylor flow for rectangular
-and square capillaries. 
+Bretherton problem using the lattice Boltzmann method (LBM) {\color{red} Give citation here}. This
+paper is the continuation of the previous work and is focused on the three-dimensional case to
+validate the LBM for simulation of phenomena for rectangular and square capillaries in the
+moderate range of Capillary number parameters. 
 \end{abstract}
+\section{What to examine}
+I suggest to examine first of all the application of the LBM for really small capillary number,
+where it's not possible to resolve the interface. In this case one should find the asymmetric
+radiuses for the droplet, the difference should be around $10$ percent. While applying the forcing
+it should come to the spheric shape. As well we need to examine the capillary number dependancy on
+the length and suggest to examine some axicentric factors for rectangular channels.
+
 \section{Introduction}
 While for two-dimensional Bretherton flow the results are usually limited to the circular shape and
 only some of them are for the plane-symmetric case \cite{giavedoni-numerical,heil-bretherton},
 vast number of experimental results and simulations are available for the three-dimensional case.
 It was found that the for rectangular and/or square shaped capillaries there is a transition for
-certain capillary number, where the flow changes from the non axi symmetric to axis symmetric case.
-The number is indicated in a number of works of as $Ca=0.04$ \cite{cerro-bubble-train}, $Ca=0.1$
-\cite{cerro-space}, $Ca=0.033$ and for $Ca>4$ \cite{heil-threedim} measured at 11 half-widths behind
-the finger tip. 
+certain capillary number, where the flow changes from the non axisymmetric to axis symmetric case.
+The number is indicated in a number of works of as $\hat{Ca}=0.04$ \cite{cerro-bubble-train},
+$\hat{Ca}=0.1$
+\cite{cerro-space}, $\hat{Ca}=0.033$ \cite{heil-threedim}. If the capillary number is larger than
+the critical capillary number, i.e. $Ca>\hat{Ca}$, then the flow becomes axisimmetric with the
+radius of the droplet dependant on the capillary number.
 
+The following pictures summarize the radius of deposited liquid on the capillary length.
+\citet{heil-threedim} performed three-dimensional simulations for circular shaped and for the
+square shaped capillaries and gravitational effects for circular shaped capillaries. The results for
+square capillaries are shown in Fig.\ref{fig:heil:three:dim}. On another hand authors performed
+numerical simulations for rectangular shaped capillaries. It was found that aspect ratio $\alpha$
+allows to put all the different curves on one purely empirical curve through the following parameter
+$s_{\infty}=r_{\infty} \alpha^{-1/2}$, where $r_{\infty}$ is the aximsymmetric bubble radius
+infinitely far behind the bubble tip and can be calculated from the flow rate in the computational
+domain:
+\begin{equation}
+r_{\infty}=2\sqrt{(a-Q)/\pi}.
+\end{equation}
+It is also indicated that for $\alpha\geq\hat{\alpha}=2.04$ the interface can not make up the
+axisymmetric case. The $s_{\infty}$ dependency on $\alpha$ is shown in Fig.
+\ref{fig:heil:three:dim}.
+\begin{figure}
+\includegraphics[width=0.47\textwidth]{Figures/capillary_width_heil.eps}\hfill
+\includegraphics[width=0.47\textwidth]{Figures/capillary_rectangular_width_heil.eps}\\
+\caption{\citet{heil-threedim} results for the variation of the deposited liquid for the range of
+capillary number. One can see the asymmetry between diagonal and axis diameter for the capillary
+number $Ca\leq\hat{Ca}=0.04$.\label{fig:heil:three:dim}}
+\end{figure}
+There is also interesting thing to track down is the recirculating regime for flow fields. It is
+known that for certain capillary number the streamlines either go around the bubble or create the
+circulating regime in front of the bubble. The calculation ({\color{red} or analytical data? Look
+at White 1991, pp. 119-120. As well put figures if there is a space from Heil et al.}) are presented
+in Table \ref{table:recirculation:data}.
+\begin{table}
+\begin{tabular}{c|c}
+$\alpha$& $Ca_{T}$\\
+\hline
+1& 0.691\\
+1.1 & 0.688\\
+1.3 & 0.666\\
+1.5 & 0.631\\
+\end{tabular}
+\caption{The results for the recirculation region.\label{table:recirculation:data}}
+\end{table}
+
+\citet{shikazono-square} obtained a lot of different results for the deposition length versus the
+capillary number variation for FC-40/air, ethanol/air and water/air experiments. All of them are
+presented in Fig. \ref{fig:deposition:han}.
+\begin{figure}
+\includegraphics[width=0.33\textwidth]{Figures/han_capillary_fc40_air.eps}\hfill
+\includegraphics[width=0.33\textwidth]{Figures/han_capillary_water_air.eps}\hfill
+\includegraphics[width=0.33\textwidth]{Figures/han_capillary_ethanol_air.eps}\\
+\caption{Han results. \label{fig:deposition:han}}
+\end{figure}
 
 \section{Variation bubble length}
 The work of \cite{heil-threedim} shows the variation of the bubble thickness through the length of

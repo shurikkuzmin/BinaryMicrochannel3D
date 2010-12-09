@@ -47,7 +47,8 @@ class FESim(lbm.BinaryFluidFreeEnergy):
 
         lbm.BinaryFluidFreeEnergy.__init__(self, geo_class, options=opts, defaults=settings)
 
-        self.add_body_force((0.0, 0.0, self.options.force), grid=0, accel=False)
+        self.add_body_force((0.0,0.0,0.0), grid=0, accel=False)
+        #self.add_body_force((0.0, 0.0, self.options.force), grid=0, accel=False)
 
         # Use the fluid velocity in the relaxation of the order parameter field,
         # and the molecular velocity in the relaxation of the density field.
