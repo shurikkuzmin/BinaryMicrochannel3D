@@ -113,7 +113,62 @@ def show(name,slice):
     pylab.imshow(phase_numpy[slice,:,:])
     pylab.show()
 
+def compare(name_michal,name_alex,slice):
+    from enthought.tvtk.api import tvtk
+    import pylab
+    import numpy
+
+    gridreader_alex = tvtk.XMLStructuredGridReader()
+    gridreader_alex.file_name = name_alex
+    gridreader_alex.update()
+
+    gridreader_michal = tvtk.XMLImageDataReader()
+    gridreader_michal.file_name = name_michal
+    gridreader_michal.update()
+
+    grid_alex  = gridreader_alex.output
+    data_alex  = grid_alex.point_data
+    dims_alex  = grid_alex.dimensions
+    dims_alex  = dims_alex.tolist()
+    dims_alex.reverse()
+    phase_alex = numpy.array(data_alex.get_array("Phase"))
+    phase_alex = phase_alex.reshape(dims_alex)
+
+    grid_michal  = gridreader_michal.output
+    data_michal  = grid_michal.point_data
+    dims_michal  = grid_michal.dimensions
+    dims_michal  = dims_michal.tolist()
+    dims_michal.reverse()
+    phase_michal = numpy.array(data_michal.get_array("phi"))
+    phase_michal = phase_michal.reshape(dims_michal)
+    
+    print phase_alex.shape
+    print phase_michal.shape
+    
+    surf_alex = phase_alex[slice,:,:]
+    surf_michal=phase_michal[:,:,slice]
+    pylab.figure()
+    pylab.imshow(surf_alex)
+    pylab.figure()
+    pylab.imshow(surf_michal)
+    
+    pylab.figure()
+
+    prof_michal=surf_michal[:,surf_michal.shape[1]/2]
+    prof_alex=surf_michal[:,surf_alex.shape[1]/2]
+    pylab.plot(prof_michal[1:-1])
+    pylab.plot(prof_alex[1:-1])
+    print numpy.max(numpy.abs(prof_michal-prof_alex))
+    print prof_michal-prof_alex
+    pylab.show()
+
+
+ 
 if __name__=="__main__":
-    name="test1000_0.vti"
-    read_michal(name)
+    name_michal="test1000_0.vti"
+    name_alex="phase01000.vts"
+    #read_michal(name_michal)
+    read_my(name_alex)
+    slice=350
+    #compare(name_michal,name_alex,slice)
     #show(name,300)

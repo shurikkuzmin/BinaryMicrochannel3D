@@ -16,18 +16,18 @@
 #include "params_list.h"
 
 //Lattice Boltzmann initialization and parameters
-const int NX=30;
-const int NY=30;
-const int NZ=451;
+const int NX=52;
+const int NY=52;
+const int NZ=750;
 const int NPOP=19;
 const int NUM=NX*NY*NZ;
 const int NUMTOTAL=NUM*NPOP;
-const int NUMTIME=10000;
-const int NUMOUTPUT=1000;
+const int NUMTIME=1001;
+const int NUMOUTPUT=100;
 const int NUMSIGNAL=20;
 
 //Binary-liquid initialization
-const int width=4;
+const int width=6;
 const int radius=6;
 const double rhol=1.0;
 const double rhog=1.0;
@@ -87,17 +87,19 @@ int main(int argc,char* argv[])
     //Specify parameters
  	ParamsList params;
 	params.add("aconst", 0.04);
-	params.add("kconst", 0.01);
+	params.add("kconst", 0.04);
 	params.add("gammaconst",1.0);
 	params.add("omega",1.0);
 	params.add("phase_gradient",0.0);
 	params.add("phase_wall",0.0);
 	params.add("rho_wall",0.5);
-    params.add("tau_liq",2.7);
+	params.add("tau_phi",2.0);
+    params.add("tau_liq",2.5);
     params.add("tau_gas",0.7);
     params.add("force_x",0.0);
     params.add("force_y",0.0);
-    params.add("force_z",0.0001);
+    params.add("force_z",0.000015);
+	//params.add("force_z",0.0);
 
     //Useless parameters to be deleted after
     params.add("rho_press_inlet",1.0);
@@ -118,7 +120,9 @@ int main(int argc,char* argv[])
     Solver solver(geometry,params);
 
     //Solver initialization from the file
-    solver.load_file("equili");
+    //solver.load_file("equili");
+
+	macro_init(solver);
 
     //Initialization of the populations
     solver.init();

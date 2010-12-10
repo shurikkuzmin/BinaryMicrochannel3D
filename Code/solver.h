@@ -43,7 +43,6 @@ class Solver
     void writeWholePhase(std::string name);
     void writeWholeVelocity(std::string name);
     void writeWholeDensityPhaseVelocity(std::string name);
-    void writeWholeImageDensityPhaseVelocity(std::string name);
 
     void writeTextXZVelocity(std::string name);
     void writeTextXYVelocity(std::string name);

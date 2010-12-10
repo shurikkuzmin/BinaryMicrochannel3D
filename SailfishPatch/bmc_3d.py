@@ -36,13 +36,13 @@ class FESim(lbm.BinaryFluidFreeEnergy):
                     'lat_ny': 52, 'lat_nz' : 52 ,
                     'kappa': 0.04, 'Gamma':1.0, 'A': 0.04,
                     'scr_scale': 1,
-                    'tau_a': 2.5, 'tau_b': 0.7, 'tau_phi': 1.0,
+                    'tau_a': 2.5, 'tau_b': 0.7, 'tau_phi': 2.0,
                     'bc_wall': 'halfbb',
                     'periodic_x': True, 'periodic_y': True,'periodic_z': True}
         settings.update(defaults)
 
         opts = []
-        opts.append(optparse.make_option('--force', dest='force', type='float', default=6.0e-6))
+        opts.append(optparse.make_option('--force', dest='force', type='float', default=0.000015))
         opts.append(optparse.make_option('--iwidth', dest='iwidth', type='int', default=5))
 
         lbm.BinaryFluidFreeEnergy.__init__(self, geo_class, options=opts, defaults=settings)

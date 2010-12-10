@@ -177,14 +177,15 @@ void DynamicsBGK::collide_stream(int iX,int iY,int iZ)
 
 	//Omega calculation
 	double tau_temp=tau_gas+(phase_temp+1.0)/2.0*(tau_liq-tau_gas);
-	double omega_temp=1.0/tau_temp;
-
+	double omega_rho=1.0/tau_temp;
+	double omega_phi=1.0/tau_phi;
+	
     //Force calculation
     double sum_force=0.0;
     double force_pop[NPOP];
     for (int k=1;k<NPOP;k++)
     {
-        force_pop[k]=(1.0-0.5*omega_temp)*weights[k]*(force_x*((cx[k]-ux_temp)+3.0*cx[k]*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp))+
+        force_pop[k]=(1.0-0.5*omega_rho)*weights[k]*(force_x*((cx[k]-ux_temp)+3.0*cx[k]*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp))+
                 force_y*((cy[k]-uy_temp)+3.0*cy[k]*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp))+
                 force_z*((cz[k]-uz_temp)+3.0*cz[k]*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp)));
 
@@ -196,8 +197,8 @@ void DynamicsBGK::collide_stream(int iX,int iY,int iZ)
 	for (int k=0; k<NPOP; k++)
 	{
 		//cout<<"Increment="<<-omega*(lattice->f[counter*NPOP+k]-feq[k])<<"\n";
-		lattice->f[counter*NPOP+k]+=-omega_temp*(lattice->f[counter*NPOP+k]-feq[k])+force_pop[k];
-		lattice->g[counter*NPOP+k]+=-omega_temp*(lattice->g[counter*NPOP+k]-geq[k])+force_pop[k];
+		lattice->f[counter*NPOP+k]+=-omega_rho*(lattice->f[counter*NPOP+k]-feq[k])+force_pop[k];
+		lattice->g[counter*NPOP+k]+=-omega_phi*(lattice->g[counter*NPOP+k]-geq[k]);
 	}
 
 	//Streaming procedure (separate loop for normal)
@@ -219,6 +220,7 @@ DynamicsBGK::DynamicsBGK(Solver* _solver,ParamsList _params):
 	aconst(params("aconst").value<double>()),
 	kconst(params("kconst").value<double>()),
 	gammaconst(params("gammaconst").value<double>()),
+	tau_phi(params("tau_phi").value<double>()),
 	tau_liq(params("tau_liq").value<double>()),
 	tau_gas(params("tau_gas").value<double>()),
 	force_x(params("force_x").value<double>()),

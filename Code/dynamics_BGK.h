@@ -22,6 +22,7 @@ class DynamicsBGK:public Dynamics
     double aconst;
     double kconst;
     double gammaconst;
+    double tau_phi;
     double tau_liq;
     double tau_gas;
     double force_x;
