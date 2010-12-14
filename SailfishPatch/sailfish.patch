@@ -1,0 +1,290 @@
+diff --git a/sailfish/geo.py b/sailfish/geo.py
+index bd57950..821bd10 100644
+--- a/sailfish/geo.py
++++ b/sailfish/geo.py
+@@ -73,6 +73,7 @@ class LBMGeo(object):
+         return (code >> self._param_shift,
+                 code & ((1 << (self._param_shift+1)) - 1))
+ 
++    # TODO(mjanusz): This should return a named tuple.
+     @classmethod
+     def _decode_node(cls, code):
+         """Decode an entry from the map of nodes.
+@@ -567,7 +568,7 @@ class LBMGeo2D(LBMGeo):
+                 # periodic.
+                 if vec.dot(vec) == 1:
+                     orientation[
+-                            numpy.logical_and(self.map == self.NODE_WALL,
++                            numpy.logical_and(self.map != self.NODE_FLUID,
+                                 a == self.NODE_FLUID)] = self.sim.grid.vec_to_dir(list(vec))
+ 
+             self.map[(cnt == self.sim.grid.Q)] = self.NODE_UNUSED
+@@ -629,7 +630,7 @@ class LBMGeo3D(LBMGeo):
+                 # periodic.
+                 if vec.dot(vec) == 1:
+                     orientation[
+-                            numpy.logical_and(self.map == self.NODE_WALL,
++                            numpy.logical_and(self.map != self.NODE_FLUID,
+                                 a == self.NODE_FLUID)] = self.sim.grid.vec_to_dir(list(vec))
+ 
+             self.map[(cnt == self.sim.grid.Q)] = self.NODE_UNUSED
+diff --git a/sailfish/lbm.py b/sailfish/lbm.py
+index c9fd9f1..68af291 100644
+--- a/sailfish/lbm.py
++++ b/sailfish/lbm.py
+@@ -605,6 +605,10 @@ class LBMSim(object):
+         ctx['image_fields'] = self.image_fields
+         ctx['precision'] = self.options.precision
+ 
++        # TODO: Find a more general way of specifying whether sentinels are
++        # necessary.
++        ctx['propagation_sentinels'] = (self.options.bc_wall == 'halfbb')
++
+         self._update_ctx(ctx)
+         ctx.update(self.geo.get_defines())
+         ctx.update(self.backend.get_defines())
+@@ -1273,6 +1277,12 @@ class BinaryFluidFreeEnergy(BinaryFluidBase):
+     def _add_options(self, parser, lb_group):
+         super(BinaryFluidFreeEnergy, self)._add_options(parser, lb_group)
+ 
++        lb_group.add_option('--bc_wall_grad_phase', dest='bc_wall_grad_phase',
++            type='float', default=0.0, help='gradient of the phase field at '
++            'the wall; this determines the wetting properties')
++        lb_group.add_option('--bc_wall_grad_order', dest='bc_wall_grad_order', type='int',
++            default=2, help='order of the gradient stencil used for the '
++            'wetting boundary condition at the walls; valid values are 1 and 2')
+         lb_group.add_option('--Gamma', dest='Gamma',
+             help='Gamma parameter', action='store', type='float',
+             default=0.5)
+@@ -1295,6 +1305,8 @@ class BinaryFluidFreeEnergy(BinaryFluidBase):
+         ctx['grids'] = [self.grid, self.grid]
+         ctx['tau_phi'] = self.options.tau_phi
+         ctx['simtype'] = 'free-energy'
++        ctx['bc_wall_grad_phase'] = self.options.bc_wall_grad_phase
++        ctx['bc_wall_grad_order'] = self.options.bc_wall_grad_order
+ 
+     def _prepare_symbols(self):
+         """Additional symbols and coefficients for the free-energy binary liquid model."""
+diff --git a/sailfish/templates/binary_fluid.mako b/sailfish/templates/binary_fluid.mako
+index 94beef2..0622b33 100644
+--- a/sailfish/templates/binary_fluid.mako
++++ b/sailfish/templates/binary_fluid.mako
+@@ -143,41 +143,76 @@ ${kernel} void PrepareMacroFields(
+ 			return;
+ 	%endif
+ 
+-	int igi = gi;
++	Dist fi;
++	float out;
++	getDist(&fi, dist1_in, gi);
++	get0thMoment(&fi, type, orientation, &out);
++	orho[gi] = out;
++
++	int helper_idx = gi;
+ 
+ 	%if simtype == 'free-energy':
+-		// Assume neutral wetting for all walls by setting the density and phase at the
+-		// wall node to mirror that of the neighboring fluid, so that when the density
+-		// gradient is later calculated, it comes out as 0.
++		// Assume neutral wetting for all walls by setting adjusting the phase gradient
++		// near the wall.
+ 		//
+ 		// This wetting boundary condition implementation is as in option 2 in
+ 		// Halim Kusumaatmaja's PhD thesis, p.18.
+ 		if (isWallNode(type)) {
+-			if (0) { ; }
+-			%for dir in grid.dir2vecidx.keys():
+-				else if (orientation == ${dir}) {
+-					%if dim == 3:
+-						igi += ${rel_offset(*(2*grid.dir_to_vec(dir)))};
+-					%else:
+-						## rel_offset() needs a 3-vector, so make the z-coordinate 0
+-						igi += ${rel_offset(*(list(2*grid.dir_to_vec(dir)) + [0]))};
+-					%endif
+-				}
+-			%endfor
++			switch (orientation) {
++				%for dir in grid.dir2vecidx.keys():
++					## Symbols used on the schematics below:
++					##
++					## W: wall node (current node, pointed to by 'gi')
++					## F: fluid node
++					## |: actual location of the wall
++					## .: space between fluid nodes
++					## x: node from which data is read
++					## y: node to which data is being written
++					##
++					## The schematics assume a bc_wall_grad_order of 2.
++					case ${dir}: {
++						## Full BB: F . F | W
++						##          x ----> y
++						%if bc_wall == 'fullbb':
++							%if dim == 3:
++								helper_idx += ${rel_offset(*(bc_wall_grad_order*grid.dir_to_vec(dir)))};
++							%else:
++								## rel_offset() needs a 3-vector, so make the z-coordinate 0
++								helper_idx += ${rel_offset(*(list(bc_wall_grad_order*grid.dir_to_vec(dir)) + [0]))};
++							%endif
++						## Full BB: F . W | U
++						##          x ----> y
++						%elif bc_wall == 'halfbb' and bc_wall_grad_order == 1:
++							%if dim == 3:
++								helper_idx -= ${rel_offset(*(grid.dir_to_vec(dir)))};
++							%else:
++								helper_idx -= ${rel_offset(*(list(*grid.dir_to_vec(dir)) + [0]))};
++							%endif
++						%else:
++							WETTING_BOUNDARY_CONDITIONS_UNSUPPORTED_FOR_${bc_wall}_AND_GRAD_ORDER_${bc_wall_grad_order}
++						%endif
++					}
++				%endfor
++			}
+ 		}
+ 	%endif
+ 
+-	// cache the distributions in local variables
+-	Dist fi;
+-	float out;
+-
+-	getDist(&fi, dist1_in, igi);
+-	get0thMoment(&fi, type, orientation, &out);
+-	orho[gi] = out;
+-
+-	getDist(&fi, dist2_in, igi);
+-	get0thMoment(&fi, type, orientation, &out);
+-	ophi[gi] = out;
++	%if bc_wall == 'fullbb':
++		getDist(&fi, dist2_in, helper_idx);
++		get0thMoment(&fi, type, orientation, &out);
++		if (helper_idx != gi) {
++			ophi[gi] = out - (${bc_wall_grad_order*bc_wall_grad_phase});
++		} else {
++			ophi[gi] = out;
++		}
++	%elif bc_wall == 'halfbb':
++		getDist(&fi, dist2_in, gi);
++		get0thMoment(&fi, type, orientation, &out);
++		ophi[gi] = out;
++		if (helper_idx != gi) {
++			ophi[gi] = out - (${bc_wall_grad_order*bc_wall_grad_phase});
++		}
++	%endif
+ }
+ 
+ ${kernel} void CollideAndPropagate(
+diff --git a/sailfish/templates/boundary.mako b/sailfish/templates/boundary.mako
+index fd3b682..ddca7ed 100644
+--- a/sailfish/templates/boundary.mako
++++ b/sailfish/templates/boundary.mako
+@@ -440,7 +440,7 @@ ${device_func} inline void getMacro(Dist *fi, int ncode, int node_type, int orie
+ }
+ 
+ // TODO: Check whether it is more efficient to actually recompute
+-// node_type and orientation instead of paasing them as variables.
++// node_type and orientation instead of passing them as variables.
+ ${device_func} inline void postcollisionBoundaryConditions(Dist *fi, int ncode, int node_type, int orientation, float *rho, float *v0, int gi, ${global_ptr} float *dist_out)
+ {
+ 	%if bc_wall == 'halfbb':
+diff --git a/sailfish/templates/propagation.mako b/sailfish/templates/propagation.mako
+index 275349e..566ace1 100644
+--- a/sailfish/templates/propagation.mako
++++ b/sailfish/templates/propagation.mako
+@@ -89,11 +89,13 @@
+ 	%endif
+ </%def>
+ 
++// Propagate distributions using global memory only.
++// TODO: This function is DEPRECATED and should be removed.
+ <%def name="propagate2(dist_out, dist_in='fi')">
+ 	// update the 0-th direction distribution
+ 	${dist_out}[gi] = ${dist_in}.fC;
+ 
+-	// E propagation in shared memory
++	// E propagation in global memory
+ 	if (gx < ${lat_nx-1}) {
+ 		${prop_block_bnd(dist_out, dist_in, 1, 'prop_global')}
+ 	}
+@@ -107,7 +109,7 @@
+ 	// Propagation in directions orthogonal to the X axis (global memory)
+ 	${prop_block_bnd(dist_out, dist_in, 0, 'prop_global')}
+ 
+-	// W propagation in shared memory
++	// W propagation in global memory
+ 	if (gx > 0) {
+ 		${prop_block_bnd(dist_out, dist_in, -1, 'prop_global')}
+ 	}
+@@ -119,10 +121,22 @@
+ 	%endif
+ </%def>
+ 
++// Propagate distributions using a 1D shared memory array to make the propagation
++// in the X direction more efficient.
+ <%def name="propagate(dist_out, dist_in='fi')">
+-	// update the 0-th direction distribution
++	<%
++		first_prop_dist = grid.idx_name[sym.get_prop_dists(grid, 1)[0]]
++	%>
++
++	// Update the 0-th direction distribution
+ 	${dist_out}[gi] = ${dist_in}.fC;
+ 
++	%if propagation_sentinels:
++		// Initialize the shared array with invalid sentinel values.  If the sentinel
++		// value is not subsequently overridden, it will not be propagated.
++		prop_${first_prop_dist}[lx] = -1.0f;
++	%endif
++
+ 	// E propagation in shared memory
+ 	if (gx < ${lat_nx-1}) {
+ 		if (lx < ${block_size-1}) {
+@@ -145,7 +159,11 @@
+ 
+ 	// Save locally propagated distributions into global memory.
+ 	// The leftmost thread is not updated in this block.
+-	if (lx > 0 && gx < ${lat_nx}) {
++	if (lx > 0 && gx < ${lat_nx})
++	%if propagation_sentinels:
++		if (prop_${first_prop_dist}[lx] != -1.0f)
++	%endif
++	{
+ 		${prop_block_bnd(dist_out, dist_in, 1, 'prop_local')}
+ 	}
+ 
+@@ -154,6 +172,11 @@
+ 
+ 	${barrier()}
+ 
++	%if propagation_sentinels:
++		// Refill the propagation buffer with sentinel values.
++		prop_${first_prop_dist}[lx] = -1.0f;
++	%endif
++
+ 	// W propagation in shared memory
+ 	if (lx > 0) {
+ 		%for i in sym.get_prop_dists(grid, -1):
+@@ -173,7 +196,11 @@
+ 	${barrier()}
+ 
+ 	// The rightmost thread is not updated in this block.
+-	if (lx < ${block_size-1} && gx < ${lat_nx-1}) {
++	if (lx < ${block_size-1} && gx < ${lat_nx-1})
++	%if propagation_sentinels:
++		if (prop_${first_prop_dist}[lx] != -1.0f)
++	%endif
++	{
+ 		${prop_block_bnd(dist_out, dist_in, -1, 'prop_local')}
+ 	}
+ </%def>
+diff --git a/sailfish/vis2d.py b/sailfish/vis2d.py
+index 4d997b7..13f587b 100644
+--- a/sailfish/vis2d.py
++++ b/sailfish/vis2d.py
+@@ -509,7 +509,7 @@ class Fluid2DVis(vis.FluidVis):
+                 pygame.time.wait(50)
+                 continue
+ 
+-            if self._impart_velocity:
++            if self.sim.grid.dim == 2 and self._impart_velocity:
+                 self._run_impart_velocity(self._mouse_pos, self._mouse_vel)
+ 
+             self.sim.sim_step(self._tracers)

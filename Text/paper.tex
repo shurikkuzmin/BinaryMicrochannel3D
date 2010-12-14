@@ -167,14 +167,24 @@ the wall gradient as extreme case. The dimnesionalization case is therefore as f
 \begin{equation}
 Ca=\frac{\mu_{liq} U_{bubble}}{\gamma},
 \end{equation}
-therefore let us pick up the same parameters as for the previous case and just change use the
-pressure gradient reduced by $1000$ as $Ca=10$ and $Ca=0.01$ are different. 
-Let us wait for simulation.
+therefore let us pick up the same parameters as for the previous case. To perform simulations we
+started with the following parameters as
+$k=0.04$,$A=0.04$,$\Gamma=1.0$,$N_x\mathrm{x}N_y\mathrm{x}N_z=52\mathrm{x}52\mathrm{x}750$.The
+initialized density was chosen as $w=2.5$ lattice Boltzmann units. For underresolved schemes, the
+pressure gradient doesn't work in the way we expect. Therefore, we take pressure gradient in the
+following way and later on establish the associated capillary number. In this case we can check the
+extreme values for the pressure gradients and the continuous interface methods:
+\begin{equation}
+\frac{\mathrm{d}P}{\mathrm{d}x}=
+\begin{cases}
+1\dots10\mathrm{x}10^{-6}\\
+10,15\dots 100 \mathrm{x}10^{-6}
+\end{cases}
+\end{equation}
 
 \section{Capillary number region}
-
-
-
+The same as in the previous example can help us to identify the necessary capillary regime. The
+most important thing is to establish different accentricity factors.
 \section{Simulation setup}
 
 

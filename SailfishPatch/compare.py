@@ -83,6 +83,14 @@ def read_michal(name):
     #mlab.pipeline.vector_cut_plane(v, mask_points=2, scale_factor=3)
     mlab.show()
 
+def get_zero(prof):
+    zero=0
+    #pylab.figure()
+    #pylab.plot(prof)
+    for counter in range(0, len(prof)/2):
+        if prof[counter]>=0 and prof[counter+1]<0:
+            zero=-(prof[counter]*(counter+1)-prof[counter+1]*counter)/(prof[counter+1]-prof[counter])
+    return zero-0.5
 
 def show(name,slice):
     from enthought.tvtk.api import tvtk
@@ -90,18 +98,17 @@ def show(name,slice):
     import numpy
 
 
-    gridreader = tvtk.XMLStructuredGridReader()
+    gridreader = tvtk.XMLImageDataReader()
     gridreader.file_name = name
     gridreader.update()
 
     grid  = gridreader.output
     data  = grid.point_data
-    points=grid.points
     dims  =grid.dimensions
     dims=dims.tolist()
     dims.reverse()
-    phase= numpy.array(data.get_array("Phase"))
-    velocity=numpy.array(data.get_array("Velocity"))
+    phase= numpy.array(data.get_array("phi"))
+    velocity=numpy.array(data.get_array("v"))
     velx=velocity[:,0]
     vely=velocity[:,1]
     velz=velocity[:,2]
@@ -109,8 +116,16 @@ def show(name,slice):
     velx_numpy =velx.reshape(dims)
     vely_numpy =vely.reshape(dims)
     velz_numpy =velz.reshape(dims)
+    arr=phase_numpy[:,:,slice]
     
-    pylab.imshow(phase_numpy[slice,:,:])
+    pylab.figure()
+    pylab.imshow(arr)
+    pylab.figure()
+    pylab.plot(numpy.diag(arr))
+    print get_zero(numpy.diag(arr))
+    print velz_numpy[27,27,slice]
+    print velx_numpy[27,27,slice]
+    print vely_numpy[27,27,slice]
     pylab.show()
 
 def compare(name_michal,name_alex,slice):
@@ -155,7 +170,7 @@ def compare(name_michal,name_alex,slice):
     pylab.figure()
 
     prof_michal=surf_michal[:,surf_michal.shape[1]/2]
-    prof_alex=surf_michal[:,surf_alex.shape[1]/2]
+    prof_alex=surf_alex[:,surf_alex.shape[1]/2]
     pylab.plot(prof_michal[1:-1])
     pylab.plot(prof_alex[1:-1])
     print numpy.max(numpy.abs(prof_michal-prof_alex))
@@ -165,10 +180,10 @@ def compare(name_michal,name_alex,slice):
 
  
 if __name__=="__main__":
-    name_michal="test1000_0.vti"
-    name_alex="phase01000.vts"
-    #read_michal(name_michal)
-    read_my(name_alex)
+    name_michal="../Temp/asym100000_0.vti"
+    #name_alex="/phase10000.vts"
     slice=350
+    show(name_michal,slice)
+    #read_my(name_alex)
     #compare(name_michal,name_alex,slice)
     #show(name,300)
