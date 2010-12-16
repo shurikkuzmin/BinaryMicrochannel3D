@@ -4,20 +4,23 @@ import subprocess
 import pylab
 import numpy
 import math
+from enthought.tvtk.api import tvtk
+from enthought.mayavi import mlab
+
  
 def Run_Simulations():
     print os.getcwd()
     
     force_init=1e-6;
     #os.mkdir("temp")
-    for i in range(1,11):
-        dir_temp=str(i)
-        os.mkdir(dir_temp)
-        subprocess.call(['cp','asymmetric.py',dir_temp+"/"])
-        os.chdir(dir_temp)
-        force=force_init*i
-        subprocess.call(['./asymmetric.py','--force='+str(force),'--batch','--every=50000','--max_iters=200001','--output=asym','--output_format=vtk'])
-        os.chdir("..")
+    #for i in range(1,11):
+    #    dir_temp=str(i)
+    #    os.mkdir(dir_temp)
+    #    subprocess.call(['cp','asymmetric.py',dir_temp+"/"])
+    #    os.chdir(dir_temp)
+    #    force=force_init*i
+    #    subprocess.call(['./asymmetric.py','--force='+str(force),'--batch','--every=50000','--max_iters=200001','--output=asym','--output_format=vtk'])
+    #    os.chdir("..")
     for i in range(15,105,5):
         dir_temp=str(i)
         os.mkdir(dir_temp)
@@ -34,7 +37,108 @@ def Get_Zero(prof):
     for counter in range(0, len(prof)/2):
         if prof[counter]>=0 and prof[counter+1]<0:
             zero=-(prof[counter]*(counter+1)-prof[counter+1]*counter)/(prof[counter+1]-prof[counter])
-    return (zero-0.5)/(len(prof)-2)
+    return zero-0.5
+
+def Read_Phase(name):
+    gridreader = tvtk.XMLImageDataReader()
+    gridreader.file_name = name
+    gridreader.update()
+
+    grid  = gridreader.output
+    data  = grid.point_data
+    dims  =grid.dimensions
+    dims=dims.tolist()
+    dims.reverse()
+    phase= numpy.array(data.get_array("phi"))
+    velocity=numpy.array(data.get_array("v"))
+    velx=velocity[:,0]
+    vely=velocity[:,1]
+    velz=velocity[:,2]
+    phase_numpy=phase.reshape(dims)
+    velx_numpy =velx.reshape(dims)
+    vely_numpy =vely.reshape(dims)
+    velz_numpy =velz.reshape(dims)
+    return phase_numpy,velx_numpy,vely_numpy,velz_numpy
+def Show_Phase_Slice(phase_numpy,slice):
+    fig=pylab.figure()
+    pylab.imshow(phase_numpy[:,:,slice])
+    
+    
+def Show_Phase(phase_numpy):
+    dims=phase_numpy.shape
+    
+    fig=mlab.figure()
+    src = mlab.pipeline.scalar_field(phase_numpy)
+    mlab.outline()
+    mlab.orientation_axes()
+    #v= mlab.pipeline.vector_field(velx_numpy,vely_numpy,velz_numpy)
+    #vx=mlab.pipeline.scalar_field(velx_numpy)
+    #vy=mlab.pipeline.scalar_field(vely_numpy)
+    #vz=mlab.pipeline.scalar_field(velz_numpy)
+    extract=mlab.pipeline.extract_grid(src)
+    extract.set(x_min=1,x_max=dims[0]-2,y_min=1,y_max=dims[1]-2)
+    surf = mlab.pipeline.contour_surface(extract)
+ 
+    #mlab.pipeline.image_plane_widget(vx, plane_orientation='x_axes', slice_index=250)
+    #mlab.pipeline.vectors(v, mask_points=20, scale_factor=3.)
+    #mlab.pipeline.vector_cut_plane(v, mask_points=2, scale_factor=3)
+
+    
+def Analyze_Phase(name):
+    
+    #parameters of the binary liquid model
+    k=0.04
+    a=0.04
+    
+    phase_numpy,velx_numpy,vely_numpy,velz_numpy=Read_Phase(name)
+    #Show_Phase_Slice(phase_numpy,175)
+    dims=phase_numpy.shape
+
+
+
+    center=phase_numpy[dims[0]/2,dims[1]/2,:]
+    z1 = numpy.min(numpy.where(center < 0.0))
+    z2 = numpy.max(numpy.where(center < 0.0))
+    if z1==0:
+        z2=numpy.min(numpy.where(center>0.0))
+        z1=numpy.max(numpy.where(center>0.0))+dims[2]
+    print z1,z2
+    
+    mid =((z1+z2)/2)%dims[2]
+    print mid
+    slice=phase_numpy[:,:,mid]
+    shape=slice.shape
+    prof_axis=slice[shape[0]/2,:]
+    prof_diag=numpy.diag(slice)
+    
+    axis_zero=(1.0-Get_Zero(prof_axis)/(0.5*(shape[1]-2)))
+    diag_zero=(math.sqrt(2)-Get_Zero(prof_diag)/(0.5*(shape[1]-2)))
+    
+    print "Velx",velx_numpy[dims[0]/2,dims[1]/2,mid]
+    print "Vely",vely_numpy[dims[0]/2,dims[1]/2,mid]
+    print "Velz",velz_numpy[dims[0]/2,dims[1]/2,mid]
+    
+    #Calculation of the capillary number
+    capillary=velx_numpy[dims[0]/2,dims[1]/2,mid]*2.0/3.0/sqrt(8.0*k*a/9.0)    
+    pylab.figure()
+    pylab.imshow(phase_numpy[:,:,mid])
+    pylab.figure()
+    pylab.plot(prof_axis)
+    pylab.figure()
+    pylab.plot(prof_diag)
+    #mlab.show()
+    
+def Analyze_Consequence():
+    print os.getcwd()
+    for i in range(1,3):
+        dir_temp=str(i)
+        os.chdir(dir_temp)
+        Analyze_Phase("asym200000_0.vti")
+        
+        
+        #Calculate the capillary number
+        os.chdir("..")
+    pylab.show()    
 
 def Analyze_Simulations():
     from numpy import genfromtxt
@@ -218,7 +322,9 @@ def Analyze_Velocities():
 
 if __name__=="__main__":
     
-    Run_Simulations()
+    Analyze_Consequence()
+    #Analyze_Phase("100/asym200000_0.vti")
+    #Run_Simulations()
     #Analyze_Simulations()    
     #Analyze_Velocities()
     #Analyze_Bubble()
