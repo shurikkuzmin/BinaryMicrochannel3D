@@ -1,0 +1,13 @@
+diff --git a/sailfish/templates/binary_fluid.mako b/sailfish/templates/binary_fluid.mako
+index d64cf89..8634182 100644
+--- a/sailfish/templates/binary_fluid.mako
++++ b/sailfish/templates/binary_fluid.mako
+@@ -211,7 +211,7 @@ ${kernel} void PrepareMacroFields(
+ 		get0thMoment(&fi, type, orientation, &out);
+ 		ophi[gi] = out;
+ 		if (helper_idx != gi) {
+-			ophi[gi] = out - (${bc_wall_grad_order*bc_wall_grad_phase});
++			ophi[helper_idx] = out - (${bc_wall_grad_order*bc_wall_grad_phase});
+ 		}
+ 	%endif
+ }

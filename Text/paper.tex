@@ -157,23 +157,16 @@ The film thickness as it is seen from the picture is taken as $70$ percent of th
 Therefore the initalization width is $0.15*50=7.5$. 
 
 \section{Non-axisymmetric case}
-That could be fucking difficult. For example according to \cite{heil-threedim} for the capillary
+For example according to \cite{heil-threedim} for the capillary
 number $Ca=0.01$, the radiuses converge as $r_h=0.99$ and $r_d=1.1$. Therefore one needs to resolve
 as the $0.5\%$ of whole channel width to see the difference. That certainly implies so large grid
 that can kill the simulation at least $200x200x3000$. However, we can refer to artificially made
 interface as $1-2$ lattice Boltzmann units but keeping the capillary number as it is required. In
-this case we can refer like we can't resolve the interface but we can certainly to attribute it to
-the wall gradient as extreme case. The dimnesionalization case is therefore as follows:
-\begin{equation}
-Ca=\frac{\mu_{liq} U_{bubble}}{\gamma},
-\end{equation}
-therefore let us pick up the same parameters as for the previous case. To perform simulations we
-started with the following parameters as
-$k=0.04$,$A=0.04$,$\Gamma=1.0$,$N_x\mathrm{x}N_y\mathrm{x}N_z=52\mathrm{x}52\mathrm{x}750$.The
-initialized density was chosen as $w=2.5$ lattice Boltzmann units. For underresolved schemes, the
-pressure gradient doesn't work in the way we expect. Therefore, we take pressure gradient in the
-following way and later on establish the associated capillary number. In this case we can check the
-extreme values for the pressure gradients and the continuous interface methods:
+this case we can refer like we can't resolve the interface. However, one can check whether
+completely underresolved interfaces can give something good with the continuous interface methods.
+The dimensionalization case is therefore as follows. Instead of starting with the capillary number
+simulations we initialize the initial thickness with $2.5$ lattice boltzmann units, change the
+pressure gradients through the following numbers:
 \begin{equation}
 \frac{\mathrm{d}P}{\mathrm{d}x}=
 \begin{cases}
@@ -181,6 +174,45 @@ extreme values for the pressure gradients and the continuous interface methods:
 10,15\dots 100 \mathrm{x}10^{-6}
 \end{cases}
 \end{equation}
+After performing the simulations we determine the $R_{axis}$, $R_{diag}$ versus calculated
+capillary number
+\begin{equation}
+Ca=\frac{\mu_{liq} U_{bubble}}{\gamma}.
+\end{equation}
+To perform simulations we
+started with the following parameters as
+$k=0.04$,$A=0.04$,$\Gamma=1.0$,$N_x\mathrm{x}N_y\mathrm{x}N_z=52\mathrm{x}52\mathrm{x}750$.
+For underresolved schemes, the pressure gradient doesn't work in the way we expect. Therefore, we
+take pressure gradient in the following way and later on establish the associated capillary number.
+We want to keep track of $R_{diag}$ when the $R_{axis}$ is underresolved. The preliminary results
+for the film thickness measured in the middle of the bubble are shown in Fig.
+\ref{fig:underresolved:capillaries}. 
+\begin{figure}
+\includegraphics[width=0.97\textwidth]{Figures/underresolved_capillaries.eps}
+\caption{The underresolved profiles axis and diagonal radiuses versus capillary numbers. $50$
+percent resolution starts from $Ca=1.0$, which is quite high. One can see it's exactly where
+radiuses converge instead of $Ca=0.04$. However, one can see from simulations Fig.
+\ref{fig:wang:critical:capillary} and Fig.\ref{fig:thickness:variation:ca:ten} the thickness,
+especially for Fig.\ref{fig:thickness:variation:ca:ten}, can significantly variate over a bubble
+length. \label{fig:underresolved:capillaries}}
+\end{figure}
+
+One can see the variation of thickness over the bubble length for the given capillary $Ca=1.06$ in
+Fig. \ref{fig:variation:bubble:ca:one}. One can see that variation over the length can be neglected
+for relatively high $Ca$ numbers.
+\begin{figure}
+\includegraphics[width=0.97\textwidth]{Figures/bubble_length_ca_one.eps}
+\caption{The bubble length variation over for given $Ca=1.06$.
+One can see that there is no such high variation over the bubble
+length. \label{fig:variation:bubble:ca:one}}
+\end{figure}
+
+
+\section{Steady-state case}
+We want to perform understanding of the steady state regime. As well probably it's good idea to
+change domain as well, to reduce the length but to insure enough length of the bubble. The
+steady-state calculations are performed on $52\mathrm{x}52\mathrm{x}750$ with large enough the
+interface. 
 
 \section{Capillary number region}
 The same as in the previous example can help us to identify the necessary capillary regime. The

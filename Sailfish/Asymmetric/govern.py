@@ -6,6 +6,9 @@ import numpy
 import math
 from enthought.tvtk.api import tvtk
 from enthought.mayavi import mlab
+import matplotlib.pyplot as plt
+plt.rcParams["xtick.major.pad"] = 10
+plt.rcParams["ytick.major.pad"] = 10
 
  
 def Run_Simulations():
@@ -112,220 +115,166 @@ def Analyze_Phase(name):
     prof_diag=numpy.diag(slice)
     
     axis_zero=(1.0-Get_Zero(prof_axis)/(0.5*(shape[1]-2)))
-    diag_zero=(math.sqrt(2)-Get_Zero(prof_diag)/(0.5*(shape[1]-2)))
+    diag_zero=(math.sqrt(2.0)-math.sqrt(2.0)*Get_Zero(prof_diag)/(0.5*(shape[1]-2)))
     
-    print "Velx",velx_numpy[dims[0]/2,dims[1]/2,mid]
-    print "Vely",vely_numpy[dims[0]/2,dims[1]/2,mid]
-    print "Velz",velz_numpy[dims[0]/2,dims[1]/2,mid]
+    #print "Velx",velx_numpy[dims[0]/2,dims[1]/2,mid]
+    #print "Vely",vely_numpy[dims[0]/2,dims[1]/2,mid]
+    #print "Velz",velz_numpy[dims[0]/2,dims[1]/2,mid]
     
     #Calculation of the capillary number
-    capillary=velx_numpy[dims[0]/2,dims[1]/2,mid]*2.0/3.0/sqrt(8.0*k*a/9.0)    
-    pylab.figure()
-    pylab.imshow(phase_numpy[:,:,mid])
-    pylab.figure()
-    pylab.plot(prof_axis)
-    pylab.figure()
-    pylab.plot(prof_diag)
+    capillary=velx_numpy[dims[0]/2,dims[1]/2,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+    
+    #pylab.figure()
+    #pylab.imshow(phase_numpy[:,:,mid])
+    #pylab.figure()
+    #pylab.plot(prof_axis)
+    #pylab.figure()
+    #pylab.plot(prof_diag)
+
+
+    print axis_zero,diag_zero
+    print "Capillary=",capillary
+
+    return axis_zero,diag_zero,capillary
     #mlab.show()
     
 def Analyze_Consequence():
-    print os.getcwd()
-    for i in range(1,3):
+    ax_zeros=[]
+    diag_zeros=[]
+    capillaries=[]
+    for i in range(15,105,5):
         dir_temp=str(i)
         os.chdir(dir_temp)
-        Analyze_Phase("asym200000_0.vti")
-        
-        
+        print os.getcwd()
+        axis_zero, diag_zero, capillary=Analyze_Phase("asym200000_0.vti")
+        ax_zeros.append(axis_zero)
+        diag_zeros.append(diag_zero)
+        capillaries.append(capillary)
         #Calculate the capillary number
         os.chdir("..")
-    pylab.show()    
+    pylab.plot(capillaries,ax_zeros)
+    pylab.plot(capillaries,diag_zeros)
+    numpy.savetxt("underresolved.txt",zip(capillaries,ax_zeros,diag_zeros))
+    #pylab.show()    
 
-def Analyze_Simulations():
-    from numpy import genfromtxt
-    print os.getcwd()
-    capillary_theor=[0.03,0.05,0.08,0.1,0.2,0.4,0.6,0.8]
-    capillary_str=["3","5","8","10","20","40","60","80"]
-    width_theor=[0.04,0.06,0.08,0.1,0.12,0.13,0.15,0.16]
+def Draw_Consequence():
+    #from numpy import genfromtxt
 
-    exam=[2000,2200,2600,2500,1100,950,600,350]
-    good=[0,1,2,3,4,5,6,7]
-    #style=["bo","rH","c<","y>","bs","g^"]
-    #color=["b","r","c","y","b","g"]
-    #style_diff=["b-","r:","c-.","y--","b^","g<"]
+    arr=numpy.loadtxt("underresolved.txt")
+    capillaries=arr[:,0]
+    axis_zeros=arr[:,1]
+    diag_zeros=arr[:,2]
     
-    #fig=pylab.figure()
-    widths=[]
-    velocities=[]
+    #To define later to compare with real stuff
+    #capillary_theor=[0.03,0.05,0.08,0.1,0.2,0.4,0.6,0.8]
+    #capillary_str=["3","5","8","10","20","40","60","80"]
+    #width_theor=[0.04,0.06,0.08,0.1,0.12,0.13,0.15,0.16]
+
     
     #read the giavedoni data (not precise though)
-    giavedoni=genfromtxt("planarcasesolution.csv",delimiter=',',dtype=float)[1:]
+    #giavedoni=genfromtxt("planarcasesolution.csv",delimiter=',',dtype=float)[1:]
 
-
-    for i in range(0, len(capillary_theor)):
-        dir_temp="Results/"+capillary_str[i]
-        #ratio=float(ny[i]-2)/100.0
-        os.chdir(dir_temp)
-        #os.chdir("Force")
-        #pylab.figure()
-        name="capillary200000.npz"
-        array=numpy.load(name)
-        prof=array['phi'][:,exam[i]]
-        #x=numpy.arange(0.0,float(ny[i]))/ratio
-        #pylab.imshow(array['phi'])
-    
-        if i in good:
-            #pylab.plot(prof)
-            widths.append(Get_Zero(prof))
-            vel=array['v'][0]
-            vel_prof=vel[:,exam[i]]
-            velocities.append(vel_prof[len(vel_prof)/2])
-        
-        #pylab.plot(x[0:20],prof[0:20],color[i],linewidth=3)
-        #pylab.plot(x,prof,style_diff[i],markersize=10,linewidth=3)
-        #pylab.figure()
-        #pylab.plot(array[:, 520*i])
-        #pylab.savefig("grid_phase_prof_"+str(49*i)+".eps", dpi=300)
-        #Get_Zero(prof)
-        #extrapolator=UnivariateSpline(array[0:(49*i+2)/2, 600*i], numpy.arange(0, (49*i+2)/2),  k=2)
-        #print extrapolator(0)
-
-        os.chdir("../..")
-    
     fig=pylab.figure()
-    capillaries=numpy.array(velocities)*(2.0/3.0)/math.sqrt(8.0*0.04*0.04/9.0)
-    print "Widths=",widths
-    print "Capillaries=",capillaries
-    print "Velocities",velocities
     
-    pylab.loglog(giavedoni[:,0],giavedoni[:,1]/2.0,"bD-",linewidth=3,markersize=10)
-    pylab.loglog(capillary_theor,width_theor,"ys--",linewidth=3,markersize=10)
-    pylab.loglog(capillaries,widths,"go-",linewidth=3,markersize=10)
-
-    pylab.xlim(0.02,1.5)
-    pylab.ylim(ymin=0.01)
-    numpy.savetxt("capillary.dat",zip(capillaries,widths))
+    #pylab.loglog(giavedoni[:,0],giavedoni[:,1]/2.0,"bD-",linewidth=3,markersize=10)
+    #pylab.loglog(capillary_theor,width_theor,"ys--",linewidth=3,markersize=10)
+    #pylab.loglog(capillaries,widths,"go-",linewidth=3,markersize=10)
+    pylab.plot(capillaries,axis_zeros,"bD-",linewidth=3,markersize=10)
+    pylab.plot(capillaries,diag_zeros,"ys-",linewidth=3,markersize=10)
     
+    #pylab.xlim(0.02,1.5)
+    #pylab.ylim(ymin=0.01)
     fig.subplots_adjust(left=0.15,bottom=0.15)  
-    pylab.xticks(fontsize=20)
-    pylab.yticks(fontsize=20)
+    #pylab.xticks(fontsize=20)
+    #pylab.yticks(fontsize=20)
     pylab.xlabel(r'''$Ca$''',fontsize=30)
-    pylab.ylabel(r'''$\delta$''',fontsize=30)
+    pylab.ylabel(r'''$R_{axis},R_{diag}$''',fontsize=30)
     
     #labels=[r'''$H_{eff}='''+str(value-2)+r'''$''' for value in ny]
-    pylab.legend(["Giavedoni","Heil","Simulations"],loc=4)
+    pylab.legend([r'''$R_{axis}$''',r'''$R_{diag}$'''])
     #pylab.xlim(xmax=15)
-    pylab.savefig("capillaries_comparison.eps",format="EPS",dpi=300)
+    pylab.savefig("underresolved_capillaries.eps",format="EPS",dpi=300)
 
-def Analyze_Bubble():
-    from numpy import genfromtxt
+def Analyze_Bubble(name):
+    #from numpy import genfromtxt
     print os.getcwd()
-    capillary_theor=numpy.array([0.03,0.05,0.08,0.1,0.2,0.4,0.6,0.8])
-    capillary_str=numpy.array(["3","5","8","10","20","40","60","80"])
-    width_theor=[0.04,0.06,0.08,0.1,0.12,0.13,0.15,0.16]
-
-    exam=[2000,2200,2600,2500,1100,950,600,350]
-    good=[0,1,2,3,4,5,6,7]
-    good_value=[1,2,4]
-    style=["b-.","r--","c."]
-    labels=[r'''$Ca='''+ca+r'''$''' for ca in numpy.array(capillary_theor[good_value],dtype=str)]
-    #color=["b","r","c","y","b","g"]
-    #style_diff=["b-","r:","c-.","y--","b^","g<"]
+ 
+ 
+    #parameters of the binary liquid model
+    k=0.04
+    a=0.04
     
-    #fig=pylab.figure()
-    low=[1509,1865,381]
-    high=[2554,2900,1427]
-    widths=[]
-    velocities=[]
+    phase_numpy,velx_numpy,vely_numpy,velz_numpy=Read_Phase(name)
+    #Show_Phase_Slice(phase_numpy,175)
+    dims=phase_numpy.shape
+
+    center=phase_numpy[dims[0]/2,dims[1]/2,:]
+    z1 = numpy.min(numpy.where(center < 0.0))
+    z2 = numpy.max(numpy.where(center < 0.0))
+    if z1==0:
+        z2=numpy.min(numpy.where(center>0.0))+dims[2]
+        z1=numpy.max(numpy.where(center>0.0))
+    print z1,z2
+    mid =((z1+z2)/2)%dims[2]
+    print mid
+ 
+    
+    #print "Velx",velx_numpy[dims[0]/2,dims[1]/2,mid]
+    #print "Vely",vely_numpy[dims[0]/2,dims[1]/2,mid]
+    #print "Velz",velz_numpy[dims[0]/2,dims[1]/2,mid]
+    
+    #Calculation of the capillary number
+    capillary=velx_numpy[dims[0]/2,dims[1]/2,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+    print capillary
+ 
+    radiuses_axis=[]
+    radiuses_diag=[]
+    for z in range(z1+1,z2-1):
+        coor=z%dims[2]
+        slice=phase_numpy[:,:,coor]
+        shape=slice.shape
+
+        prof_axis=slice[shape[0]/2,:]
+        prof_diag=numpy.diag(slice)
+    
+        radiuses_axis.append((1.0-Get_Zero(prof_axis)/(0.5*(shape[1]-2))))
+        radiuses_diag.append((math.sqrt(2.0)-math.sqrt(2.0)*Get_Zero(prof_diag)/(0.5*(shape[1]-2))))
+   
+ 
     fig=pylab.figure()
-    for counter,value in enumerate(good_value):
-        dir_temp="Results/"+capillary_str[value]
-        #ratio=float(ny[i]-2)/100.0
-        os.chdir(dir_temp)
-        #os.chdir("Force")
-        #pylab.figure()
-        name="capillary200000.npz"
-        array=numpy.load(name)
-        thicknesses=[]
-        for coor in range(low[counter],high[counter]):
-            prof=array['phi'][:,coor]
-            thicknesses.append(Get_Zero(prof))
-        #prof=array['phi'][:,exam[i]]
-        #x=numpy.arange(0.0,float(ny[i]))/ratio
-        
-        #pylab.imshow(array['phi'])
+  
+    pylab.plot(radiuses_axis,"bD-",linewidth=3,markersize=7)
+    pylab.plot(radiuses_diag,"ys-",linewidth=3,markersize=7)
     
-        #if i in good:
-            #pylab.plot(prof)
-        #    widths.append(Get_Zero(prof))
-        #    vel=array['v'][0]
-        #    vel_prof=vel[:,exam[i]]
-        #    velocities.append(vel_prof[len(vel_prof)/2])
-        
-        #pylab.plot(x[0:20],prof[0:20],color[i],linewidth=3)
-        #pylab.plot(x,prof,style_diff[i],markersize=10,linewidth=3)
-        #pylab.figure()
-        #pylab.plot(array[:, 520*i])
-        #pylab.savefig("grid_phase_prof_"+str(49*i)+".eps", dpi=300)
-        #Get_Zero(prof)
-        #extrapolator=UnivariateSpline(array[0:(49*i+2)/2, 600*i], numpy.arange(0, (49*i+2)/2),  k=2)
-        #print extrapolator(0)
-        
-        #pylab.figure()
-        delta_x=15.0/(len(thicknesses)-1)
-        x=delta_x*numpy.arange(0,len(thicknesses))*float(len(thicknesses))/3000.0
-        pylab.plot(x,thicknesses,style[counter],linewidth=3)
-
-        os.chdir("../..")
-    
-    pylab.ylim(ymin=0.0,ymax=0.5)
-    pylab.xlim(xmax=5.1)
-
-    leg=pylab.legend(labels)
-    legtext = leg.get_texts() # all the text.Text instance in the legend
-    for text in legtext:
-        text.set_fontsize(30) 
+    #pylab.ylim(ymin=0.0,ymax=0.5)
+    #pylab.xlim(xmax=5.1)
+    pylab.legend([r'''$R_{axis}$''',r'''$R_{diag}$'''],loc=6)
+ 
+    #leg=pylab.legend(labels)
+   # legtext = leg.get_texts() # all the text.Text instance in the legend
+   # for text in legtext:
+    #    text.set_fontsize(30) 
     #set(ltext, fontsize='large') # the legend text fontsize
 
     fig.subplots_adjust(left=0.15,bottom=0.15)  
     pylab.xticks(fontsize=20)
     pylab.yticks(fontsize=20)
     pylab.xlabel(r'''$x$''',fontsize=30)
-    pylab.ylabel(r'''$\delta$''',fontsize=30)
+    pylab.ylabel(r'''$R_{axis},R_{diag}$''',fontsize=30)
     
     #labels=[r'''$H_{eff}='''+str(value-2)+r'''$''' for value in ny]
     #pylab.legend(["Simulations","Giavedoni","Heil"],loc=4)
     #pylab.xlim(xmax=15)
-    pylab.savefig("bubble_length.eps",format="EPS",dpi=300)
+    pylab.savefig("bubble_length_ca_one.eps",format="EPS",dpi=300)
 
-
-
-def Analyze_Velocities():
-    print os.getcwd()
-    ny=[102,127,152,177,202,227]
-    nx=[1501,1876,2251,2626,3001,3376]
-
-    for i in range(0, len(ny)):
-        dir_temp="Results/"+str(ny[i])
-        ratio=float(ny[i]-2)/100.0
-        os.chdir(dir_temp)
-        #os.chdir("Force")
-        name="grid"+str(200000+50000*i)+".npz"
-        array=numpy.load(name)
-        ux=array['v'][0]
-        #print ux.shape
-        prof=ux[:,int(1400*ratio)]
-        #pylab.figure()
-        #pylab.plot(prof)
-        print prof[len(prof)/2]
-        os.chdir("../..")
 
 
 if __name__=="__main__":
     
-    Analyze_Consequence()
-    #Analyze_Phase("100/asym200000_0.vti")
+    #Draw_Consequence()
+    #Analyze_Phase("15/asym200000_0.vti")
     #Run_Simulations()
     #Analyze_Simulations()    
     #Analyze_Velocities()
-    #Analyze_Bubble()
-    #pylab.show()
+    Analyze_Bubble("75/asym200000_0.vti")
+    pylab.show()
