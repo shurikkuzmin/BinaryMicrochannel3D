@@ -82,14 +82,29 @@ void DynamicsBGK<D>::updateFields(int iX,int iY,int iZ)
 
 
     double phase_temp=0.0, dense_temp=0.0, ux_temp=0.0, uy_temp=0.0, uz_temp=0.0;
-	for (int k=0;k<D::NPOP;k++)
-	{
-		dense_temp+=lattice->f[counter*D::NPOP+k];
-		phase_temp+=lattice->g[counter*D::NPOP+k];
-		ux_temp+=lattice->f[counter*D::NPOP+k]*D::cx[k];
-		uy_temp+=lattice->f[counter*D::NPOP+k]*D::cy[k];
-		uz_temp+=lattice->f[counter*D::NPOP+k]*D::cz[k];
-	}
+	double * f_temp=&lattice->f[counter*D::NPOP];
+	double * g_temp=&lattice->g[counter*D::NPOP];
+
+	dense_temp=f_temp[0]+f_temp[1]+f_temp[2]+f_temp[3]+f_temp[4]
+                +f_temp[5]+f_temp[6]+f_temp[7]+f_temp[8]+f_temp[9]
+                +f_temp[10]+f_temp[11]+f_temp[12]+f_temp[13]+f_temp[14]+
+                +f_temp[15]+f_temp[16]+f_temp[17]+f_temp[18];
+	phase_temp=g_temp[0]+g_temp[1]+g_temp[2]+g_temp[3]+g_temp[4]
+                +g_temp[5]+g_temp[6]+g_temp[7]+g_temp[8]+g_temp[9]
+                +g_temp[10]+g_temp[11]+g_temp[12]+g_temp[13]+g_temp[14]+
+                +g_temp[15]+g_temp[16]+g_temp[17]+g_temp[18];
+
+    ux_temp=f_temp[1]-f_temp[2]+f_temp[7]-f_temp[8]+f_temp[9]-f_temp[10]+f_temp[15]-f_temp[16]+f_temp[17]-f_temp[18];
+	uy_temp=f_temp[3]-f_temp[4]+f_temp[7]+f_temp[8]-f_temp[9]-f_temp[10]+f_temp[11]-f_temp[12]+f_temp[13]-f_temp[14];
+	uz_temp=f_temp[5]-f_temp[6]+f_temp[11]+f_temp[12]-f_temp[13]-f_temp[14]+f_temp[15]+f_temp[16]-f_temp[17]-f_temp[18];
+	//for (int k=0;k<D::NPOP;k++)
+	//{
+		//dense_temp+=lattice->f[counter*D::NPOP+k];
+		//phase_temp+=lattice->g[counter*D::NPOP+k];
+		//ux_temp+=lattice->f[counter*D::NPOP+k]*D::cx[k];
+		//uy_temp+=lattice->f[counter*D::NPOP+k]*D::cy[k];
+		//uz_temp+=lattice->f[counter*D::NPOP+k]*D::cz[k];
+	//}
 
 	ux_temp=ux_temp/dense_temp;
 	uy_temp=uy_temp/dense_temp;
@@ -157,18 +172,31 @@ void DynamicsBGK<D>::collide_stream(int iX,int iY,int iZ)
 
 	double sum=0.0;
 	double sum_phase=0.0;
+    double ux_temp_sq=ux_temp*ux_temp;
+    double uy_temp_sq=uy_temp*uy_temp;
+    double uz_temp_sq=uz_temp*uz_temp;
+    double uxuy_temp=ux_temp*uy_temp;
+    double uxuz_temp=ux_temp*uz_temp;
+    double uyuz_temp=uy_temp*uz_temp;
+
+    double gradx_temp_sq=gradx_temp*gradx_temp;
+    double grady_temp_sq=grady_temp*grady_temp;
+    double gradz_temp_sq=gradz_temp*gradz_temp;
+    double gradxy_temp=gradx_temp*grady_temp;
+    double gradxz_temp=gradx_temp*gradz_temp;
+    double gradyz_temp=grady_temp*gradz_temp;
 
 	double feq[D::NPOP], geq[D::NPOP];
 	for (int k=1; k<D::NPOP; k++)
 	{
 		feq[k]=D::weights[k]*(pressure_bulk+dense_temp*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp)
-						+1.5*dense_temp*((D::cx[k]*D::cx[k]-1.0/3.0)*ux_temp*ux_temp+(D::cy[k]*D::cy[k]-1.0/3.0)*uy_temp*uy_temp+(D::cz[k]*D::cz[k]-1.0/3.0)*uz_temp*uz_temp
-										 +2.0*(ux_temp*uy_temp*D::cx[k]*D::cy[k]+ux_temp*uz_temp*D::cx[k]*D::cz[k]+uy_temp*uz_temp*D::cy[k]*D::cz[k])))
-		+kconst*(D::wxx[k]*gradx_temp*gradx_temp+D::wyy[k]*grady_temp*grady_temp+D::wzz[k]*gradz_temp*gradz_temp
-				 +D::wxy[k]*gradx_temp*grady_temp+D::wyz[k]*grady_temp*gradz_temp+D::wzx[k]*gradx_temp*gradz_temp);
+						+1.5*dense_temp*(D::qxx[k]*ux_temp_sq+D::qyy[k]*uy_temp_sq+D::qzz[k]*uz_temp_sq
+										 +2.0*(uxuy_temp*D::qxy[k]+uxuz_temp*D::qxz[k]+uyuz_temp*D::qyz[k])))
+		+kconst*(D::wxx[k]*gradx_temp_sq+D::wyy[k]*grady_temp_sq+D::wzz[k]*gradz_temp_sq
+				 +D::wxy[k]*gradxy_temp+D::wyz[k]*gradyz_temp+D::wzx[k]*gradxz_temp);
 		geq[k]=D::weights[k]*(chemical_pot+phase_temp*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp)
-						+1.5*phase_temp*((D::cx[k]*D::cx[k]-1.0/3.0)*ux_temp*ux_temp+(D::cy[k]*D::cy[k]-1.0/3.0)*uy_temp*uy_temp+(D::cz[k]*D::cz[k]-1.0/3.0)*uz_temp*uz_temp
-										 +2.0*(ux_temp*uy_temp*D::cx[k]*D::cy[k]+ux_temp*uz_temp*D::cx[k]*D::cz[k]+uy_temp*uz_temp*D::cy[k]*D::cz[k])));
+						+1.5*phase_temp*(D::qxx[k]*ux_temp_sq+D::qyy[k]*uy_temp_sq+D::qzz[k]*uz_temp_sq
+										 +2.0*(uxuy_temp*D::qxy[k]+uxuz_temp*D::qxz[k]+uyuz_temp*D::qyz[k])));
 
 		sum+=feq[k];
 		sum_phase+=geq[k];

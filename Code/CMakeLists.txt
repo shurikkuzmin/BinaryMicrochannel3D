@@ -12,6 +12,10 @@ OPTION(MYPROJECT_DEBUG
   "Build the project using debugging code and stop for gdb"
   OFF)
 
+OPTION(PERFORMANCE
+  "Build the project using the code for profiling"
+  OFF)
+
 OPTION(WHOLE_PROJECT_DEBUG
   "Build the project using debugging code"
   OFF)
@@ -29,6 +33,11 @@ IF(WHOLE_PROJECT_DEBUG)
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wno-deprecated")
 ENDIF(WHOLE_PROJECT_DEBUG)
 
+IF(PERFORMANCE)
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+ENDIF(PERFORMANCE)
+
+
 IF(MYPROJECT_DEBUG)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -DDEBUG -Wno-deprecated")
 ENDIF(MYPROJECT_DEBUG)
@@ -43,6 +52,5 @@ ENDIF(PERFORMANCE)
 
 
 SET(LIBS vtkCommon vtkIO vtkFiltering)
-ADD_EXECUTABLE(main.out main.cpp mpi_wrapper.cpp mpi_singleton.cpp solver.cpp lattice.cpp dynamics_BGK.cpp
-    dynamics_special.cpp dynamics_simple_BGK.cpp dynamics_simple_special.cpp)
+ADD_EXECUTABLE(main.out main.cpp mpi_wrapper.cpp mpi_singleton.cpp)
 TARGET_LINK_LIBRARIES(main.out ${LIBS})

@@ -6,6 +6,7 @@
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include "solver.h"
+#include "lattice.h"
 #include "dynamics_BGK.h"
 #include "dynamics_special.h"
 #include "dynamics_simple_BGK.h"
@@ -15,6 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "descriptor.h"
 
 template<typename D>
 Solver<D>::Solver(Geometry * _geom,ParamsList _params_list):
