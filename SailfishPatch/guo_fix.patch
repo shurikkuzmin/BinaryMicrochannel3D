@@ -1,0 +1,180 @@
+diff --git a/sailfish/geo.py b/sailfish/geo.py
+index 798896d..f1df8b3 100644
+--- a/sailfish/geo.py
++++ b/sailfish/geo.py
+@@ -58,6 +58,12 @@ class LBMGeo(object):
+         """
+         return type | (misc << cls.NODE_MISC_SHIFT)
+ 
++    # A nodecode contains several pieces of information about a node.  It
++    # consists of 3 bit fields:
++    #   orientation | param_index | type
++    #
++    # The size of 'type' is determined by the NODE_MISC_SHIFT class constant.
++    # The size of 'param_index' is determined by the _param_shift variable.
+     @classmethod
+     def _decode_node_type(cls, code):
+         return (code & cls.NODE_TYPE_MASK)
+@@ -71,7 +77,7 @@ class LBMGeo(object):
+ 
+     def _decode_orientation_and_param(self, code):
+         return (code >> self._param_shift,
+-                code & ((1 << (self._param_shift+1)) - 1))
++                code & ((1 << self._param_shift) - 1))
+ 
+     # TODO(mjanusz): This should return a named tuple.
+     @classmethod
+@@ -448,7 +454,8 @@ class LBMGeo(object):
+             i += 1
+ 
+         self._num_pressures = i
+-        self._param_shift = bitLen(max(self._num_velocities, self._num_pressures))
++        self._param_shift = bitLen(
++                max(self._num_velocities, self._num_pressures))
+         self._params = ret
+ 
+     # FIXME: This method implicitly assumes that the object can be enclosed in a box
+diff --git a/sailfish/sym.py b/sailfish/sym.py
+index 0001092..b216c70 100644
+--- a/sailfish/sym.py
++++ b/sailfish/sym.py
+@@ -941,7 +941,8 @@ class KernelCodePrinter(CCodePrinter):
+         else:
+             return super(KernelCodePrinter, self)._print_Function(expr)
+ 
+-def cexpr(sim, incompressible, pointers, ex, rho, aliases=True, vectors=False):
++def cexpr(sim, incompressible, pointers, ex, rho, aliases=True, vectors=False,
++          phi=None):
+     """Convert a SymPy expression into a string containing valid C code.
+ 
+     :param sim: the main simulation class (descendant of :class:`LBMSim`)
+@@ -968,6 +969,10 @@ def cexpr(sim, incompressible, pointers, ex, rho, aliases=True, vectors=False):
+     if rho is None:
+         rho = S.rho
+ 
++    if type(phi) is str:
++        phi = Symbol(phi)
++        t = t.subs(S.phi, phi)
++
+     if incompressible:
+         t = t.subs(S.rho0, 1)
+     else:
+diff --git a/sailfish/templates/binary_fluid.mako b/sailfish/templates/binary_fluid.mako
+index 8634182..b47f31b 100644
+--- a/sailfish/templates/binary_fluid.mako
++++ b/sailfish/templates/binary_fluid.mako
+@@ -136,13 +136,20 @@ ${kernel} void PrepareMacroFields(
+ 
+ 	int orientation = decodeNodeOrientation(ncode);
+ 
+-	// Do not update the macroscopic fields for wall nodes which do not
+-	// represent any fluid.
+ 	%if simtype == 'shan-chen' and not bc_wall_.wet_nodes:
++		// Do not update the macroscopic fields for wall nodes which do not
++		// represent any fluid.
+ 		if (isWallNode(type))
+ 			return;
+ 	%endif
+ 
++	%if bc_pressure == 'guo':
++		// Do not not update the fields for pressure nodes, where by definition
++		// they are constant.
++		if (isPressureNode(type))
++			return;
++	%endif
++
+ 	Dist fi;
+ 	float out;
+ 	getDist(&fi, dist1_in, gi);
+@@ -252,10 +259,16 @@ ${kernel} void CollideAndPropagate(
+ 			switch (orientation) {
+ 				%for dir_ in grid.dir2vecidx.keys():
+ 					case (${dir_}): {
++						## TODO: add a function to calculate the local indices from gi
+ 						%if dim == 2:
+ 							gi += ${rel_offset(*(list(grid.dir_to_vec(dir_)) + [0]))};
++							gx += ${grid.dir_to_vec(dir_)[0]};
++							gy += ${grid.dir_to_vec(dir_)[1]};
+ 						%else:
+ 							gi += ${rel_offset(*(grid.dir_to_vec(dir_)))};
++							gx += ${grid.dir_to_vec(dir_)[0]};
++							gy += ${grid.dir_to_vec(dir_)[1]};
++							gz += ${grid.dir_to_vec(dir_)[2]};
+ 						%endif
+ 						break;
+ 					}
+@@ -313,6 +326,24 @@ ${kernel} void CollideAndPropagate(
+ 	postcollisionBoundaryConditions(&d0, ncode, type, orientation, &g0m0, v, gi, dist1_out);
+ 	postcollisionBoundaryConditions(&d1, ncode, type, orientation, &g1m0, v, gi, dist2_out);
+ 
++	%if bc_pressure == 'guo':
++		if (isPressureNode(type)) {
++			switch (orientation) {
++				%for dir_ in grid.dir2vecidx.keys():
++					case (${dir_}): {
++						## TODO: add a function to calculate the local indices from gi
++						gx -= ${grid.dir_to_vec(dir_)[0]};
++						gy -= ${grid.dir_to_vec(dir_)[1]};
++						%if dim == 3:
++							gz -= ${grid.dir_to_vec(dir_)[2]};
++						%endif
++						break;
++					}
++				%endfor
++			}
++		}
++	%endif
++
+ 	// only save the macroscopic quantities if requested to do so
+ 	if (save_macro == 1) {
+ 		%if simtype == 'shan-chen' and not bc_wall_.wet_nodes:
+diff --git a/sailfish/templates/code_common.mako b/sailfish/templates/code_common.mako
+index cc4389b..5a67a64 100644
+--- a/sailfish/templates/code_common.mako
++++ b/sailfish/templates/code_common.mako
+@@ -2,7 +2,7 @@
+     from sailfish import sym
+ %>
+ 
+-<%def name="cex(ex, pointers=False, rho=None, vectors=False)">
+-${sym.cexpr(sim, incompressible, pointers, ex, rho=rho, vectors=vectors)}
++<%def name="cex(ex, pointers=False, rho=None, vectors=False, phi=None)">
++${sym.cexpr(sim, incompressible, pointers, ex, rho=rho, vectors=vectors, phi=phi)}
+ </%def>
+ 
+diff --git a/sailfish/templates/geo_helpers.mako b/sailfish/templates/geo_helpers.mako
+index 5b8db60..908db1a 100644
+--- a/sailfish/templates/geo_helpers.mako
++++ b/sailfish/templates/geo_helpers.mako
+@@ -80,7 +80,7 @@ ${device_func} inline int decodeNodeOrientation(int nodetype) {
+ }
+ 
+ ${device_func} inline int decodeNodeParam(int nodetype) {
+-	return (nodetype >> ${geo_misc_shift}) & ${(1 << (geo_param_shift+1))-1};
++	return (nodetype >> ${geo_misc_shift}) & ${(1 << geo_param_shift)-1};
+ }
+ 
+ ${device_func} inline int encodeBoundaryNode(int dir_mask, int obj_id) {
+diff --git a/sailfish/templates/relaxation.mako b/sailfish/templates/relaxation.mako
+index 43c9269..0c50481 100644
+--- a/sailfish/templates/relaxation.mako
++++ b/sailfish/templates/relaxation.mako
+@@ -302,10 +302,17 @@ ${device_func} inline void BGK_relaxate(${bgk_args_decl()},
+ 			int node_param = decodeNodeParam(ncode);
+ 			float par_rho;
+ 			${get_boundary_pressure('node_param', 'par_rho')}
++			float par_phi = 1.0f;
++
++			%for local_var in bgk_equilibrium_vars:
++				float ${cex(local_var.lhs)} = ${cex(local_var.rhs, vectors=True, rho='par_rho', phi='par_phi')};
++			%endfor
++
++			tau0 = tau_a;
+ 
+ 			%for i, eq in enumerate(bgk_equilibrium):
+ 				%for feq, idx in eq:
+-					d${i}->${idx} += ${cex(feq, vectors=True, rho='par_rho')};
++					d${i}->${idx} += ${cex(feq, vectors=True, rho='par_rho', phi='par_phi')};
+ 				%endfor
+ 			%endfor
+ 		}

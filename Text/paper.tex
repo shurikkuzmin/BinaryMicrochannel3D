@@ -209,6 +209,34 @@ length. \label{fig:variation:bubble:ca:one}}
 
 
 \section{Steady-state case}
+We performed different simulations to understand a number of steps required for the problem to come
+on the steady-state. The grid to be simulated is $52\mathrm{x}52\mathrm{x}750$ with the initial
+width as $6.5$ lattice Boltzmann units together with $\frac{\mathrm{d}P}{\mathrm{d}x}=3
+\mathrm{x}10^{-5}$. The simulation was performed for $200000$,$400000$,$600000$ and $800000$ time
+iterations. The results are summarised in Table \ref{table:steady:state}. One of the profiles in
+the middle of the bubble is shown in Fig. \ref{fig:steady:state:profile:example}.
+\begin{table}
+\begin{tabular}{|c|c|c|c|}
+$N_{iter}$&$Ca$&$R_{axis}$&$R_{diag}$\\
+$200000$&$0.285$&$0.873$&$0.921$\\
+$400000$&$0.274$&$0.873$&$0.920$\\
+$600000$&$0.263$&$0.872$&$0.919$\\
+$800000$&$0.252$&$0.873$&$0.917$\\
+\end{tabular}
+\caption{Results for the steady-state case. One can see that $200000$ steps are enough to structure
+the bubble. However, the interface is underresolved. That could be the influence of the bubble
+length.\label{table:steady:state}}
+\end{table}
+\begin{figure}
+\includegraphics[width=0.47\textwidth]{Figures/bullet.eps}\hfill
+\includegraphics[width=0.47\textwidth]{Figures/example_crossection.eps}\\
+\caption{Slice in the middle of the bubble and
+three-dimensional example. \label{fig:steady:state:profile:example}}
+\end{figure}
+
+
+To understand the influence of the steady-state case
+For the steady-state regime the following parameters were obtained
 We want to perform understanding of the steady state regime. As well probably it's good idea to
 change domain as well, to reduce the length but to insure enough length of the bubble. The
 steady-state calculations are performed on $52\mathrm{x}52\mathrm{x}750$ with large enough the

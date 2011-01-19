@@ -1,9 +1,9 @@
 #include "dynamics_special.h"
 #include "solver.h"
 template<typename D>
-DynamicsSpecial<D>::DynamicsSpecial(Solver<D> * _solver, ParamsList _params_list):
+DynamicsSpecial<D>::DynamicsSpecial(Solver * _solver, ParamsList _params_list):
     DynamicsBGK<D>(_solver,_params_list),
-    phase_gradient(_params_list("phase_gradient").value<double>())
+    phase_gradient(this->params("phase_gradient").value<double>())
 {
     normx=0.0;
     normy=0.0;
@@ -17,17 +17,17 @@ DynamicsSpecial<D>::DynamicsSpecial(Solver<D> * _solver, ParamsList _params_list
     iY=this->solver->iterY;
     iZ=this->solver->iterZ;
 
-    for(int k=0; k<D::NPOP; k++)
+    for(int k=0; k<NPOP; k++)
     {
-        int iX2=(iX+D::cx[k]+NX)%NX;
-        int iY2=(iY+D::cy[k]+NY)%NY;
-        int iZ2=(iZ+D::cz[k]+NZ)%NZ;
+        int iX2=(iX+Solver::cx[k]+NX)%NX;
+        int iY2=(iY+Solver::cy[k]+NY)%NY;
+        int iZ2=(iZ+Solver::cz[k]+NZ)%NZ;
         Geometry * geom=this->solver->geom;
         if (geom->getType(iX2,iY2,iZ2)==SolidNode)
         {
-            normx+=double(D::cx[k]);
-            normy+=double(D::cy[k]);
-            normz+=double(D::cz[k]);
+            normx+=double(cx[k]);
+            normy+=double(cy[k]);
+            normz+=double(cz[k]);
             directions.push_back(k);
         }
     }
@@ -38,14 +38,16 @@ DynamicsSpecial<D>::DynamicsSpecial(Solver<D> * _solver, ParamsList _params_list
     normy/=norm;
     normz/=norm;
 
-    wall_densities.resize(D::NPOP);
+    wall_densities.resize(NPOP);
 
+    int compliment_temp[19]={0, 2, 1, 4, 3, 6, 5, 10, 9, 8, 7, 14, 13, 12, 11, 18, 17, 16, 15};
+    for (int k=0;k<NPOP;k++)
+        compliment[k]=compliment_temp[k];
 }
 
-template<typename D>
-void DynamicsSpecial<D>::update_all_gradients(int iX,int iY, int iZ)
+void DynamicsSpecial::update_all_gradients(int iX,int iY, int iZ)
 {
-    Lattice<D> * lattice=this->solver->getLattice();
+    Lattice * lattice=this->solver->getLattice();
 	int zbegin=lattice->getZbegin();
 	int zend=lattice->getZend();
 
@@ -73,9 +75,9 @@ void DynamicsSpecial<D>::update_all_gradients(int iX,int iY, int iZ)
             int sign=1-2*(k%2);
 
             double phase_temp;
-            int iZ2=iZ+D::cz[k];
-            int iY2=(iY+D::cy[k]+NY)%NY;
-            int iX2=(iX+D::cx[k]+NX)%NX;
+            int iZ2=iZ+cz[k];
+            int iY2=(iY+cy[k]+NY)%NY;
+            int iX2=(iX+cx[k]+NX)%NX;
             if (iZ2==-1)
                 phase_temp=lattice->phase_bottom[iY2*NX+iX2];
             else
@@ -88,13 +90,12 @@ void DynamicsSpecial<D>::update_all_gradients(int iX,int iY, int iZ)
     }
 }
 
-template<typename D>
-void DynamicsSpecial<D>::update_wall_phase(int iX,int iY,int iZ)
+void DynamicsSpecial::update_wall_phase(int iX,int iY,int iZ)
 {
 
     //TODO: that's not a proper implementation, especially of wall nodes,
     //      but keep it for a moment.
-    Lattice<D> * lattice=this->solver->getLattice();
+    Lattice * lattice=this->solver->getLattice();
 	int zbegin=lattice->getZbegin();
 	int zend=lattice->getZend();
 
@@ -114,12 +115,12 @@ void DynamicsSpecial<D>::update_wall_phase(int iX,int iY,int iZ)
     double phasey=0.0;
     double phasez=0.0;
 
-    for(int k=0;k<D::NPOP;k++)
+    for(int k=0;k<NPOP;k++)
     {
         double phase_temp;
-		int iZ2=iZ+D::cz[k];
-		int iY2=(iY+D::cy[k]+NY)%NY;
-		int iX2=(iX+D::cx[k]+NX)%NX;
+		int iZ2=iZ+cz[k];
+		int iY2=(iY+cy[k]+NY)%NY;
+		int iX2=(iX+cx[k]+NX)%NX;
 		if (iZ2==-1)
 			phase_temp=lattice->phase_bottom[iY2*NX+iX2];
 		else
@@ -140,7 +141,7 @@ void DynamicsSpecial<D>::update_wall_phase(int iX,int iY,int iZ)
 
         for (int k=0;k<directions.size();k++)
         {
-            if (D::cx[directions[k]]==-dirx)
+            if (cx[directions[k]]==-dirx)
             {
                 wall_densities[directions[k]]=phasex;
             }
@@ -157,7 +158,7 @@ void DynamicsSpecial<D>::update_wall_phase(int iX,int iY,int iZ)
 
         for (int k=0;k<directions.size();k++)
         {
-            if (D::cy[directions[k]]==-diry)
+            if (cy[directions[k]]==-diry)
             {
                 wall_densities[directions[k]]=phasey;
             }
@@ -186,7 +187,7 @@ void DynamicsSpecial<D>::update_wall_phase(int iX,int iY,int iZ)
 			}
         for (int k=0;k<directions.size();k++)
         {
-            if (D::cz[directions[k]]==-dirz)
+            if (cz[directions[k]]==-dirz)
             {
                 //cout<<"The density in the wall with the "<<k<<"directions is "<<wall_densities[directions[k]]<<"\n";
 				//cout<<"The gradient is here\n";
@@ -198,10 +199,9 @@ void DynamicsSpecial<D>::update_wall_phase(int iX,int iY,int iZ)
 
 }
 
-template<typename D>
-void DynamicsSpecial<D>::init(int iX,int iY,int iZ)
+void DynamicsSpecial::init(int iX,int iY,int iZ)
 {
-	Lattice<D> * lattice=this->solver->getLattice();
+	Lattice * lattice=this->solver->getLattice();
 
 	int zbegin=lattice->getZbegin();
 	int zend=lattice->getZend();
@@ -259,9 +259,9 @@ void DynamicsSpecial<D>::init(int iX,int iY,int iZ)
     laplace_temp=grad[1]-grad[2]+grad[3]-grad[4]+grad[5]-grad[6];
 
 	//Force addition
-    lattice->ux[counter]+=this->force_x/(2.0*lattice->rho[counter]);
- 	lattice->uy[counter]+=this->force_y/(2.0*lattice->rho[counter]);
- 	lattice->uz[counter]+=this->force_z/(2.0*lattice->rho[counter]);
+    lattice->ux[counter]+=force_x/(2.0*lattice->rho[counter]);
+ 	lattice->uy[counter]+=force_y/(2.0*lattice->rho[counter]);
+ 	lattice->uz[counter]+=force_z/(2.0*lattice->rho[counter]);
 
 	double phase_temp=lattice->phase[counter];
 	double dense_temp=lattice->rho[counter];
@@ -274,33 +274,32 @@ void DynamicsSpecial<D>::init(int iX,int iY,int iZ)
 	double sum=0.0;
 	double sum_phase=0.0;
 	double phase_square=phase_temp*phase_temp;
-	double pressure_bulk=dense_temp/3.0+this->aconst*(-0.5*phase_square+3.0/4.0*phase_square*phase_square)-this->kconst*phase_temp*laplace_temp;
-	double chemical_pot=this->gammaconst*(this->aconst*(-phase_temp+phase_temp*phase_temp*phase_temp)-this->kconst*laplace_temp);
+	double pressure_bulk=dense_temp/3.0+aconst*(-0.5*phase_square+3.0/4.0*phase_square*phase_square)-kconst*phase_temp*laplace_temp;
+	double chemical_pot=gammaconst*(aconst*(-phase_temp+phase_temp*phase_temp*phase_temp)-kconst*laplace_temp);
 
-	for (int k=1; k<D::NPOP; k++)
+	for (int k=1; k<NPOP; k++)
 	{
-		feq=D::weights[k]*(pressure_bulk+dense_temp*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp)
-						+1.5*dense_temp*((D::cx[k]*D::cx[k]-1.0/3.0)*ux_temp*ux_temp+(D::cy[k]*D::cy[k]-1.0/3.0)*uy_temp*uy_temp+(D::cz[k]*D::cz[k]-1.0/3.0)*uz_temp*uz_temp
-										 +2.0*(ux_temp*uy_temp*D::cx[k]*D::cy[k]+ux_temp*uz_temp*D::cx[k]*D::cz[k]+uy_temp*uz_temp*D::cy[k]*D::cz[k])))
-		+this->kconst*(D::wxx[k]*gradx_temp*gradx_temp+D::wyy[k]*grady_temp*grady_temp+D::wzz[k]*gradz_temp*gradz_temp
-				 +D::wxy[k]*gradx_temp*grady_temp+D::wyz[k]*grady_temp*gradz_temp+D::wzx[k]*gradx_temp*gradz_temp);
-		geq=D::weights[k]*(chemical_pot+phase_temp*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp)
-						+1.5*phase_temp*((D::cx[k]*D::cx[k]-1.0/3.0)*ux_temp*ux_temp+(D::cy[k]*D::cy[k]-1.0/3.0)*uy_temp*uy_temp+(D::cz[k]*D::cz[k]-1.0/3.0)*uz_temp*uz_temp
-										 +2.0*(ux_temp*uy_temp*D::cx[k]*D::cy[k]+ux_temp*uz_temp*D::cx[k]*D::cz[k]+uy_temp*uz_temp*D::cy[k]*D::cz[k])));
+		feq=weights[k]*(pressure_bulk+dense_temp*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp)
+						+1.5*dense_temp*((cx[k]*cx[k]-1.0/3.0)*ux_temp*ux_temp+(cy[k]*cy[k]-1.0/3.0)*uy_temp*uy_temp+(cz[k]*cz[k]-1.0/3.0)*uz_temp*uz_temp
+										 +2.0*(ux_temp*uy_temp*cx[k]*cy[k]+ux_temp*uz_temp*cx[k]*cz[k]+uy_temp*uz_temp*cy[k]*cz[k])))
+		+kconst*(wxx[k]*gradx_temp*gradx_temp+wyy[k]*grady_temp*grady_temp+wzz[k]*gradz_temp*gradz_temp
+				 +wxy[k]*gradx_temp*grady_temp+wyz[k]*grady_temp*gradz_temp+wzx[k]*gradx_temp*gradz_temp);
+		geq=weights[k]*(chemical_pot+phase_temp*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp)
+						+1.5*phase_temp*((cx[k]*cx[k]-1.0/3.0)*ux_temp*ux_temp+(cy[k]*cy[k]-1.0/3.0)*uy_temp*uy_temp+(cz[k]*cz[k]-1.0/3.0)*uz_temp*uz_temp
+										 +2.0*(ux_temp*uy_temp*cx[k]*cy[k]+ux_temp*uz_temp*cx[k]*cz[k]+uy_temp*uz_temp*cy[k]*cz[k])));
 		sum+=feq;
 		sum_phase+=geq;
-		lattice->f[counter*D::NPOP+k]=feq;
-		lattice->g[counter*D::NPOP+k]=geq;
+		lattice->f[counter*NPOP+k]=feq;
+		lattice->g[counter*NPOP+k]=geq;
 	}
-	lattice->f[counter*D::NPOP]=dense_temp-sum;
-	lattice->g[counter*D::NPOP]=phase_temp-sum_phase;
+	lattice->f[counter*NPOP]=dense_temp-sum;
+	lattice->g[counter*NPOP]=phase_temp-sum_phase;
 
 }
 
-template<typename D>
-void DynamicsSpecial<D>::collide_stream(int iX,int iY, int iZ)
+void DynamicsSpecial::collide_stream(int iX,int iY, int iZ)
 {
-	Lattice<D> * lattice=this->solver->getLattice();
+	Lattice * lattice=this->solver->getLattice();
 
 	int zbegin=lattice->getZbegin();
 	int zend=lattice->getZend();
@@ -349,24 +348,24 @@ void DynamicsSpecial<D>::collide_stream(int iX,int iY, int iZ)
 	double uy_temp=lattice->uy[counter];
 	double uz_temp=lattice->uz[counter];
 
-	double feq[D::NPOP];
-	double geq[D::NPOP];
+	double feq[NPOP];
+	double geq[NPOP];
 	double sum=0.0;
 	double sum_phase=0.0;
 	double phase_square=phase_temp*phase_temp;
-	double pressure_bulk=dense_temp/3.0+this->aconst*(-0.5*phase_square+3.0/4.0*phase_square*phase_square)-this->kconst*phase_temp*laplace_temp;
-	double chemical_pot=this->gammaconst*(this->aconst*(-phase_temp+phase_temp*phase_temp*phase_temp)-this->kconst*laplace_temp);
+	double pressure_bulk=dense_temp/3.0+aconst*(-0.5*phase_square+3.0/4.0*phase_square*phase_square)-kconst*phase_temp*laplace_temp;
+	double chemical_pot=gammaconst*(aconst*(-phase_temp+phase_temp*phase_temp*phase_temp)-kconst*laplace_temp);
 
-	for (int k=1; k<D::NPOP; k++)
+	for (int k=1; k<NPOP; k++)
 	{
-		feq[k]=D::weights[k]*(pressure_bulk+dense_temp*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp)
-						+1.5*dense_temp*((D::cx[k]*D::cx[k]-1.0/3.0)*ux_temp*ux_temp+(D::cy[k]*D::cy[k]-1.0/3.0)*uy_temp*uy_temp+(D::cz[k]*D::cz[k]-1.0/3.0)*uz_temp*uz_temp
-										 +2.0*(ux_temp*uy_temp*D::cx[k]*D::cy[k]+ux_temp*uz_temp*D::cx[k]*D::cz[k]+uy_temp*uz_temp*D::cy[k]*D::cz[k])))
-		+this->kconst*(D::wxx[k]*gradx_temp*gradx_temp+D::wyy[k]*grady_temp*grady_temp+D::wzz[k]*gradz_temp*gradz_temp
-				 +D::wxy[k]*gradx_temp*grady_temp+D::wyz[k]*grady_temp*gradz_temp+D::wzx[k]*gradx_temp*gradz_temp);
-		geq[k]=D::weights[k]*(chemical_pot+phase_temp*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp)
-						+1.5*phase_temp*((D::cx[k]*D::cx[k]-1.0/3.0)*ux_temp*ux_temp+(D::cy[k]*D::cy[k]-1.0/3.0)*uy_temp*uy_temp+(D::cz[k]*D::cz[k]-1.0/3.0)*uz_temp*uz_temp
-										 +2.0*(ux_temp*uy_temp*D::cx[k]*D::cy[k]+ux_temp*uz_temp*D::cx[k]*D::cz[k]+uy_temp*uz_temp*D::cy[k]*D::cz[k])));
+		feq[k]=weights[k]*(pressure_bulk+dense_temp*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp)
+						+1.5*dense_temp*((cx[k]*cx[k]-1.0/3.0)*ux_temp*ux_temp+(cy[k]*cy[k]-1.0/3.0)*uy_temp*uy_temp+(cz[k]*cz[k]-1.0/3.0)*uz_temp*uz_temp
+										 +2.0*(ux_temp*uy_temp*cx[k]*cy[k]+ux_temp*uz_temp*cx[k]*cz[k]+uy_temp*uz_temp*cy[k]*cz[k])))
+		+kconst*(wxx[k]*gradx_temp*gradx_temp+wyy[k]*grady_temp*grady_temp+wzz[k]*gradz_temp*gradz_temp
+				 +wxy[k]*gradx_temp*grady_temp+wyz[k]*grady_temp*gradz_temp+wzx[k]*gradx_temp*gradz_temp);
+		geq[k]=weights[k]*(chemical_pot+phase_temp*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp)
+						+1.5*phase_temp*((cx[k]*cx[k]-1.0/3.0)*ux_temp*ux_temp+(cy[k]*cy[k]-1.0/3.0)*uy_temp*uy_temp+(cz[k]*cz[k]-1.0/3.0)*uz_temp*uz_temp
+										 +2.0*(ux_temp*uy_temp*cx[k]*cy[k]+ux_temp*uz_temp*cx[k]*cz[k]+uy_temp*uz_temp*cy[k]*cz[k])));
 		sum+=feq[k];
 		sum_phase+=geq[k];
 	}
@@ -374,33 +373,33 @@ void DynamicsSpecial<D>::collide_stream(int iX,int iY, int iZ)
 	feq[0]=dense_temp-sum;
     geq[0]=phase_temp-sum_phase;
 
-	double tau_temp=this->tau_gas+(phase_temp+1.0)/2.0*(this->tau_liq-this->tau_gas);
+	double tau_temp=tau_gas+(phase_temp+1.0)/2.0*(tau_liq-tau_gas);
     double omega_rho=1.0/tau_temp;
-    double omega_phi=1.0/this->tau_phi;
+    double omega_phi=1.0/tau_phi;
 
     //Force calculation
     double sum_force=0.0;
-    double force_pop[D::NPOP];
-    for (int k=1;k<D::NPOP;k++)
+    double force_pop[NPOP];
+    for (int k=1;k<NPOP;k++)
     {
-        force_pop[k]=(1.0-0.5*omega_rho)*D::weights[k]*(this->force_x*((D::cx[k]-ux_temp)+3.0*D::cx[k]*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp))+
- 					this->force_y*((D::cy[k]-uy_temp)+3.0*D::cy[k]*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp))+
- 					this->force_z*((D::cz[k]-uz_temp)+3.0*D::cz[k]*(D::cx[k]*ux_temp+D::cy[k]*uy_temp+D::cz[k]*uz_temp)));
+        force_pop[k]=(1.0-0.5*omega_rho)*weights[k]*(force_x*((cx[k]-ux_temp)+3.0*cx[k]*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp))+
+ 					force_y*((cy[k]-uy_temp)+3.0*cy[k]*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp))+
+ 					force_z*((cz[k]-uz_temp)+3.0*cz[k]*(cx[k]*ux_temp+cy[k]*uy_temp+cz[k]*uz_temp)));
 
         sum_force+=force_pop[k];
     }
     force_pop[0]=-sum_force;
 
 	//Collision procedure
-	for (int k=0; k<D::NPOP; k++)
+	for (int k=0; k<NPOP; k++)
 	{
 		//cout<<"Increment="<<-omega*(lattice->f[counter*NPOP+k]-feq[k])<<"\n";
-		lattice->f[counter*D::NPOP+k]+=-omega_rho*(lattice->f[counter*D::NPOP+k]-feq[k])+force_pop[k];
-		lattice->g[counter*D::NPOP+k]+=-omega_phi*(lattice->g[counter*D::NPOP+k]-geq[k]);
+		lattice->f[counter*NPOP+k]+=-omega_rho*(lattice->f[counter*NPOP+k]-feq[k])+force_pop[k];
+		lattice->g[counter*NPOP+k]+=-omega_phi*(lattice->g[counter*NPOP+k]-geq[k]);
     }
 
 	//Streaming procedure
-	for (int k=0; k<D::NPOP; k++)
+	for (int k=0; k<NPOP; k++)
 	{
    		bool flag=false;
    		for (int j=0;j<directions.size();j++)
@@ -409,18 +408,18 @@ void DynamicsSpecial<D>::collide_stream(int iX,int iY, int iZ)
             {
                 flag=true;
 				//cout<<"BB\n";
-                lattice->f2[counter*D::NPOP+D::compliment[k]]=lattice->f[counter*D::NPOP+k];
-                lattice->g2[counter*D::NPOP+D::compliment[k]]=lattice->g[counter*D::NPOP+k];
+                lattice->f2[counter*NPOP+compliment[k]]=lattice->f[counter*NPOP+k];
+                lattice->g2[counter*NPOP+compliment[k]]=lattice->g[counter*NPOP+k];
 
             }
         }
    		if (!flag)
    		{
-            int iZ2=(iZ+D::cz[k]+zend-zbegin+1)%(zend-zbegin+1);
-            int iY2=(iY+D::cy[k]+NY)%NY;
-            int iX2=(iX+D::cx[k]+NX)%NX;
-            lattice->f2[(iZ2*NX*NY+iY2*NX+iX2)*D::NPOP+k]=lattice->f[counter*D::NPOP+k];
-            lattice->g2[(iZ2*NX*NY+iY2*NX+iX2)*D::NPOP+k]=lattice->g[counter*D::NPOP+k];
+            int iZ2=(iZ+cz[k]+zend-zbegin+1)%(zend-zbegin+1);
+            int iY2=(iY+cy[k]+NY)%NY;
+            int iX2=(iX+cx[k]+NX)%NX;
+            lattice->f2[(iZ2*NX*NY+iY2*NX+iX2)*NPOP+k]=lattice->f[counter*NPOP+k];
+            lattice->g2[(iZ2*NX*NY+iY2*NX+iX2)*NPOP+k]=lattice->g[counter*NPOP+k];
    		}
     }
 

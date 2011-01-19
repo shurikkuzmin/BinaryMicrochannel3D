@@ -2,13 +2,9 @@
 #include "dynamics_BGK.h"
 #include "mpi_singleton.h"
 
-const char Lattice::cx[19]={0,1,-1,0,0,0,0,1,-1,1,-1,0,0,0,0,1,-1,1,-1};
-const char Lattice::cy[19]={0,0,0,1,-1,0,0,1,1,-1,-1,1,-1,1,-1,0,0,0,0};
-const char Lattice::cz[19]={0,0,0,0,0,1,-1,0,0,0,0,1,1,-1,-1,1,1,-1,-1};
 
-
-
-void Lattice::writePhase(std::string name)
+template<typename D>
+void Lattice<D>::writePhase(std::string name)
 {
 
     name=name+".vts";
@@ -44,7 +40,8 @@ void Lattice::writePhase(std::string name)
     writer->Write();
 }
 
-void Lattice::writeTextPhase(std::string name)
+template<typename D>
+void Lattice<D>::writeTextPhase(std::string name)
 {
 
     name=name+".dat";
@@ -56,7 +53,8 @@ void Lattice::writeTextPhase(std::string name)
 
 }
 
-void Lattice::writeTextDensity(std::string name)
+template<typename D>
+void Lattice<D>::writeTextDensity(std::string name)
 {
 
     name=name+".dat";
@@ -68,11 +66,8 @@ void Lattice::writeTextDensity(std::string name)
 
 }
 
-
-
-
-
-void Lattice::writeDensity(std::string name)
+template<typename D>
+void Lattice<D>::writeDensity(std::string name)
 {
 
     name=name+".vts";
@@ -109,7 +104,8 @@ void Lattice::writeDensity(std::string name)
     writer->Write();
 }
 
-void Lattice::init()
+template<typename D>
+void Lattice<D>::init()
 {
 	for (int counter=0;counter<NUMLOCAL;counter++)
 	{
@@ -120,7 +116,8 @@ void Lattice::init()
 	}
 }
 
-void Lattice::collide_stream()
+template<typename D>
+void Lattice<D>::collide_stream()
 {
 	for (int counter=0;counter<NUMLOCAL;counter++)
 	{
@@ -131,45 +128,47 @@ void Lattice::collide_stream()
 	}
 }
 
-void Lattice::preparePopulations()
+template<typename D>
+void Lattice<D>::preparePopulations()
 {
    	for (int iCount=0; iCount<NX*NY; iCount++)
 	{
-		for (int iPop=0; iPop<NPOP; iPop++)
+		for (int iPop=0; iPop<D::NPOP; iPop++)
 		{
-			layer_top_f[iCount*NPOP+iPop]=f[NX*NY*(zend-zbegin)*NPOP+iCount*NPOP+iPop];
-			layer_bottom_f[iCount*NPOP+iPop]=f[iCount*NPOP+iPop];
-			layer_top_g[iCount*NPOP+iPop]=g[NX*NY*(zend-zbegin)*NPOP+iCount*NPOP+iPop];
-			layer_bottom_g[iCount*NPOP+iPop]=g[iCount*NPOP+iPop];
+			layer_top_f[iCount*D::NPOP+iPop]=f[NX*NY*(zend-zbegin)*D::NPOP+iCount*D::NPOP+iPop];
+			layer_bottom_f[iCount*D::NPOP+iPop]=f[iCount*D::NPOP+iPop];
+			layer_top_g[iCount*D::NPOP+iPop]=g[NX*NY*(zend-zbegin)*D::NPOP+iCount*D::NPOP+iPop];
+			layer_bottom_g[iCount*D::NPOP+iPop]=g[iCount*D::NPOP+iPop];
 		}
 	}
 }
 
-void Lattice::finishPropagation()
+template<typename D>
+void Lattice<D>::finishPropagation()
 {
    	for (int iCount=0; iCount<NX*NY; iCount++)
 	{
         int iY=iCount/NX;
         int iX=iCount%NX;
-        for(int k=0;k<NPOP;k++)
+        for(int k=0;k<D::NPOP;k++)
         {
-			int iY2=(iY+cy[k]+NY)%NY;
-			int iX2=(iX+cx[k]+NX)%NX;
+			int iY2=(iY+D::cy[k]+NY)%NY;
+			int iX2=(iX+D::cx[k]+NX)%NX;
             if (geometry[(zend-zbegin)*NX*NY+iY2*NX+iX2]==FluidNode)
             {
                 //cout<<mpi_wrapper().get_rank()<<"\n";
-                if ((cz[k]<0) && (geom_top[iY*NX+iX]==FluidNode))
+                if ((D::cz[k]<0) && (geom_top[iY*NX+iX]==FluidNode))
                 {
-                    f2[((zend-zbegin)*NX*NY+iY2*NX+iX2)*NPOP+k]=layer_top_f[(iY*NX+iX)*NPOP+k];
-                    g2[((zend-zbegin)*NX*NY+iY2*NX+iX2)*NPOP+k]=layer_top_g[(iY*NX+iX)*NPOP+k];
+                    f2[((zend-zbegin)*NX*NY+iY2*NX+iX2)*D::NPOP+k]=layer_top_f[(iY*NX+iX)*D::NPOP+k];
+                    g2[((zend-zbegin)*NX*NY+iY2*NX+iX2)*D::NPOP+k]=layer_top_g[(iY*NX+iX)*D::NPOP+k];
                 }
             }
             if (geometry[iY2*NX+iX2]==FluidNode)
             {
-                if ((cz[k]>0) && (geom_bottom[iY*NX+iX]==FluidNode) )
+                if ((D::cz[k]>0) && (geom_bottom[iY*NX+iX]==FluidNode) )
                 {
-                    f2[(iY2*NX+iX2)*NPOP+k]=layer_bottom_f[(iY*NX+iX)*NPOP+k];
-                    g2[(iY2*NX+iX2)*NPOP+k]=layer_bottom_g[(iY*NX+iX)*NPOP+k];
+                    f2[(iY2*NX+iX2)*D::NPOP+k]=layer_bottom_f[(iY*NX+iX)*D::NPOP+k];
+                    g2[(iY2*NX+iX2)*D::NPOP+k]=layer_bottom_g[(iY*NX+iX)*D::NPOP+k];
                 }
             }
         }
@@ -177,7 +176,8 @@ void Lattice::finishPropagation()
 	}
 }
 
-void Lattice::exchangeMatrices()
+template<typename D>
+void Lattice<D>::exchangeMatrices()
 {
 		//cout<<"I am here\n";
 		//char ch;

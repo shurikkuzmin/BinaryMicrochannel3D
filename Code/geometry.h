@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-enum NodeType {FluidNode, SolidNode, PressureNode};
+enum NodeType {FluidNode, SolidNode, SymmetricNode};
 
 class Geometry
 {

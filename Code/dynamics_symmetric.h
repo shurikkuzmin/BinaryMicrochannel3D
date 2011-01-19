@@ -3,12 +3,11 @@
 #include <vector>
 #include "dynamics_BGK.h"
 #include <iostream>
-template<typename D>
-class DynamicsSpecial : public DynamicsBGK<D>
+class DynamicsSpecial : public DynamicsBGK
 {
     public:
 
-    explicit DynamicsSpecial(Solver<D> * _solver,ParamsList _params);
+    explicit DynamicsSpecial(Solver * _solver,ParamsList _params);
 
     virtual ~DynamicsSpecial()
     {
@@ -38,6 +37,7 @@ class DynamicsSpecial : public DynamicsBGK<D>
 
     std::vector<int> directions;
     std::vector<double> wall_densities;
+    int compliment[19];
 };
 
 #endif

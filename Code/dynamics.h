@@ -3,13 +3,13 @@
 
 #include "params_list.h"
 //#include "solver.h"
-class Solver;
+template<typename D> class Solver;
 
-class Dynamics
+template<typename D> class Dynamics
 {
     public:
 
-    explicit Dynamics(Solver * _solver,ParamsList _params):
+    explicit Dynamics(Solver<D> * _solver,ParamsList _params):
         solver(_solver),params(_params)
     {}
 
@@ -22,7 +22,7 @@ class Dynamics
     virtual void updateFields(int iX,int iY,int iZ)=0;
 
     public:
-    Solver * solver;
+    Solver<D> * solver;
     ParamsList params;
 
 };

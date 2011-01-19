@@ -9,6 +9,7 @@
 #include "destroyer.h"
 #include "params_list.h"
 
+template<typename D>
 class Solver
 {
     public:
@@ -75,7 +76,7 @@ class Solver
     void exchangeMatrices();
 
 
-    Lattice * getLattice()
+    Lattice<D> * getLattice()
     {
         return lattice;
     }
@@ -88,11 +89,6 @@ class Solver
     int iterY;
     int iterZ;
 
-    //Velocity set. TODO: put it in the Descriptor Object
-    static const char cx[19];
-    static const char cy[19];
-    static const char cz[19];
-
 	private:
 
     const int size;
@@ -100,15 +96,14 @@ class Solver
     const int NX;
     const int NY;
     const int NZ;
-    const int NPOP;
 
 
-    Lattice * lattice;
+    Lattice<D> * lattice;
     double * density;
     double * phase;
     double * velocity;
 
-    Destroyer<Dynamics> destroyer_list;
+    Destroyer<Dynamics<D> > destroyer_list;
     ParamsList params_list;
 };
 

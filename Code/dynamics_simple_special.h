@@ -3,11 +3,12 @@
 #include <vector>
 #include "dynamics_simple_BGK.h"
 #include <iostream>
-class DynamicsSimpleSpecial : public DynamicsSimpleBGK
+template<typename D>
+class DynamicsSimpleSpecial : public DynamicsSimpleBGK<D>
 {
     public:
 
-    explicit DynamicsSimpleSpecial(Solver * _solver,ParamsList _params);
+    explicit DynamicsSimpleSpecial(Solver<D> * _solver,ParamsList _params);
 
     virtual ~DynamicsSimpleSpecial()
     {
@@ -25,7 +26,7 @@ class DynamicsSimpleSpecial : public DynamicsSimpleBGK
     int iZ;
 
     std::vector<int> directions;
-    int compliment[19];
+
 };
 
 #endif

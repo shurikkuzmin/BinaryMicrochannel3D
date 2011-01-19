@@ -3,22 +3,16 @@
 #include "lattice.h"
 #include "solver.h"
 
-class DynamicsNONE:public Dynamics
+template<typename D> class DynamicsNONE:public Dynamics<D>
 {
     public:
 
-    explicit DynamicsNONE(Solver * _solver,ParamsList _params):
-        Dynamics(_solver,_params),
-        phase_wall(params("phase_wall").value<double>()),
-        rho_wall(params("rho_wall").value<double>()),
-        NPOP(19)
+    explicit DynamicsNONE(Solver<D> * _solver,ParamsList _params):
+        Dynamics<D>(_solver,_params),
+        phase_wall(_params("phase_wall").value<double>()),
+        rho_wall(_params("rho_wall").value<double>()),
+        NPOP(D::NPOP)
     {
-        double weights_temp[19]={0,1.0/6.0,1.0/6.0,1.0/6.0,1.0/6.0,1.0/6.0,1.0/6.0,
-		1.0/12.0,1.0/12.0,1.0/12.0,1.0/12.0,1.0/12.0,1.0/12.0,
-		1.0/12.0,1.0/12.0,1.0/12.0,1.0/12.0,1.0/12.0,1.0/12.0};
-
-        for (int counter=0;counter<19;counter++)
-            weights[counter]=weights_temp[counter];
     }
 
     virtual ~DynamicsNONE()
@@ -26,7 +20,7 @@ class DynamicsNONE:public Dynamics
 
     void collide_stream(int iX,int iY,int iZ)
     {
-       	Lattice * lattice=this->solver->getLattice();
+       	Lattice<D> * lattice=this->solver->getLattice();
         int NX=this->solver->geom->getNX();
         int NY=this->solver->geom->getNY();
 
@@ -42,7 +36,7 @@ class DynamicsNONE:public Dynamics
     {
         int NX=this->solver->geom->getNX();
         int NY=this->solver->geom->getNY();
-        Lattice * lattice=this->solver->getLattice();
+        Lattice<D> * lattice=this->solver->getLattice();
 
         int counter=iZ*NX*NY+iY*NX+iX;
 
@@ -51,9 +45,9 @@ class DynamicsNONE:public Dynamics
         {
             dense_temp+=lattice->f[counter*NPOP+k];
             phase_temp+=lattice->g[counter*NPOP+k];
-            ux_temp+=lattice->f[counter*NPOP+k]*cx[k];
-            uy_temp+=lattice->f[counter*NPOP+k]*cy[k];
-            uz_temp+=lattice->f[counter*NPOP+k]*cz[k];
+            ux_temp+=lattice->f[counter*NPOP+k]*D::cx[k];
+            uy_temp+=lattice->f[counter*NPOP+k]*D::cy[k];
+            uz_temp+=lattice->f[counter*NPOP+k]*D::cz[k];
         }
 
         ux_temp=ux_temp/dense_temp;
@@ -69,7 +63,7 @@ class DynamicsNONE:public Dynamics
 
     void init(int iX,int iY, int iZ)
     {
-       	Lattice * lattice=this->solver->getLattice();
+       	Lattice<D> * lattice=this->solver->getLattice();
         int NX=this->solver->geom->getNX();
         int NY=this->solver->geom->getNY();
         int counter=iZ*NX*NY+iY*NX+iX;
@@ -82,8 +76,8 @@ class DynamicsNONE:public Dynamics
 
         for (int k=1; k<NPOP; k++)
         {
-            feq=weights[k]*rho_wall;
-            geq=weights[k]*phase_wall;
+            feq=D::weights[k]*rho_wall;
+            geq=D::weights[k]*phase_wall;
 
             sum+=feq;
             sum_phase+=geq;
@@ -98,22 +92,12 @@ class DynamicsNONE:public Dynamics
     }
 
     public:
+
     const double phase_wall;
     const double rho_wall;
     const int NPOP;
 
-    //TODO: Put velocity set and weights in the Descriptor object
-    static const char cx[19];
-    static const char cy[19];
-    static const char cz[19];
-
-
-    double weights[19];
 };
-
-const char DynamicsNONE::cx[19]={0,1,-1,0, 0,0, 0,1,-1, 1,-1,0, 0, 0, 0,1,-1, 1,-1};
-const char DynamicsNONE::cy[19]={0,0, 0,1,-1,0, 0,1, 1,-1,-1,1,-1, 1,-1,0, 0, 0, 0};
-const char DynamicsNONE::cz[19]={0,0, 0,0, 0,1,-1,0, 0, 0, 0,1, 1,-1,-1,1, 1,-1,-1};
 
 
 

@@ -16,17 +16,13 @@
 #include <sstream>
 #include <string>
 
-const char Solver::cx[19]={0,1,-1,0, 0,0, 0,1,-1, 1,-1,0, 0, 0, 0,1,-1, 1,-1};
-const char Solver::cy[19]={0,0, 0,1,-1,0, 0,1, 1,-1,-1,1,-1, 1,-1,0, 0, 0, 0};
-const char Solver::cz[19]={0,0, 0,0, 0,1,-1,0, 0, 0, 0,1, 1,-1,-1,1, 1,-1,-1};
-
-Solver::Solver(Geometry * _geom,ParamsList _params_list):
+template<typename D>
+Solver<D>::Solver(Geometry * _geom,ParamsList _params_list):
 	geom(_geom),NX(geom->getNX()),
 	NY(geom->getNY()),NZ(geom->getNZ()),
 	rank(mpi_wrapper().get_rank()),
 	size(mpi_wrapper().get_size()),
-	params_list(_params_list),
-	NPOP(19)
+	params_list(_params_list)
 {
 	//Initialization of ranges
 	int zstep=NZ/size;
@@ -37,15 +33,16 @@ Solver::Solver(Geometry * _geom,ParamsList _params_list):
 	int NUMLOCAL=NX*NY*(zend-zbegin+1);
 
 	//Creation the necessary objects
-	lattice = new Lattice(zbegin,zend,NX,NY,NZ,NUMLOCAL);
-	Dynamics * dynamics_bgk;
+	lattice = new Lattice<D>(zbegin,zend,NX,NY,NZ,NUMLOCAL);
+	Dynamics<D> * dynamics_bgk;
 	#ifdef HYDRO
-        dynamics_bgk = destroyer_list.take_ownership(new DynamicsSimpleBGK(this,params_list));
+        dynamics_bgk = destroyer_list.take_ownership(new DynamicsSimpleBGK<D>(this,params_list));
 	#else
-        dynamics_bgk = destroyer_list.take_ownership(new DynamicsBGK(this,params_list));
+        dynamics_bgk = destroyer_list.take_ownership(new DynamicsBGK<D>(this,params_list));
     #endif
-    Dynamics * dynamics_special;
-    Dynamics * dynamics_none = destroyer_list.take_ownership(new DynamicsNONE(this,params_list));
+    Dynamics<D> * dynamics_special;
+    Dynamics<D> * dynamics_none = destroyer_list.take_ownership(new DynamicsNONE<D>(this,params_list));
+    Dynamics<D> * dynamics_symmetric;
 
 	//Allocation of memory
 	if (rank==0)
@@ -67,11 +64,11 @@ Solver::Solver(Geometry * _geom,ParamsList _params_list):
                     {
                         bool flag=false;
 
-                        for(int k=0;k<NPOP;k++)
+                        for(int k=0;k<D::NPOP;k++)
                         {
-                            int iX2=(iX+cx[k]+NX)%NX;
-                            int iY2=(iY+cy[k]+NY)%NY;
-                            int iZ2=(iZ+cz[k]+NZ)%NZ;
+                            int iX2=(iX+D::cx[k]+NX)%NX;
+                            int iY2=(iY+D::cy[k]+NY)%NY;
+                            int iZ2=(iZ+D::cz[k]+NZ)%NZ;
                             if (geom->getType(iX2,iY2,iZ2)==SolidNode)
                                 flag=true;
                         }
@@ -81,15 +78,19 @@ Solver::Solver(Geometry * _geom,ParamsList _params_list):
                             iterY=iY;
                             iterZ=iZ;
                             #ifdef HYDRO
-                                dynamics_special=destroyer_list.take_ownership(new DynamicsSimpleSpecial(this,params_list));
+                                dynamics_special=destroyer_list.take_ownership(new DynamicsSimpleSpecial<D>(this,params_list));
                             #else
-                                dynamics_special=destroyer_list.take_ownership(new DynamicsSpecial(this,params_list));
+                                dynamics_special=destroyer_list.take_ownership(new DynamicsSpecial<D>(this,params_list));
                             #endif
                             lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_special;
                         }
                         else
                             lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_bgk;
                     }
+       				//else if (geom->getType(iX,iY,iZ)==SymmetricNode)
+       				//{
+                    //        dynamics_symmetric=destroyer_list.take_ownership(new DynamicsSymmetric<D>(this,params_list));
+                    //}
        				else
                         lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_none;
 
@@ -108,7 +109,7 @@ Solver::Solver(Geometry * _geom,ParamsList _params_list):
 
 }
 
-bool Solver::checkNAN()
+template<typename D> bool Solver<D>::checkNAN()
 {
     if (mpi_wrapper().get_rank()==0)
         return isnan(phase[NZ/2*NX*NY+NY*NX/2+NX/2]);
@@ -117,7 +118,8 @@ bool Solver::checkNAN()
 }
 
 
-void Solver::putDensity(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,int iZend,double dense)
+template<typename D>
+void Solver<D>::putDensity(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,int iZend,double dense)
 {
     int zbegin=lattice->getZbegin();
     int zend=lattice->getZend();
@@ -131,14 +133,14 @@ void Solver::putDensity(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,
     //cout<<"zend="<<zend<<" zbegin="<<zbegin;
     lattice->putDensity(iXbegin,iYbegin,iZbegin-zbegin,iXend,iYend,iZend-zbegin,dense);
 }
-void Solver::putDensity(double dense)
+template<typename D> void Solver<D>::putDensity(double dense)
 {
     int zbegin=lattice->getZbegin();
     int zend=lattice->getZend();
     lattice->putDensity(0,0,0,NX-1,NY-1,zend-zbegin,dense);
 }
 
-void Solver::putPhase(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,int iZend,double phase)
+template<typename D> void Solver<D>::putPhase(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,int iZend,double phase)
 {
     int zbegin=lattice->getZbegin();
     int zend=lattice->getZend();
@@ -151,14 +153,14 @@ void Solver::putPhase(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,in
 
     lattice->putPhase(iXbegin,iYbegin,iZbegin-zbegin,iXend,iYend,iZend-zbegin,phase);
 }
-void Solver::putPhase(double phase)
+template<typename D> void Solver<D>::putPhase(double phase)
 {
     int zbegin=lattice->getZbegin();
     int zend=lattice->getZend();
     lattice->putPhase(0,0,0,NX-1,NY-1,zend-zbegin,phase);
 }
 
-void Solver::putVelocity(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,int iZend,double * velocity)
+template<typename D> void Solver<D>::putVelocity(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend,int iZend,double * velocity)
 {
     int zbegin=lattice->getZbegin();
     int zend=lattice->getZend();
@@ -171,7 +173,7 @@ void Solver::putVelocity(int iXbegin,int iYbegin,int iZbegin,int iXend,int iYend
 
     lattice->putVelocity(iXbegin,iYbegin,iZbegin-zbegin,iXend,iYend,iZend-zbegin,velocity);
 }
-void Solver::putVelocity(double * velocity)
+template<typename D> void Solver<D>::putVelocity(double * velocity)
 {
     int zbegin=lattice->getZbegin();
     int zend=lattice->getZend();
@@ -179,7 +181,7 @@ void Solver::putVelocity(double * velocity)
 }
 
 
-void Solver::getWholeDensity()
+template<typename D> void Solver<D>::getWholeDensity()
 {
 	if (size==1)
 	{
@@ -225,7 +227,7 @@ void Solver::getWholeDensity()
 	}
 }
 
-void Solver::getWholePhase()
+template<typename D> void Solver<D>::getWholePhase()
 {
 	if (size==1)
 	{
@@ -271,7 +273,7 @@ void Solver::getWholePhase()
 	}
 }
 
-void Solver::getWholeVelocity()
+template<typename D> void Solver<D>::getWholeVelocity()
 {
 	if (size==1)
 	{
@@ -338,7 +340,7 @@ void Solver::getWholeVelocity()
 }
 
 
-void Solver::writeWholeDensity(std::string name)
+template<typename D>  void Solver<D>::writeWholeDensity(std::string name)
 {
 	getWholeDensity();
 
@@ -379,7 +381,7 @@ void Solver::writeWholeDensity(std::string name)
 	}
 }
 
-void Solver::writeWholePhase(std::string name)
+template<typename D> void Solver<D>::writeWholePhase(std::string name)
 {
     Solver::getWholePhase();
     if (rank==0)
@@ -419,7 +421,7 @@ void Solver::writeWholePhase(std::string name)
     }
 }
 
-void Solver::writeWholeVelocity(std::string name)
+template<typename D> void Solver<D>::writeWholeVelocity(std::string name)
 {
     Solver::getWholeVelocity();
     if (rank==0)
@@ -458,7 +460,7 @@ void Solver::writeWholeVelocity(std::string name)
     }
 }
 
-void Solver::load_file(std::string name)
+template<typename D> void Solver<D>::load_file(std::string name)
 {
     if (size==1)
 	{
@@ -581,8 +583,7 @@ void Solver::load_file(std::string name)
 }
 
 
-
-void Solver::writeWholeDensityPhaseVelocity(std::string name)
+template<typename D> void Solver<D>::writeWholeDensityPhaseVelocity(std::string name)
 {
 
     Solver::getWholeDensity();
@@ -637,7 +638,7 @@ void Solver::writeWholeDensityPhaseVelocity(std::string name)
 
 }
 
-void Solver::writeTextXZVelocity(std::string name)
+template<typename D> void Solver<D>::writeTextXZVelocity(std::string name)
 {
     Solver::getWholeVelocity();
     if (rank==0)
@@ -651,7 +652,7 @@ void Solver::writeTextXZVelocity(std::string name)
     }
 }
 
-void Solver::writeTextXYVelocity(std::string name)
+template<typename D> void Solver<D>::writeTextXYVelocity(std::string name)
 {
     Solver::getWholeVelocity();
     if (rank==0)
@@ -665,7 +666,7 @@ void Solver::writeTextXYVelocity(std::string name)
     }
 }
 
-void Solver::writeTextYZVelocity(std::string name)
+template<typename D> void Solver<D>::writeTextYZVelocity(std::string name)
 {
     Solver::getWholeVelocity();
     if (rank==0)
@@ -680,10 +681,7 @@ void Solver::writeTextYZVelocity(std::string name)
 }
 
 
-
-
-
-void Solver::writeTextWholePhase(std::string name)
+template<typename D> void Solver<D>::writeTextWholePhase(std::string name)
 {
     Solver::getWholePhase();
     if (rank==0)
@@ -698,7 +696,7 @@ void Solver::writeTextWholePhase(std::string name)
 }
 
 //Write planes of phase
-void Solver::writeTextXYPhase(std::string name)
+template<typename D> void Solver<D>::writeTextXYPhase(std::string name)
 {
     Solver::getWholePhase();
     if (rank==0)
@@ -712,8 +710,7 @@ void Solver::writeTextXYPhase(std::string name)
 }
 
 
-
-void Solver::writeTextXZPhase(std::string name)
+template<typename D> void Solver<D>::writeTextXZPhase(std::string name)
 {
     Solver::getWholePhase();
     if (rank==0)
@@ -727,8 +724,7 @@ void Solver::writeTextXZPhase(std::string name)
 }
 
 
-
-void Solver::writeTextYZPhase(std::string name)
+template<typename D> void Solver<D>::writeTextYZPhase(std::string name)
 {
     Solver::getWholePhase();
     if (rank==0)
@@ -743,7 +739,7 @@ void Solver::writeTextYZPhase(std::string name)
 
 
 //Write planes of density
-void Solver::writeTextXYDensity(std::string name)
+template<typename D> void Solver<D>::writeTextXYDensity(std::string name)
 {
     Solver::getWholeDensity();
     if (rank==0)
@@ -758,7 +754,7 @@ void Solver::writeTextXYDensity(std::string name)
 
 
 
-void Solver::writeTextXZDensity(std::string name)
+template<typename D> void Solver<D>::writeTextXZDensity(std::string name)
 {
     Solver::getWholeDensity();
     if (rank==0)
@@ -773,7 +769,7 @@ void Solver::writeTextXZDensity(std::string name)
 
 
 
-void Solver::writeTextYZDensity(std::string name)
+template<typename D> void Solver<D>::writeTextYZDensity(std::string name)
 {
     Solver::getWholeDensity();
     if (rank==0)
@@ -788,7 +784,7 @@ void Solver::writeTextYZDensity(std::string name)
 
 
 //Write velocity
-void Solver::writeTextWholeVelocity(std::string name)
+template<typename D> void Solver<D>::writeTextWholeVelocity(std::string name)
 {
     Solver::getWholeVelocity();
     if (rank==0)
@@ -804,7 +800,7 @@ void Solver::writeTextWholeVelocity(std::string name)
 }
 
 
-void Solver::writeVTKWholePhase(std::string name)
+template<typename D> void Solver<D>::writeVTKWholePhase(std::string name)
 {
     Solver::getWholePhase();
     if (rank==0)
@@ -836,15 +832,14 @@ void Solver::writeVTKWholePhase(std::string name)
 }
 
 
-
-void Solver::writeLocalDensity(std::string name)
+template<typename D> void Solver<D>::writeLocalDensity(std::string name)
 {
     std::stringstream process;
     process<<"_process"<<rank;
     name=name+process.str();
     lattice->writeDensity(name);
 }
-void Solver::writeLocalPhase(std::string name)
+template<typename D> void Solver<D>::writeLocalPhase(std::string name)
 {
     std::stringstream process;
     process<<"_process"<<rank;
@@ -852,14 +847,15 @@ void Solver::writeLocalPhase(std::string name)
     lattice->writePhase(name);
 }
 
-void Solver::writeLocalTextDensity(std::string name)
+template<typename D> void Solver<D>::writeLocalTextDensity(std::string name)
 {
     std::stringstream process;
     process<<"_process"<<rank;
     name=name+process.str();
     lattice->writeTextDensity(name);
 }
-void Solver::writeLocalTextPhase(std::string name)
+
+template<typename D> void Solver<D>::writeLocalTextPhase(std::string name)
 {
     std::stringstream process;
     process<<"_process"<<rank;
@@ -868,12 +864,11 @@ void Solver::writeLocalTextPhase(std::string name)
 }
 
 
-
-void Solver::updateMacro()
+template<typename D> void Solver<D>::updateMacro()
 {
     lattice->updateMacro();
 }
-void Solver::updatePhase()
+template<typename D> void Solver<D>::updatePhase()
 {
     //Exchange phase fields to calculate it properly
     int zbegin=lattice->getZbegin();
@@ -913,10 +908,10 @@ void Solver::updatePhase()
 
 }
 
-void Solver::updateWall()
+template<typename D> void Solver<D>::updateWall()
 {
-	const double phase_wall=params_list("phase_wall").value<double>();
-	const double rho_wall=params_list("rho_wall").value<double>();
+	const double phase_wall=params_list("phase_wall").template value<double>();
+	const double rho_wall=params_list("rho_wall").template value<double>();
 	const int zbegin=lattice->getZbegin();
 	const int zend=lattice->getZend();
 	for (int iZ=0;iZ<NZ;iZ++)
@@ -929,14 +924,14 @@ void Solver::updateWall()
 				}
 }
 
-void Solver::init()
+template<typename D> void Solver<D>::init()
 {
     updateWall();
 	updatePhase();
     lattice->init();
 }
 
-void Solver::collide_stream()
+template<typename D> void Solver<D>::collide_stream()
 {
     updateMacro();
     updatePhase();
@@ -948,26 +943,26 @@ void Solver::collide_stream()
     exchangeMatrices();
 }
 
-void Solver::propagate()
+template<typename D> void Solver<D>::propagate()
 {
     lattice->preparePopulations();
 
     MPI_Status status;
 	if(mpi_wrapper().get_rank()==0)
 	{
-		MPI_Sendrecv_replace(lattice->layer_top_f,NX*NY*NPOP,MPI_DOUBLE,1,1,1,1,MPI_COMM_WORLD,&status);
-		MPI_Sendrecv_replace(lattice->layer_bottom_f,NX*NY*NPOP,MPI_DOUBLE,mpi_wrapper().get_size()-1,1,mpi_wrapper().get_size()-1,1,MPI_COMM_WORLD,&status);
+		MPI_Sendrecv_replace(lattice->layer_top_f,NX*NY*D::NPOP,MPI_DOUBLE,1,1,1,1,MPI_COMM_WORLD,&status);
+		MPI_Sendrecv_replace(lattice->layer_bottom_f,NX*NY*D::NPOP,MPI_DOUBLE,mpi_wrapper().get_size()-1,1,mpi_wrapper().get_size()-1,1,MPI_COMM_WORLD,&status);
 
-		MPI_Sendrecv_replace(lattice->layer_top_g,NX*NY*NPOP,MPI_DOUBLE,1,1,1,1,MPI_COMM_WORLD,&status);
-		MPI_Sendrecv_replace(lattice->layer_bottom_g,NX*NY*NPOP,MPI_DOUBLE,mpi_wrapper().get_size()-1,1,mpi_wrapper().get_size()-1,1,MPI_COMM_WORLD,&status);
+		MPI_Sendrecv_replace(lattice->layer_top_g,NX*NY*D::NPOP,MPI_DOUBLE,1,1,1,1,MPI_COMM_WORLD,&status);
+		MPI_Sendrecv_replace(lattice->layer_bottom_g,NX*NY*D::NPOP,MPI_DOUBLE,mpi_wrapper().get_size()-1,1,mpi_wrapper().get_size()-1,1,MPI_COMM_WORLD,&status);
 	}
 	else
 	{
-		MPI_Sendrecv_replace(lattice->layer_bottom_f,NX*NY*NPOP,MPI_DOUBLE,mpi_wrapper().get_rank()-1,1,mpi_wrapper().get_rank()-1,1,MPI_COMM_WORLD,&status);
-		MPI_Sendrecv_replace(lattice->layer_top_f,NX*NY*NPOP,MPI_DOUBLE,(mpi_wrapper().get_rank()+1)%mpi_wrapper().get_size(),1,(mpi_wrapper().get_rank()+1)%mpi_wrapper().get_size(),1,MPI_COMM_WORLD,&status);
+		MPI_Sendrecv_replace(lattice->layer_bottom_f,NX*NY*D::NPOP,MPI_DOUBLE,mpi_wrapper().get_rank()-1,1,mpi_wrapper().get_rank()-1,1,MPI_COMM_WORLD,&status);
+		MPI_Sendrecv_replace(lattice->layer_top_f,NX*NY*D::NPOP,MPI_DOUBLE,(mpi_wrapper().get_rank()+1)%mpi_wrapper().get_size(),1,(mpi_wrapper().get_rank()+1)%mpi_wrapper().get_size(),1,MPI_COMM_WORLD,&status);
 
-		MPI_Sendrecv_replace(lattice->layer_bottom_g,NX*NY*NPOP,MPI_DOUBLE,mpi_wrapper().get_rank()-1,1,mpi_wrapper().get_rank()-1,1,MPI_COMM_WORLD,&status);
-		MPI_Sendrecv_replace(lattice->layer_top_g,NX*NY*NPOP,MPI_DOUBLE,(mpi_wrapper().get_rank()+1)%mpi_wrapper().get_size(),1,(mpi_wrapper().get_rank()+1)%mpi_wrapper().get_size(),1,MPI_COMM_WORLD,&status);
+		MPI_Sendrecv_replace(lattice->layer_bottom_g,NX*NY*D::NPOP,MPI_DOUBLE,mpi_wrapper().get_rank()-1,1,mpi_wrapper().get_rank()-1,1,MPI_COMM_WORLD,&status);
+		MPI_Sendrecv_replace(lattice->layer_top_g,NX*NY*D::NPOP,MPI_DOUBLE,(mpi_wrapper().get_rank()+1)%mpi_wrapper().get_size(),1,(mpi_wrapper().get_rank()+1)%mpi_wrapper().get_size(),1,MPI_COMM_WORLD,&status);
 	}
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -975,7 +970,7 @@ void Solver::propagate()
     lattice->finishPropagation();
 }
 
-void Solver::exchangeMatrices()
+template<typename D> void Solver<D>::exchangeMatrices()
 {
     lattice->exchangeMatrices();
 }

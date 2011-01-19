@@ -14,11 +14,12 @@
 #include "geometry.h"
 #include "solver.h"
 #include "params_list.h"
+#include "descriptor.h"
 
 //Lattice Boltzmann initialization and parameters
 const int NX=52;
 const int NY=52;
-const int NZ=750;
+const int NZ=51;
 const int NPOP=19;
 const int NUM=NX*NY*NZ;
 const int NUMTOTAL=NUM*NPOP;
@@ -32,7 +33,7 @@ const int radius=6;
 const double rhol=1.0;
 const double rhog=1.0;
 
-void macro_init(Solver & solver)
+void macro_init(Solver<Descriptor> & solver)
 {
     //Density and phase field initialization
 	double rho_temp;
@@ -86,10 +87,10 @@ int main(int argc,char* argv[])
 
     //Specify parameters
  	ParamsList params;
+	params.add("omega",1.0);
 	params.add("aconst", 0.04);
 	params.add("kconst", 0.04);
 	params.add("gammaconst",1.0);
-	params.add("omega",1.0);
 	params.add("phase_gradient",0.0);
 	params.add("phase_wall",0.0);
 	params.add("rho_wall",0.5);
@@ -99,13 +100,6 @@ int main(int argc,char* argv[])
     params.add("force_x",0.0);
     params.add("force_y",0.0);
     params.add("force_z",0.000015);
-	//params.add("force_z",0.0);
-
-    //Useless parameters to be deleted after
-    params.add("rho_press_inlet",1.0);
-    params.add("rho_press_outlet",1.0);
-    params.add("phase_press_inlet",1.0);
-    params.add("phase_press_outlet",1.0);
 
     //Specify geometry
     Geometry * geometry=new Geometry(NX,NY,NZ);
@@ -117,7 +111,11 @@ int main(int argc,char* argv[])
     geometry->setType(0,NY-1,0,NX-1,NY-1,NZ-1,SolidNode);
     geometry->setType(NX-1,0,0,NX-1,NY-1,NZ-1,SolidNode);
 
-    Solver solver(geometry,params);
+    //SymmetricNode specification
+    //geometry->setType(0,0,0,NX-1,0,NZ-1,SymmetricNode);
+    //geometry->setType(0,0,0,0,NY-1,NZ-1,SymmetricNode);
+
+    Solver<Descriptor> solver(geometry,params);
 
     //Solver initialization from the file
     //solver.load_file("equili");

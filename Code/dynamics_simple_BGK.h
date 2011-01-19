@@ -4,11 +4,11 @@
 #include "dynamics.h"
 #include "params_list.h"
 
-class DynamicsSimpleBGK:public Dynamics
+template<typename D> class DynamicsSimpleBGK:public Dynamics<D>
 {
     public:
 
-    explicit DynamicsSimpleBGK(Solver * _solver,ParamsList _params);
+    explicit DynamicsSimpleBGK(Solver<D> * _solver,ParamsList _params);
     virtual ~DynamicsSimpleBGK()
     {}
 
@@ -22,13 +22,6 @@ class DynamicsSimpleBGK:public Dynamics
     double force_x;
     double force_y;
     double force_z;
-
-    double weights[19];
-
-    char cx[19];
-    char cy[19];
-    char cz[19];
-    int NPOP;
 
 };
 #endif

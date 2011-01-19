@@ -11,19 +11,20 @@
 #include <vtkPointData.h>
 
 
+template<typename D>
 class Lattice
 {
     public:
     Lattice(int _zbegin,int _zend,int _NX,int _NY,int _NZ,int _NUMLOCAL):
         zbegin(_zbegin),zend(_zend),
         NX(_NX),NY(_NY),NZ(_NZ),
-        NUMLOCAL(_NUMLOCAL), NPOP(19)
+        NUMLOCAL(_NUMLOCAL)
     {
         //Populations
-        f = new double[NUMLOCAL*NPOP];
-        f2= new double[NUMLOCAL*NPOP];
-        g = new double[NUMLOCAL*NPOP];
-        g2= new double[NUMLOCAL*NPOP];
+        f = new double[NUMLOCAL*D::NPOP];
+        f2= new double[NUMLOCAL*D::NPOP];
+        g = new double[NUMLOCAL*D::NPOP];
+        g2= new double[NUMLOCAL*D::NPOP];
 
         //Macro variables
         phase = new double[NUMLOCAL];
@@ -35,11 +36,11 @@ class Lattice
         //Helpful materials
         phase_top = new double[NX*NY];
         phase_bottom = new double[NX*NY];
-        dynamics_list = new Dynamics*[NUMLOCAL];
-        layer_top_f = new double[NX*NY*NPOP];
-		layer_bottom_f = new double[NX*NY*NPOP];
-		layer_top_g = new double[NX*NY*NPOP];
-		layer_bottom_g = new double[NX*NY*NPOP];
+        dynamics_list = new Dynamics<D>*[NUMLOCAL];
+        layer_top_f = new double[NX*NY*D::NPOP];
+		layer_bottom_f = new double[NX*NY*D::NPOP];
+		layer_top_g = new double[NX*NY*D::NPOP];
+		layer_bottom_g = new double[NX*NY*D::NPOP];
 
         geom_top=new NodeType[NX*NY];
         geom_bottom=new NodeType[NX*NY];
@@ -150,11 +151,10 @@ class Lattice
     private:
         int zbegin;
         int zend;
-        int NX;
-        int NY;
-        int NZ;
+        const int NX;
+        const int NY;
+        const int NZ;
         int NUMLOCAL;
-        const int NPOP;
 
     public:
         double * f;
@@ -178,9 +178,6 @@ class Lattice
         NodeType * geom_top;
         NodeType * geom_bottom;
 
-        Dynamics ** dynamics_list;
-        static const char cx[19];
-        static const char cy[19];
-        static const char cz[19];
+        Dynamics<D> ** dynamics_list;
 };
 #endif
