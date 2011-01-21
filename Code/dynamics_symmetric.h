@@ -1,15 +1,16 @@
-#ifndef DYNAMICS_SPECIAL
-#define DYNAMICS_SPECIAL
+#ifndef DYNAMICS_SYMMETRIC
+#define DYNAMICS_SYMMETRIC
 #include <vector>
 #include "dynamics_BGK.h"
 #include <iostream>
-class DynamicsSpecial : public DynamicsBGK
+template<typename D>
+class DynamicsSymmetric : public DynamicsBGK<D>
 {
     public:
 
-    explicit DynamicsSpecial(Solver * _solver,ParamsList _params);
+    explicit DynamicsSymmetric(Solver<D> * _solver,ParamsList _params);
 
-    virtual ~DynamicsSpecial()
+    virtual ~DynamicsSymmetric()
     {
     }
 
@@ -23,21 +24,18 @@ class DynamicsSpecial : public DynamicsBGK
 
     public:
 
-    int iX;
-    int iY;
-    int iZ;
+    int sourceX;
+    int sourceY;
+    int sourceZ;
 
-    double normx;
-    double normy;
-    double normz;
+    int coorX;
+    int coorY;
+    int coorZ;
 
-    double grad[7];
-
-    double phase_gradient;
+    bool bounce_back;
 
     std::vector<int> directions;
-    std::vector<double> wall_densities;
-    int compliment[19];
+    int symmetric[D::NPOP];
 };
 
 #endif

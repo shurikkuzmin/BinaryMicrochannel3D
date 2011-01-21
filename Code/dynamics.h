@@ -19,6 +19,9 @@ template<typename D> class Dynamics
     virtual void collide_stream(int iX,int iY,int iZ)=0;
 	virtual void init(int iX,int iY,int iZ)=0;
 
+    virtual std::vector<int>& getDirections()
+    {}
+
     virtual void updateFields(int iX,int iY,int iZ)=0;
 
     public:

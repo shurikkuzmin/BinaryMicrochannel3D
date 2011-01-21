@@ -3,26 +3,13 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include <vtkXMLStructuredGridWriter.h>
-#include <vtkSmartPointer.h>
-#include <vtkStructuredGrid.h>
-#include <vtkIdList.h>
-#include <vtkDoubleArray.h>
-#include <vtkPointData.h>
 #include <mpi.h>
 #include "mpi_singleton.h"
-#include "geometry.h"
 
 //Inclusion of lattice implementation
 #include "lattice.hpp"
 #include "solver.hpp"
 
-//Inclusion of dynamics
-#include "dynamics_BGK.hpp"
-#include "dynamics_simple_BGK.hpp"
-#include "dynamics_special.hpp"
-#include "dynamics_simple_special.hpp"
-#include "dynamics_symmetric.hpp"
 
 #include "params_list.h"
 #include "descriptor.h"
@@ -71,22 +58,11 @@ int main(int argc,char* argv[])
     params.add("force_x",0.0);
     params.add("force_y",0.0);
     params.add("force_z",0.000015);
+    params.add("NX",NX);
+    params.add("NY",NY);
+    params.add("NZ",NZ);
 
-    //Specify geometry
-    Geometry * geometry=new Geometry(NX,NY,NZ);
-    geometry->setType(FluidNode);
-
-    //Microchannel walls specification
-    //geometry->setType(0,0,0,NX-1,0,NZ-1,SolidNode);
-    //geometry->setType(0,0,0,0,NY-1,NZ-1,SolidNode);
-    geometry->setType(0,NY-1,0,NX-1,NY-1,NZ-1,SolidNode);
-    geometry->setType(NX-1,0,0,NX-1,NY-1,NZ-1,SolidNode);
-
-    //SymmetricNode specification
-    geometry->setType(0,0,0,NX-1,0,NZ-1,SymmetricNode);
-    geometry->setType(0,0,0,0,NY-1,NZ-1,SymmetricNode);
-
-    Solver<Descriptor> solver(geometry,params);
+    Solver<Descriptor> solver(params);
 
     //Solver initialization from the file
     //solver.load_file("equili");
@@ -104,7 +80,7 @@ int main(int argc,char* argv[])
 
         //Initialization of the part of the channel
 
-		if ((iZ>=(NZ-1)/3)&&(iZ<=2*(NZ-1)/3)&&(iX>=width)&&(iX<=NX-width-1)&&(iY>=width)&&(iY<=NY-width-1))
+		if ((iZ>=(NZ-1)/3)&&(iZ<=2*(NZ-1)/3)&&(iX<=NX-width-1)&&(iY<=NY-width-1))
 		{
 			rho_temp=rhog;
 			phase_temp=-1.0;
@@ -160,7 +136,5 @@ int main(int argc,char* argv[])
 		}
 	}
 
-    //Destroy objects
-    delete geometry;
 	return 0;
 }

@@ -1,5 +1,14 @@
 #include "dynamics_special.h"
 #include "solver.h"
+
+template<typename D>
+std::vector<int>& DynamicsSpecial<D>::getDirections()
+{
+    return directions;
+}
+
+
+
 template<typename D>
 DynamicsSpecial<D>::DynamicsSpecial(Solver<D> * _solver, ParamsList _params_list):
     DynamicsBGK<D>(_solver,_params_list),

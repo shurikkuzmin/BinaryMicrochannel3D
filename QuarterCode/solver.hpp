@@ -7,12 +7,6 @@
 #include <vtkPointData.h>
 #include "solver.h"
 #include "lattice.h"
-#include "dynamics_BGK.h"
-#include "dynamics_special.h"
-#include "dynamics_simple_BGK.h"
-#include "dynamics_simple_special.h"
-#include "dynamics_none.h"
-#include "dynamics_symmetric.h"
 #include <mpi.h>
 #include <iostream>
 #include <sstream>
@@ -20,12 +14,12 @@
 #include "descriptor.h"
 
 template<typename D>
-Solver<D>::Solver(Geometry * _geom,ParamsList _params_list):
-	geom(_geom),NX(geom->getNX()),
-	NY(geom->getNY()),NZ(geom->getNZ()),
+Solver<D>::Solver(ParamsList params):
+	NX(params("NX").value<int>()),
+	NY(params("NY").value<int>()),
+	NZ(params("NZ").value<int>()),
 	rank(mpi_wrapper().get_rank()),
-	size(mpi_wrapper().get_size()),
-	params_list(_params_list)
+	size(mpi_wrapper().get_size())
 {
 	//Initialization of ranges
 	int zstep=NZ/size;
@@ -36,16 +30,7 @@ Solver<D>::Solver(Geometry * _geom,ParamsList _params_list):
 	int NUMLOCAL=NX*NY*(zend-zbegin+1);
 
 	//Creation the necessary objects
-	lattice = new Lattice<D>(zbegin,zend,NX,NY,NZ,NUMLOCAL);
-	Dynamics<D> * dynamics_bgk;
-	#ifdef HYDRO
-        dynamics_bgk = destroyer_list.take_ownership(new DynamicsSimpleBGK<D>(this,params_list));
-	#else
-        dynamics_bgk = destroyer_list.take_ownership(new DynamicsBGK<D>(this,params_list));
-    #endif
-    Dynamics<D> * dynamics_special;
-    Dynamics<D> * dynamics_none = destroyer_list.take_ownership(new DynamicsNONE<D>(this,params_list));
-    Dynamics<D> * dynamics_symmetric;
+	lattice = new Lattice<D>(zbegin,zend,NX,NY,NZ,NUMLOCAL,params);
 
 	//Allocation of memory
 	if (rank==0)
@@ -55,65 +40,9 @@ Solver<D>::Solver(Geometry * _geom,ParamsList _params_list):
         velocity=new double[3*NX*NY*NZ];
 	}
 
-
-	for (int iZ=0;iZ<NZ;iZ++)
-		for(int iY=0;iY<NY;iY++)
-			for(int iX=0;iX<NX;iX++)
-			{
-				if ((iZ>=zbegin)&&(iZ<=zend))
-				{
-                    lattice->geometry[(iZ-zbegin)*NX*NY+iY*NX+iX]=geom->getType(iX,iY,iZ);
-                    if (geom->getType(iX,iY,iZ)==FluidNode)
-                    {
-                        bool flag=false;
-
-                        for(int k=0;k<D::NPOP;k++)
-                        {
-                            int iX2=(iX+D::cx[k]+NX)%NX;
-                            int iY2=(iY+D::cy[k]+NY)%NY;
-                            int iZ2=(iZ+D::cz[k]+NZ)%NZ;
-                            if (geom->getType(iX2,iY2,iZ2)==SolidNode)
-                                flag=true;
-                        }
-                        if (flag==true)
-                        {
-                            iterX=iX;
-                            iterY=iY;
-                            iterZ=iZ;
-                            #ifdef HYDRO
-                                dynamics_special=destroyer_list.take_ownership(new DynamicsSimpleSpecial<D>(this,params_list));
-                            #else
-                                dynamics_special=destroyer_list.take_ownership(new DynamicsSpecial<D>(this,params_list));
-                            #endif
-                            lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_special;
-                        }
-                        else
-                            lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_bgk;
-                    }
-       				else if (geom->getType(iX,iY,iZ)==SymmetricNode)
-       				{
-                        iterX=iX;
-                        iterY=iY;
-                        iterZ=iZ-zbegin;
-                        dynamics_symmetric=destroyer_list.take_ownership(new DynamicsSymmetric<D>(this,params_list));
-                        lattice->symmetric_list.push_back(dynamics_symmetric);
-                        lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_symmetric;
-                    }
-       				else
-                        lattice->dynamics_list[(iZ-zbegin)*NX*NY+iY*NX+iX]=dynamics_none;
-
-				}
-			}
-
     //Preparation of the geometry types above and at the bottom
 	int zbottom=(zbegin-1+NZ)%NZ;
 	int ztop=(zend+1+NZ)%NZ;
-	for(int iY=0;iY<NY;iY++)
-		for(int iX=0;iX<NX;iX++)
-		{
-            lattice->geom_top[iY*NX+iX]=geom->getType(iX,iY,ztop);
-            lattice->geom_bottom[iY*NX+iX]=geom->getType(iX,iY,zbottom);
-		}
 
 }
 
@@ -871,11 +800,6 @@ template<typename D> void Solver<D>::writeLocalTextPhase(std::string name)
     lattice->writeTextPhase(name);
 }
 
-
-template<typename D> void Solver<D>::updateMacro()
-{
-    lattice->updateMacro();
-}
 template<typename D> void Solver<D>::updatePhase()
 {
     //Exchange phase fields to calculate it properly
@@ -916,32 +840,18 @@ template<typename D> void Solver<D>::updatePhase()
 
 }
 
-template<typename D> void Solver<D>::updateWall()
-{
-	const double phase_wall=params_list("phase_wall").template value<double>();
-	const double rho_wall=params_list("rho_wall").template value<double>();
-	const int zbegin=lattice->getZbegin();
-	const int zend=lattice->getZend();
-	for (int iZ=0;iZ<NZ;iZ++)
-		for(int iY=0;iY<NY;iY++)
-			for(int iX=0;iX<NX;iX++)
-				if ((iZ>=zbegin)&&(iZ<=zend)&&(geom->getType(iX,iY,iZ)==SolidNode))
-				{
-					putPhase(iX,iY,iZ,iX,iY,iZ,phase_wall);
-					putDensity(iX,iY,iZ,iX,iY,iZ,rho_wall);
-				}
-}
 
 template<typename D> void Solver<D>::init()
 {
-    updateWall();
+    lattice->updateSymmetric();
+    lattice->updateWall();
 	updatePhase();
     lattice->init();
 }
 
 template<typename D> void Solver<D>::collide_stream()
 {
-    updateMacro();
+    lattice->updateMacro();
     updatePhase();
     lattice->collide_stream();
     if (size!=1)

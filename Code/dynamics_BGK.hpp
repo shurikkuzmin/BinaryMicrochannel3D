@@ -118,6 +118,7 @@ void DynamicsBGK<D>::updateFields(int iX,int iY,int iZ)
 
 }
 
+
 template<typename D>
 void DynamicsBGK<D>::collide_stream(int iX,int iY,int iZ)
 {

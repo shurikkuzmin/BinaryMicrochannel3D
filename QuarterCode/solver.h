@@ -1,10 +1,8 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
-#include "geometry.h"
 #include "lattice.h"
 #include "mpi_singleton.h"
-#include "dynamics_BGK.h"
 
 #include "destroyer.h"
 #include "params_list.h"
@@ -13,7 +11,7 @@ template<typename D>
 class Solver
 {
     public:
-    explicit Solver(Geometry * _geom,ParamsList _params_list);
+    explicit Solver(ParamsList _params_list);
     ~Solver()
     {
         delete lattice;
@@ -68,9 +66,7 @@ class Solver
     void writeTextYZDensity(std::string name);
 
     void init();
-    void updateWall();
 	void updatePhase();
-    void updateMacro();
     void propagate();
     void collide_stream();
     void exchangeMatrices();
@@ -81,13 +77,6 @@ class Solver
         return lattice;
     }
 
-
-	Geometry * geom;
-
-    //Incremental coefficients
-    int iterX;
-    int iterY;
-    int iterZ;
 
 	private:
 
@@ -102,11 +91,6 @@ class Solver
     double * density;
     double * phase;
     double * velocity;
-
-    Destroyer<Dynamics<D> > destroyer_list;
-
-
-    ParamsList params_list;
 };
 
 #endif

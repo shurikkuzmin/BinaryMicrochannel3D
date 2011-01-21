@@ -18,6 +18,8 @@ class DynamicsSpecial : public DynamicsBGK<D>
 
     void init(int iX,int iY, int iZ);
 
+    std::vector<int> & getDirections();
+
     void update_wall_phase(int iX,int iY,int iZ);
     void update_all_gradients(int iX,int iY,int iZ);
 
