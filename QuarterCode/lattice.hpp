@@ -275,38 +275,6 @@ void Lattice<D>::init()
         g[counter*D::NPOP]=phase_temp-sum_phase;
 	}
 
-    //Initializing BB nodes
-    for(int iZ=0;iZ<zend-zbegin+1;iZ++)
-    {
-        for(int iX=0;iX<NX-1;iX++)
-        {
-            int counter=iZ*NX*NY+(NY-1)*NX+iX;
-            for(int k=0;k<D::NPOP;k++)
-            {
-                f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
-                g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
-            }
-        }
-
-        for(int iY=0;iY<NY-1;iY++)
-        {
-            int counter=iZ*NX*NY+iY*NX+NX-1;
-
-            for(int k=0;k<D::NPOP;k++)
-            {
-                f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
-                g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
-            }
-        }
-
-        int counter=iZ*NX*NY+(NY-1)*NX+NX-1;
-        for(int k=0;k<D::NPOP;k++)
-        {
-            f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
-            g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
-        }
-    }
-
     //Initialize Symmetric nodes
     for(int iZ=0;iZ<zend-zbegin+1;iZ++)
     {
@@ -342,6 +310,41 @@ void Lattice<D>::init()
             g[counter*D::NPOP+symmetricxy[k]]=g[counter2*D::NPOP+k];
         }
 
+    }
+
+
+
+
+    //Initializing BB nodes
+    for(int iZ=0;iZ<zend-zbegin+1;iZ++)
+    {
+        for(int iX=0;iX<NX-1;iX++)
+        {
+            int counter=iZ*NX*NY+(NY-1)*NX+iX;
+            for(int k=0;k<D::NPOP;k++)
+            {
+                f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
+                g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
+            }
+        }
+
+        for(int iY=0;iY<NY-1;iY++)
+        {
+            int counter=iZ*NX*NY+iY*NX+NX-1;
+
+            for(int k=0;k<D::NPOP;k++)
+            {
+                f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
+                g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
+            }
+        }
+
+        int counter=iZ*NX*NY+(NY-1)*NX+NX-1;
+        for(int k=0;k<D::NPOP;k++)
+        {
+            f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
+            g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
+        }
     }
 
 
@@ -707,9 +710,9 @@ template<typename D> void Lattice<D>::updateSymmetric()
         for(int iY=1;iY<NY-2;iY++)
         {
             double phase_temp=phase[iZ*NX*NY+iY*NX+1];
-            double rho_temp=rho[iZ*NX*NY+NX+iX];
+            double rho_temp=rho[iZ*NX*NY+iY*NX+1];
             putPhase(iX,iY,iZ,iX,iY,iZ,phase_temp);
-            putDensity(iZ,iY,iZ,iX,iY,iZ,rho_temp);
+            putDensity(iX,iY,iZ,iX,iY,iZ,rho_temp);
         }
         //Corner node
         putPhase(0,0,iZ,0,0,iZ,phase[iZ*NX*NY+NX+1]);

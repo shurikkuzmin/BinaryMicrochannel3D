@@ -15,9 +15,9 @@
 #include "descriptor.h"
 
 //Lattice Boltzmann initialization and parameters
-const int NX=52;
-const int NY=52;
-const int NZ=51;
+const int NX=28;
+const int NY=28;
+const int NZ=52;
 const int NPOP=19;
 const int NUM=NX*NY*NZ;
 const int NUMTOTAL=NUM*NPOP;
@@ -57,7 +57,7 @@ int main(int argc,char* argv[])
     params.add("tau_gas",0.7);
     params.add("force_x",0.0);
     params.add("force_y",0.0);
-    params.add("force_z",0.000015);
+    params.add("force_z",0.00);
     params.add("NX",NX);
     params.add("NY",NY);
     params.add("NZ",NZ);
@@ -80,6 +80,7 @@ int main(int argc,char* argv[])
 
         //Initialization of the part of the channel
 
+        //if ((iZ>=(NZ-1)/3)&&(iZ<=2*(NZ-1)/3)&&(iX*iX+iY*iY<=20*20))
 		if ((iZ>=(NZ-1)/3)&&(iZ<=2*(NZ-1)/3)&&(iX<=NX-width-1)&&(iY<=NY-width-1))
 		{
 			rho_temp=rhog;
@@ -99,6 +100,24 @@ int main(int argc,char* argv[])
 
 		}
 
+//        if ((iX==1)&&(iY!=NY-1))
+//        {
+//            rho_temp=rhog;
+//            phase_temp=-1.0;
+//            u_temp[0]=0.1;
+//            u_temp[1]=0.0;
+//            u_temp[2]=0.1;
+//        }
+//        if ((iY==1)&&(iX!=NX-1))
+//        {
+//            u_temp[0]=0.0;
+//            u_temp[1]=0.1;
+//            u_temp[2]=0.1;
+//            rho_temp=rhog;
+//            phase_temp=-1.0;
+//
+//
+//        }
 		solver.putDensity(iX,iY,iZ,iX,iY,iZ,rho_temp);
 		solver.putPhase(iX,iY,iZ,iX,iY,iZ,phase_temp);
 		solver.putVelocity(iX,iY,iZ,iX,iY,iZ,u_temp);

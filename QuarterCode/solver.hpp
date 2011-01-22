@@ -847,6 +847,8 @@ template<typename D> void Solver<D>::init()
     lattice->updateWall();
 	updatePhase();
     lattice->init();
+	lattice->updateMacro();
+
 }
 
 template<typename D> void Solver<D>::collide_stream()

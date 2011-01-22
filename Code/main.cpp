@@ -28,9 +28,9 @@
 #include "descriptor.h"
 
 //Lattice Boltzmann initialization and parameters
-const int NX=52;
-const int NY=52;
-const int NZ=51;
+const int NX=53;
+const int NY=53;
+const int NZ=52;
 const int NPOP=19;
 const int NUM=NX*NY*NZ;
 const int NUMTOTAL=NUM*NPOP;
@@ -70,21 +70,21 @@ int main(int argc,char* argv[])
     params.add("tau_gas",0.7);
     params.add("force_x",0.0);
     params.add("force_y",0.0);
-    params.add("force_z",0.000015);
+    params.add("force_z",0.0);
 
     //Specify geometry
     Geometry * geometry=new Geometry(NX,NY,NZ);
     geometry->setType(FluidNode);
 
     //Microchannel walls specification
-    //geometry->setType(0,0,0,NX-1,0,NZ-1,SolidNode);
-    //geometry->setType(0,0,0,0,NY-1,NZ-1,SolidNode);
+    geometry->setType(0,0,0,NX-1,0,NZ-1,SolidNode);
+    geometry->setType(0,0,0,0,NY-1,NZ-1,SolidNode);
     geometry->setType(0,NY-1,0,NX-1,NY-1,NZ-1,SolidNode);
     geometry->setType(NX-1,0,0,NX-1,NY-1,NZ-1,SolidNode);
 
     //SymmetricNode specification
-    geometry->setType(0,0,0,NX-1,0,NZ-1,SymmetricNode);
-    geometry->setType(0,0,0,0,NY-1,NZ-1,SymmetricNode);
+    //geometry->setType(0,0,0,NX-1,0,NZ-1,SymmetricNode);
+    //geometry->setType(0,0,0,0,NY-1,NZ-1,SymmetricNode);
 
     Solver<Descriptor> solver(geometry,params);
 

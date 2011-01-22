@@ -54,31 +54,31 @@ class Lattice
 
         //Symmetric populations
         symmetricx[0]=0;
-        for(int k=1;k<D::NPOP-1;k++)
-            for(int l=1;l<D::NPOP-1;l++)
+        for(int k=1;k<D::NPOP;k++)
+            for(int l=1;l<D::NPOP;l++)
                 if ((-D::cx[k]==D::cx[l])&&(D::cy[k]==D::cy[l])&&(D::cz[k]==D::cz[l]))
                 {
                     symmetricx[k]=l;
                     break;
                 }
         symmetricy[0]=0;
-        for(int k=1;k<D::NPOP-1;k++)
-            for(int l=1;l<D::NPOP-1;l++)
+        for(int k=1;k<D::NPOP;k++)
+            for(int l=1;l<D::NPOP;l++)
                 if ((D::cx[k]==D::cx[l])&&(D::cy[k]==-D::cy[l])&&(D::cz[k]==D::cz[l]))
                 {
                     symmetricy[k]=l;
                     break;
                 }
         symmetricxy[0]=0;
-        for(int k=1;k<D::NPOP-1;k++)
-            for(int l=1;l<D::NPOP-1;l++)
+        for(int k=1;k<D::NPOP;k++)
+            for(int l=1;l<D::NPOP;l++)
                 if ((D::cx[k]==-D::cx[l])&&(D::cy[k]==-D::cy[l])&&(D::cz[k]==D::cz[l]))
                 {
                     symmetricxy[k]=l;
                     break;
                 }
 
-        for(int k=0;k<D::NPOP-1;k++)
+        for(int k=0;k<D::NPOP;k++)
         {
             std::cout<<"Symmetricx["<<k<<"]="<<symmetricx[k]<<"\n";
             std::cout<<"Symmetricy["<<k<<"]="<<symmetricy[k]<<"\n";
