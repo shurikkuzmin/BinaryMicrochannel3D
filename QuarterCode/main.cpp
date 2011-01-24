@@ -15,8 +15,8 @@
 #include "descriptor.h"
 
 //Lattice Boltzmann initialization and parameters
-const int NX=28;
-const int NY=28;
+const int NX=27;
+const int NY=27;
 const int NZ=52;
 const int NPOP=19;
 const int NUM=NX*NY*NZ;
@@ -57,7 +57,7 @@ int main(int argc,char* argv[])
     params.add("tau_gas",0.7);
     params.add("force_x",0.0);
     params.add("force_y",0.0);
-    params.add("force_z",0.00);
+    params.add("force_z",0.00003);
     params.add("NX",NX);
     params.add("NY",NY);
     params.add("NZ",NZ);
@@ -150,6 +150,7 @@ int main(int argc,char* argv[])
  			time_string<<time_counter;
 
 			file_name<<"phase"<<std::string(5-time_string.str().size(),'0')<<time_counter;
+            //solver.writeTextWholeVelocity(file_name.str());
             solver.writeWholeDensityPhaseVelocity(file_name.str());
             cout<<"Output is done on the step "<<time_counter<<"\n";
 		}

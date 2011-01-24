@@ -26,7 +26,10 @@ def read(name):
     velz_numpy =velz.reshape(dims)
     
     fig=mlab.figure()
+ 
     src = mlab.pipeline.scalar_field(phase_numpy)
+    mlab.axes()
+
     v= mlab.pipeline.vector_field(velx_numpy,vely_numpy,velz_numpy)
     vx=mlab.pipeline.scalar_field(velx_numpy)
     vy=mlab.pipeline.scalar_field(vely_numpy)
@@ -36,7 +39,6 @@ def read(name):
     extract.set(z_min=1,z_max=dims[2]-2,y_min=1,y_max=dims[1]-2)
     surf = mlab.pipeline.contour_surface(extract)
  
-    mlab.axes()
     mlab.pipeline.image_plane_widget(vx, plane_orientation='x_axes', slice_index=250)
     #mlab.pipeline.vectors(v, mask_points=20, scale_factor=3.)
     mlab.pipeline.vector_cut_plane(v, mask_points=2, scale_factor=3)
@@ -163,16 +165,22 @@ def compare(name,name_quarter):
     velz_quarter_numpy =velz_quarter.reshape(dims_quarter)
 
     pylab.figure()
-    pylab.imshow(phase_numpy[25,0:26,0:26])
+    pylab.imshow(phase_numpy[25,0:27,26:])
     pylab.figure()
-    pylab.imshow(phase_quarter_numpy[25,:,:],origin="lower")
+    pylab.imshow(phase_quarter_numpy[25,1:,1:],origin="lower")
     pylab.figure()
     pylab.plot(phase_quarter_numpy[25,:,0])
     pylab.plot(phase_quarter_numpy[25,:,1])
+    pylab.figure()
+    pylab.plot(phase_numpy[25,26:,26])
+    pylab.plot(phase_quarter_numpy[25,1:,0])
     
-    print velx_quarter_numpy[25,:10,0], velx_quarter_numpy[25,:10,1]
-    print vely_quarter_numpy[25,:10,0], vely_quarter_numpy[25,:10,1]
-    print velz_quarter_numpy[25,:10,0], velz_quarter_numpy[25,:10,1]
+    print "The difference is", phase_quarter_numpy[25,:,0]-phase_quarter_numpy[25,:,1]
+    print "Another difference is", phase_numpy[25,26:,26]-phase_quarter_numpy[25,1:,0]
+    
+    #print velx_quarter_numpy[25,:10,0], velx_quarter_numpy[25,:10,1]
+    #print vely_quarter_numpy[25,:10,0], vely_quarter_numpy[25,:10,1]
+    #print velz_quarter_numpy[25,:10,0], velz_quarter_numpy[25,:10,1]
     
     pylab.show()
  
@@ -181,9 +189,9 @@ def compare(name,name_quarter):
 
 if __name__=="__main__":
     name_symmetry="../QuarterCode/phase00100.vts"
-    name="../Code/phase00300.vts"
-    name_quarter="../QuarterCode/phase00300.vts"
-    #read(name)
-    #show(n,300)
-    #compare(name,name_quarter)
-    check_symmetry(name_symmetry)
+    name="../Code/phase01000.vts"
+    name_quarter="../QuarterCode/phase01000.vts"
+    #read(name_symmetry)
+    #show(name_symmetry,25)
+    compare(name,name_quarter)
+    #check_symmetry(name_symmetry)

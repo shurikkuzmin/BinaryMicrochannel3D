@@ -550,14 +550,13 @@ void Lattice<D>::collide_stream()
     {
         for(int iX=0;iX<NX-1;iX++)
         {
-            int counter=iZ*NX*NY+(NY-1)*NX+iX;
+            int counter=iZ*NX*NY+(NY-2)*NX+iX;
             int iY=NY-2;
             for(int k=0;k<D::NPOP;k++)
             {
                 int iZ2=(iZ+D::cz[k]+zend-zbegin+1)%(zend-zbegin+1);
                 int iY2=(iY+D::cy[k]+NY)%NY;
                 int iX2=(iX+D::cx[k]+NX)%NX;
-                int counter2=iZ2*NX*NY+iY2*NX+iX2;
                 if (iY2==NY-1)
                 {
                     f2[counter*D::NPOP+D::compliment[k]]=f[counter*D::NPOP+k];
@@ -569,7 +568,7 @@ void Lattice<D>::collide_stream()
 
         for(int iY=0;iY<NY-1;iY++)
         {
-            int counter=iZ*NX*NY+iY*NX+NX-1;
+            int counter=iZ*NX*NY+iY*NX+NX-2;
             int iX=NX-2;
 
             for(int k=0;k<D::NPOP;k++)
@@ -577,7 +576,6 @@ void Lattice<D>::collide_stream()
                 int iZ2=(iZ+D::cz[k]+zend-zbegin+1)%(zend-zbegin+1);
                 int iY2=(iY+D::cy[k]+NY)%NY;
                 int iX2=(iX+D::cx[k]+NX)%NX;
-                int counter2=iZ2*NX*NY+iY2*NX+iX2;
                 if (iX2==NX-1)
                 {
                     f2[counter*D::NPOP+D::compliment[k]]=f[counter*D::NPOP+k];

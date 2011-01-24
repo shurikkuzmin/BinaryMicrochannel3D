@@ -28,8 +28,8 @@
 #include "descriptor.h"
 
 //Lattice Boltzmann initialization and parameters
-const int NX=53;
-const int NY=53;
+const int NX=52;
+const int NY=52;
 const int NZ=52;
 const int NPOP=19;
 const int NUM=NX*NY*NZ;
@@ -70,7 +70,7 @@ int main(int argc,char* argv[])
     params.add("tau_gas",0.7);
     params.add("force_x",0.0);
     params.add("force_y",0.0);
-    params.add("force_z",0.0);
+    params.add("force_z",0.00003);
 
     //Specify geometry
     Geometry * geometry=new Geometry(NX,NY,NZ);
