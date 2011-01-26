@@ -55,6 +55,7 @@ class Solver
 
     void writeTextWholeVelocity(std::string name);
     void writeTextWholePhase(std::string name);
+    void writeTextWholeDensity(std::string name);
     void writeVTKWholePhase(std::string name);
 
     void writeTextXZPhase(std::string name);

@@ -632,6 +632,23 @@ template<typename D> void Solver<D>::writeTextWholePhase(std::string name)
     }
 }
 
+template<typename D> void Solver<D>::writeTextWholeDensity(std::string name)
+{
+    Solver::getWholeDensity();
+    if (rank==0)
+    {
+    	name=name+".dat";
+        std::ofstream fout(name.c_str());
+        fout.precision(10);
+        for(int counterZ=0;counterZ<NZ;counterZ++)
+            for(int counterY=0;counterY<NY;counterY++)
+                for(int counterX=0;counterX<NX;counterX++)
+                    fout << counterX << " " << counterY << " " << counterZ << " "<<density[counterZ*NX*NY+counterY*NX+counterX]<<"\n";
+    }
+}
+
+
+
 //Write planes of phase
 template<typename D> void Solver<D>::writeTextXYPhase(std::string name)
 {
@@ -728,6 +745,7 @@ template<typename D> void Solver<D>::writeTextWholeVelocity(std::string name)
     {
     	name=name+".dat";
         std::ofstream fout(name.c_str());
+        fout.precision(12);
         for(int counterZ=0;counterZ<NZ;counterZ++)
             for(int counterY=0;counterY<NY;counterY++)
                 for(int counterX=0;counterX<NX;counterX++)

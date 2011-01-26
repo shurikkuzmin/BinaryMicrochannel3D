@@ -258,11 +258,21 @@ the center bubble velocity are as follows $0.905$, $0.986$,$1.08$,$1.19$, $1.33$
 calculated radiuses (diagonal radius equal to the axes radius) are as follows
 $0.783$,$0.778$,$0.772$,$0.764$,$0.753$,$0.747$. Thus, one can see the great impact of the bubbles
 on each other velocity for the given body force. However, in terms of the film thicknesses those
-numbers look adequate. One can see the film thicknesses dependency on the capillary number for the
-\citeauthor{heil-threedim} and bubble train simulations data in Fig. \ref{fig:capillaries:train}. 
+numbers look adequate. One can see the film thicknesses dependency on the capillary number for
+simulations obtained by \citet{heil-threedim} and bubble train simulations data in Fig.
+\ref{fig:capillaries:train}. One can see that the results are consistent and in a good agreement.
+Therefore, though the bubble train mutual motion influences on the film thickness by increasing the
+associated capillary number,  however, the film thickness is in accordance with the capillary
+number correlation. Thus, the decrease of the numerical domain is quantified and can be used to
+obtain the data. However, one should be cautious about the initialization, because the Poiseuille
+flow initialization is deviated even further due to mutual motion of bubbles.
 \begin{figure}
 \includegraphics[width=0.97\textwidth]{Figures/capillaries_comparison_train.eps}
-\caption{Some more information on representing \label{fig:capillaries:train}}
+\caption{The comparison for the film thickness between \citet{heil-threedim} data and bubble train
+simulations. Though, one can see that the decrease of the distance between bubbles causes the
+increase in the associated capillary number, however, the correlation dependance between film
+thickness and capillary number stays the same. This can help for simulations to reduce the
+numerical domain. \label{fig:capillaries:train}}
 \end{figure}
 
 

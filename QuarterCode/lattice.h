@@ -165,6 +165,7 @@ class Lattice
     void init();
     void updateWall();
     void updateSymmetric();
+    void updateSymmetricPopulations();
 
     //Collide and stream
     void collide_stream();

@@ -153,7 +153,32 @@ def Analyze_Consequence():
     pylab.plot(capillaries,diag_zeros)
     numpy.savetxt("steady.txt",zip(capillaries,ax_zeros,diag_zeros))
     pylab.show()
-    mlab.show()    
+    mlab.show()
+    
+def Analyze_NoForce_Consequence():
+    ax_zeros=[]
+    diag_zeros=[]
+    capillaries=[]
+    os.chdir("NoForce")
+    for i in range(1,5):
+        print os.getcwd()
+        name="steady"+str(2*i)+"00000_0.vti"
+        print name
+        axis_zero, diag_zero, capillary=Analyze_Phase(name)
+        ax_zeros.append(axis_zero)
+        diag_zeros.append(diag_zero)
+        capillaries.append(capillary)
+        #Calculate the capillary number
+        os.chdir("..")
+    pylab.plot(capillaries,ax_zeros)
+    pylab.plot(capillaries,diag_zeros)
+    #numpy.savetxt("steady.txt",zip(capillaries,ax_zeros,diag_zeros))
+    pylab.show()
+    mlab.show()
+
+
+    
+        
 
 def Draw_Consequence():
     #from numpy import genfromtxt
@@ -273,5 +298,6 @@ if __name__=="__main__":
     #Analyze_Simulations()    
     #Analyze_Velocities()
     #Analyze_Bubble()
-    Compare_Plots()
+    #Compare_Plots()
+    Analyze_NoForce_Consequence()
     #pylab.show()

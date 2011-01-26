@@ -321,30 +321,54 @@ void Lattice<D>::init()
         for(int iX=0;iX<NX-1;iX++)
         {
             int counter=iZ*NX*NY+(NY-1)*NX+iX;
-            for(int k=0;k<D::NPOP;k++)
+            double sum=0.0;
+            double sum_phase=0.0;
+
+            for(int k=1;k<D::NPOP;k++)
             {
-                f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
-                g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
+                f[counter*D::NPOP+k]=D::weights[k]*rho[counter]/3.0;
+                g[counter*D::NPOP+k]=D::weights[k]*phase[counter]/3.0;
+                sum=sum+f[counter*D::NPOP+k];
+                sum_phase=sum_phase+g[counter*D::NPOP+k];
             }
+            f[counter*D::NPOP]=rho[counter]-sum;
+            g[counter*D::NPOP]=phase[counter]-sum_phase;
         }
 
         for(int iY=0;iY<NY-1;iY++)
         {
             int counter=iZ*NX*NY+iY*NX+NX-1;
+            double sum=0.0;
+            double sum_phase=0.0;
 
-            for(int k=0;k<D::NPOP;k++)
+            for(int k=1;k<D::NPOP;k++)
             {
-                f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
-                g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
+                f[counter*D::NPOP+k]=D::weights[k]*rho[counter]/3.0;
+                g[counter*D::NPOP+k]=D::weights[k]*phase[counter]/3.0;
+                sum=sum+f[counter*D::NPOP+k];
+                sum_phase=sum_phase+g[counter*D::NPOP+k];
             }
+
+            f[counter*D::NPOP]=rho[counter]-sum;
+            g[counter*D::NPOP]=phase[counter]-sum_phase;
+
         }
 
         int counter=iZ*NX*NY+(NY-1)*NX+NX-1;
-        for(int k=0;k<D::NPOP;k++)
+        double sum=0.0;
+        double sum_phase=0.0;
+
+        for(int k=1;k<D::NPOP;k++)
         {
             f[counter*D::NPOP+k]=D::weights[k]*rho[counter];
             g[counter*D::NPOP+k]=D::weights[k]*phase[counter];
+            sum=sum+f[counter*D::NPOP+k];
+            sum_phase=sum_phase+g[counter*D::NPOP+k];
         }
+
+        f[counter*D::NPOP]=rho[counter]-sum;
+        g[counter*D::NPOP]=phase[counter]-sum_phase;
+
     }
 
 
@@ -389,12 +413,14 @@ void Lattice<D>::collide_stream()
         uy[counter]+=force_y/(2.0*rho[counter]);
         uz[counter]+=force_z/(2.0*rho[counter]);
 
+        //std::cout<<"force_z="<<force_z;
+
         //Reconstruction of equilibrium populations
         double phase_temp=phase[counter];
         double dense_temp=rho[counter];
         double ux_temp=ux[counter];
         double uy_temp=uy[counter];
-        double uz_temp=uz[counter];
+        double uz_temp=uz[counter]; //+force_z/(2.0*rho[counter]);
 
         double phase_square=phase_temp*phase_temp;
         double pressure_bulk=dense_temp/3.0+aconst*(-0.5*phase_square+3.0/4.0*phase_square*phase_square)-kconst*phase_temp*laplace_temp;
@@ -461,7 +487,7 @@ void Lattice<D>::collide_stream()
             g[counter*D::NPOP+k]+=-omega_phi*(g[counter*D::NPOP+k]-geq[k]);
         }
 
-        //Streaming procedure (separate loop for normal)
+        //Streaming procedure
         for (int k=0; k<D::NPOP; k++)
         {
             int iZ2=(iZ+D::cz[k]+zend-zbegin+1)%(zend-zbegin+1);
@@ -474,7 +500,7 @@ void Lattice<D>::collide_stream()
 
 	}
 
-	//Symmetric nodes
+	//Symmetric nodes plus update velocity which is changed
 	for(int iZ=0;iZ<zend-zbegin+1;iZ++)
     {
         for(int iX=1;iX<NX-1;iX++)
@@ -482,6 +508,10 @@ void Lattice<D>::collide_stream()
             int counter=iZ*NX*NY+iX;
             int counter2=iZ*NX*NY+NX+iX;
             int iY=0;
+
+            ux[counter]+=force_x/(2*rho[counter]);
+            uy[counter]+=force_y/(2*rho[counter]);
+            uz[counter]+=force_z/(2*rho[counter]);
 
             for(int k=0;k<D::NPOP;k++)
             {
@@ -506,6 +536,11 @@ void Lattice<D>::collide_stream()
             int counter=iZ*NX*NY+iY*NX;
             int counter2=iZ*NX*NY+iY*NX+1;
             int iX=0;
+
+            ux[counter]+=force_x/(2*rho[counter]);
+            uy[counter]+=force_y/(2*rho[counter]);
+            uz[counter]+=force_z/(2*rho[counter]);
+
             for(int k=0;k<D::NPOP;k++)
             {
                 f[counter*D::NPOP+symmetricx[k]]=f[counter2*D::NPOP+k];
@@ -525,6 +560,11 @@ void Lattice<D>::collide_stream()
 
         int counter=iZ*NX*NY;
         int counter2=iZ*NX*NY+NX+1;
+
+        ux[counter]+=force_x/(2*rho[counter]);
+        uy[counter]+=force_y/(2*rho[counter]);
+        uz[counter]+=force_z/(2*rho[counter]);
+
 
         for(int k=0;k<D::NPOP;k++)
         {
@@ -594,7 +634,7 @@ void Lattice<D>::collide_stream()
             int iY2=(iY+D::cy[k]+NY)%NY;
             int iX2=(iX+D::cx[k]+NX)%NX;
             int counter2=iZ2*NX*NY+iY2*NX+iX2;
-            if ((iY2==NY-1)&&(iX2==NX-1))
+            if ((iY2==NY-1)||(iX2==NX-1))
             {
                 f2[counter*D::NPOP+D::compliment[k]]=f[counter*D::NPOP+k];
                 g2[counter*D::NPOP+D::compliment[k]]=g[counter*D::NPOP+k];
@@ -719,6 +759,52 @@ template<typename D> void Lattice<D>::updateSymmetric()
 
 }
 
+template<typename D>
+void Lattice<D>::updateSymmetricPopulations()
+{
+    //Symmetric nodes
+	for(int iZ=0;iZ<zend-zbegin+1;iZ++)
+    {
+        for(int iX=1;iX<NX-1;iX++)
+        {
+            int counter=iZ*NX*NY+iX;
+            int counter2=iZ*NX*NY+NX+iX;
+            int iY=0;
+
+            for(int k=0;k<D::NPOP;k++)
+            {
+                f2[counter*D::NPOP+symmetricy[k]]=f2[counter2*D::NPOP+k];
+                g2[counter*D::NPOP+symmetricy[k]]=g2[counter2*D::NPOP+k];
+            }
+
+         }
+
+        for(int iY=1;iY<NY-1;iY++)
+        {
+            int counter=iZ*NX*NY+iY*NX;
+            int counter2=iZ*NX*NY+iY*NX+1;
+            int iX=0;
+            for(int k=0;k<D::NPOP;k++)
+            {
+                f2[counter*D::NPOP+symmetricx[k]]=f2[counter2*D::NPOP+k];
+                g2[counter*D::NPOP+symmetricx[k]]=g2[counter2*D::NPOP+k];
+            }
+
+        }
+
+        int counter=iZ*NX*NY;
+        int counter2=iZ*NX*NY+NX+1;
+
+        for(int k=0;k<D::NPOP;k++)
+        {
+            f2[counter*D::NPOP+symmetricxy[k]]=f2[counter2*D::NPOP+k];
+            g2[counter*D::NPOP+symmetricxy[k]]=g2[counter2*D::NPOP+k];
+        }
+
+    }
+
+}
+
 
 template<typename D>
 void Lattice<D>::finishPropagation()
@@ -749,6 +835,8 @@ void Lattice<D>::finishPropagation()
         }
 
 	}
+
+	updateSymmetricPopulations();
 }
 
 template<typename D>

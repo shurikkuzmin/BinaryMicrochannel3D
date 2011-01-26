@@ -155,7 +155,8 @@ int main(int argc,char* argv[])
  			time_string<<time_counter;
 
 			file_name<<"phase"<<std::string(5-time_string.str().size(),'0')<<time_counter;
-            solver.writeWholeDensityPhaseVelocity(file_name.str());
+            //solver.writeWholeDensityPhaseVelocity(file_name.str());
+            solver.writeTextWholeVelocity(file_name.str());
             cout<<"Output is done on the step "<<time_counter<<"\n";
 		}
 	}
