@@ -245,6 +245,28 @@ interface.
 \section{Capillary number region}
 The same as in the previous example can help us to identify the necessary capillary regime. The
 most important thing is to establish different accentricity factors.
+
+\section{Train simulation}
+As far as the requirements for the grid are ``heavy'' we performed a bunch of simulations to
+examine how the distance between bubbles influences on the thickness. For this purpose the
+simulation was conducted on the grid 82x82x750. We examined different initialized distances between
+bubbles. The initial lengths of bubbles were chosen as $300$, $350$, $400$, $450$, $500$, $550$
+lattice units. Therefore, the corresponding initial distances between bubbles are
+$450$,$400$,$350$,$300$,$250$ lattice units. On the steady state regime the distances become $386$,
+$317$, $248$,$176$,$99$,$23$ lattice units. The corresponding capillary numbers calculated based on
+the center bubble velocity are as follows $0.905$, $0.986$,$1.08$,$1.19$, $1.33$, $1.49$. The
+calculated radiuses (diagonal radius equal to the axes radius) are as follows
+$0.783$,$0.778$,$0.772$,$0.764$,$0.753$,$0.747$. Thus, one can see the great impact of the bubbles
+on each other velocity for the given body force. However, in terms of the film thicknesses those
+numbers look adequate. One can see the film thicknesses dependency on the capillary number for the
+\citeauthor{heil-threedim} and bubble train simulations data in Fig. \ref{fig:capillaries:train}. 
+\begin{figure}
+\includegraphics[width=0.97\textwidth]{Figures/capillaries_comparison_train.eps}
+\caption{Some more information on representing \label{fig:capillaries:train}}
+\end{figure}
+
+
+
 \section{Simulation setup}
 
 

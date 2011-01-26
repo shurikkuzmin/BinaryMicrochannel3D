@@ -4,7 +4,6 @@ import subprocess
 import pylab
 import numpy
 import math
-import math
 from enthought.tvtk.api import tvtk
 from enthought.mayavi import mlab
 import matplotlib.pyplot as plt
@@ -66,6 +65,7 @@ def Show_Phase(phase_numpy):
     
     fig=mlab.figure()
     src = mlab.pipeline.scalar_field(phase_numpy)
+ 
     mlab.outline()
     mlab.orientation_axes()
     #v= mlab.pipeline.vector_field(velx_numpy,vely_numpy,velz_numpy)
@@ -88,9 +88,8 @@ def Analyze_Phase(name):
     a=0.04
     
     phase_numpy,velx_numpy,vely_numpy,velz_numpy=Read_Phase(name)
-    #Show_Phase_Slice(phase_numpy,175)
+    Show_Phase(phase_numpy)
     dims=phase_numpy.shape
-
 
 
     center=phase_numpy[dims[0]/2,dims[1]/2,:]
@@ -99,6 +98,8 @@ def Analyze_Phase(name):
     if z1==0:
         z2=numpy.min(numpy.where(center>0.0))+dims[2]
         z1=numpy.max(numpy.where(center>0.0))
+    pylab.figure()
+    pylab.plot(center)
     print z1,z2
     
     mid =((z1+z2)/2)%dims[2]
@@ -111,19 +112,19 @@ def Analyze_Phase(name):
     axis_zero=(1.0-Get_Zero(prof_axis)/(0.5*(shape[1]-2)))
     diag_zero=(math.sqrt(2.0)-math.sqrt(2.0)*Get_Zero(prof_diag)/(0.5*(shape[1]-2)))
     
-    #print "Velx",velx_numpy[dims[0]/2,dims[1]/2,mid]
-    #print "Vely",vely_numpy[dims[0]/2,dims[1]/2,mid]
-    #print "Velz",velz_numpy[dims[0]/2,dims[1]/2,mid]
+    print "Velx",velx_numpy[dims[0]/2,dims[1]/2,mid]
+    print "Vely",vely_numpy[dims[0]/2,dims[1]/2,mid]
+    print "Velz",velz_numpy[dims[0]/2,dims[1]/2,mid]
     
     #Calculation of the capillary number
     capillary=velx_numpy[dims[0]/2,dims[1]/2,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
     
-    pylab.figure()
-    pylab.imshow(phase_numpy[:,:,mid])
-    pylab.figure()
-    pylab.plot(prof_axis)
-    pylab.figure()
-    pylab.plot(prof_diag)
+#    pylab.figure()
+#    pylab.imshow(phase_numpy[:,:,mid])
+#    pylab.figure()
+#    pylab.plot(prof_axis)
+#    pylab.figure()
+#    pylab.plot(prof_diag)
 
 
     print axis_zero,diag_zero
@@ -151,7 +152,8 @@ def Analyze_Consequence():
     pylab.plot(capillaries,ax_zeros)
     pylab.plot(capillaries,diag_zeros)
     numpy.savetxt("steady.txt",zip(capillaries,ax_zeros,diag_zeros))
-    pylab.show()    
+    pylab.show()
+    mlab.show()    
 
 def Draw_Consequence():
     #from numpy import genfromtxt
@@ -264,14 +266,12 @@ def Analyze_Bubble(name):
     pylab.savefig("bubble_length_ca_one.eps",format="EPS",dpi=300)
 
 
-
-
-
 if __name__=="__main__":
     
     #Run_Simulations()
-    Analyze_Consequence()
+    #Analyze_Consequence()
     #Analyze_Simulations()    
     #Analyze_Velocities()
     #Analyze_Bubble()
+    Compare_Plots()
     #pylab.show()
