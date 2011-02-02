@@ -42,6 +42,20 @@ def read(name):
     #mlab.pipeline.vectors(v, mask_points=20, scale_factor=3.)
     mlab.pipeline.vector_cut_plane(v,plane_orientation='y_axes', mask_points=5)
     mlab.show()
+def read_paraview(name):
+    import paraview.simple
+    from paraview.simple import *
+    
+    reader=XMLStructuredGridReader(FileName=name)
+    reader.UpdatePipeline()
+    
+    contour=Contour()
+    contour.ContourBy="Phase"
+    contour.Isosurfaces=[0.0]
+    Show(contour)
+    Render()
+    Show()
+    
 def read_vtk(name):
     import vtk
     import numpy
@@ -54,12 +68,13 @@ def read_vtk(name):
     selection.DisableArray("Velocity")
     gridreader.Update()
     
-
     grid  = gridreader.GetOutput()
     data  = grid.GetPointData()
     points=grid.GetPoints()
     dims  =grid.GetDimensions()
     
+    #algorithm=vtk.vtkAlgorithm()
+    #algorithm.SetInputConnection(gridreader.GetOutputPort())
     print data.GetArray("Density")
     print data.GetArray("Velocity")
     #print dims
@@ -67,22 +82,44 @@ def read_vtk(name):
     #dims.reverse()
     
 
+ 
     phase= data.GetArray("Phase")
     #velocity=data.GetArray("Velocity")
     
-    contour=vtk.vtkContourFilter()
-    contour.SetInputConnection(gridreader.GetOutputPort())
-    contour.Update()
-    #print contour.GetNumberOfContours()
-    #print contour.GetOutputDataObject(0)
-    print contour.GetInput()
-   # contour.GenerateValues(50, (0,0.1))
+    #contour=vtk.vtkMarchingContourFilter()
+    #vtk_data=vtk.vtkDataSet()
+    #vtk_data.SetInputConnection(gridreader.GetOutputPort())
     
+    contour=vtk.vtkContourFilter()
+    #contour.SetInputConnection(algorithm.GetOutputPort())
+    contour.SetInputConnection(gridreader.GetOutputPort())
+    #controun.SetInputConnection(vtk_data.GetOutputPort())
+    contour.SetValue(0,0.0)
+    #contour.SetInputArrayToProcess(1, 0, 0, 0, "Phase")
+    #contour.GenerateValues(1, (0,0.01))
+    normals = vtk.vtkPolyDataNormals()
+    normals.SetInputConnection(contour.GetOutputPort())
+    normals.SetFeatureAngle(45)
+
+    outline = vtk.vtkOutlineFilter()
+    outline.SetInputConnection(gridreader.GetOutputPort())
+    #outline.SetInputConnection(contour.GetOutputPort())
+
+    outlineMapper = vtk.vtkPolyDataMapper()
+    outlineMapper.SetInputConnection(outline.GetOutputPort())
+
+    outlineActor = vtk.vtkActor()
+    outlineActor.SetMapper(outlineMapper)
+    outlineActor.GetProperty().SetColor(0,0,0)
+
+   
     contourMapper = vtk.vtkPolyDataMapper()
     #contourMapper.SetScalarRange(phase.GetRange())
- 
-    contourMapper.SetInputConnection(contour.GetOutputPort())
-    print phase.GetRange()
+    contourMapper.SetInputConnection(normals.GetOutputPort())
+    #contourMapper.SetInputConnection(contour.GetOutputPort())
+    #contourMapper.ScalarVisibilityOn()
+    #contourMapper.SetScalarModeToUsePointFieldData()
+    #print phase.GetRange()
     #sr=vtk.vtkStructuredGridToPolyDataFilter(gridreader.GetOutputPort())
     #stlMapper = vtk.vtkPolyDataMapper()
     #stlMapper.SetInput(data)
@@ -94,8 +131,6 @@ def read_vtk(name):
     #reslice.SetOutputDimensionality(2)
     #reslice.SetResliceAxes(sagittal)
     #reslice.SetInterpolationModeToLinear()
-
-
 
     stlActor = vtk.vtkActor()
     stlActor.SetMapper(contourMapper)
@@ -109,7 +144,9 @@ def read_vtk(name):
 
     # Add the actors to the render; set the background and size
     ren.AddActor(stlActor)
-    ren.SetBackground(0.1, 0.2, 0.4)
+    ren.AddActor(outlineActor)
+    ren.SetBackground(1.0,1.0,1.0)
+    #ren.SetBackground(0.1, 0.2, 0.4)
     renWin.SetSize(500, 500)
 
     # Zoom in closer
@@ -178,7 +215,8 @@ def show(name,slice):
     pylab.show()
 
 if __name__=="__main__":
-    #name="../Temp/phase040000.vts"
-    name="/Users/shurik/Documents/Temp/Paraview/phase10000.vts"
-    read_vtk(name)
+    name="../Temp/phase040000.vts"
+    #name="/Users/shurik/Documents/Temp/Paraview/phase10000.vts"
+    read_paraview(name)
+    #read_vtk(name)
     #show(name,300)
