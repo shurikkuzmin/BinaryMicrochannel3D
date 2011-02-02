@@ -48,14 +48,20 @@ def read_vtk(name):
 
     gridreader = vtk.vtkXMLStructuredGridReader()
     gridreader.SetFileName(name)
+    #gridreader.SetPointArrayStatus("Density",0)
+    selection=gridreader.GetPointDataArraySelection()
+    selection.DisableArray("Density")
+    selection.DisableArray("Velocity")
     gridreader.Update()
+    
 
     grid  = gridreader.GetOutput()
     data  = grid.GetPointData()
     points=grid.GetPoints()
     dims  =grid.GetDimensions()
     
-    
+    print data.GetArray("Density")
+    print data.GetArray("Velocity")
     #print dims
     #dims=list(dims)
     #dims.reverse()
@@ -66,18 +72,23 @@ def read_vtk(name):
     
     contour=vtk.vtkContourFilter()
     contour.SetInputConnection(gridreader.GetOutputPort())
-    contour.GenerateValues(50, phase.GetRange())
+    contour.Update()
+    #print contour.GetNumberOfContours()
+    #print contour.GetOutputDataObject(0)
+    print contour.GetInput()
+   # contour.GenerateValues(50, (0,0.1))
     
     contourMapper = vtk.vtkPolyDataMapper()
+    #contourMapper.SetScalarRange(phase.GetRange())
+ 
     contourMapper.SetInputConnection(contour.GetOutputPort())
-    #contourMapper.SetScalarRange(gridreader.GetOutput().GetScalarRange())
-
+    print phase.GetRange()
     #sr=vtk.vtkStructuredGridToPolyDataFilter(gridreader.GetOutputPort())
-    stlMapper = vtk.vtkPolyDataMapper()
+    #stlMapper = vtk.vtkPolyDataMapper()
     #stlMapper.SetInput(data)
-    stlMapper.SetInputConnection(contour.GetOutputPort())
+    #stlMapper.SetInputConnection(contour.GetOutputPort())
 
-    contour=vtk.vtkContourFilter()
+    #contour=vtk.vtkContourFilter()
     
     #reslice.SetInputConnection(reader.GetOutputPort())
     #reslice.SetOutputDimensionality(2)
@@ -87,7 +98,7 @@ def read_vtk(name):
 
 
     stlActor = vtk.vtkActor()
-    stlActor.SetMapper(stlMapper)
+    stlActor.SetMapper(contourMapper)
 
     # Create the Renderer, RenderWindow, and RenderWindowInteractor
     ren = vtk.vtkRenderer()
@@ -167,6 +178,7 @@ def show(name,slice):
     pylab.show()
 
 if __name__=="__main__":
-    name="../Temp/phase040000.vts"
+    #name="../Temp/phase040000.vts"
+    name="/Users/shurik/Documents/Temp/Paraview/phase10000.vts"
     read_vtk(name)
     #show(name,300)
