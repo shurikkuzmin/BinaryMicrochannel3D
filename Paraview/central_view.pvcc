@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<PVCameraConfiguration description="ParaView camera configuration" version="1.0">
+  <Proxy group="views" type="RenderView" id="19" servers="1">
+    <Property name="CameraPosition" id="19.CameraPosition" number_of_elements="3">
+      <Element index="0" value="1000"/>
+      <Element index="1" value="0"/>
+      <Element index="2" value="750"/>
+    </Property>
+    <Property name="CameraFocalPoint" id="19.CameraFocalPoint" number_of_elements="3">
+      <Element index="0" value="0"/>
+      <Element index="1" value="0"/>
+      <Element index="2" value="750"/>
+    </Property>
+    <Property name="CameraViewUp" id="19.CameraViewUp" number_of_elements="3">
+      <Element index="0" value="0"/>
+      <Element index="1" value="0"/>
+      <Element index="2" value="0"/>
+    </Property>
+    <Property name="CenterOfRotation" id="19.CenterOfRotation" number_of_elements="3">
+      <Element index="0" value="23.1168"/>
+      <Element index="1" value="25.4996"/>
+      <Element index="2" value="749.499"/>
+    </Property>
+    <Property name="CameraViewAngle" id="19.CameraViewAngle" number_of_elements="1">
+      <Element index="0" value="40"/>
+    </Property>
+  </Proxy>
+</PVCameraConfiguration>
