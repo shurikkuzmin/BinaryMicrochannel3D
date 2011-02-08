@@ -56,6 +56,143 @@ def read_paraview(name):
     Render()
     #Show()
     Start()
+
+def read_vtk_2d(name):
+    import vtk
+    import numpy
+
+    gridreader = vtk.vtkXMLStructuredGridReader()
+    gridreader.SetFileName(name)
+    #gridreader.SetPointArrayStatus("Density",0)
+    selection=gridreader.GetPointDataArraySelection()
+    selection.DisableArray("Density")
+    #selection.DisableArray("Velocity")
+    #selection.DisableArray("Phase")
+    gridreader.Update()
+    
+    grid  = gridreader.GetOutput()
+
+    data  = grid.GetPointData()
+    points=grid.GetPoints()
+    dims  =grid.GetDimensions()
+    #data.SetActiveScalars("Phase"); 
+    data.SetActiveVectors("Velocity")
+    velocity=data.GetArray("Velocity")
+    phase = data.GetArray("Phase")
+    
+    vel_image=vtk.vtkImageData()
+    vel_image.SetDimensions(dims[1],dims[2],1)
+    vel_image.SetSpacing(1.0, 1.0, 1.0)
+    vel_image.SetOrigin(0.0, 0.0, 0.0)
+
+    
+    Array = vtk.vtkDoubleArray()
+    Array.SetNumberOfComponents(3)
+    Array.SetNumberOfTuples(points.GetNumberOfPoints())
+    Array.Initialize()
+    Array.SetName("VelocitySlice")
+
+    ArrayPhase = vtk.vtkDoubleArray()
+    ArrayPhase.SetNumberOfComponents(1)
+    ArrayPhase.SetNumberOfTuples(points.GetNumberOfPoints())
+    ArrayPhase.Initialize()
+    ArrayPhase.SetName("PhaseSlice")
+    
+    for counter in range(0,10):
+        print points.GetPoint(counter)
+    raw_input()
+    exam=1
+    print dims[0],dims[1],dims[2]
+    #raw_input()
+    for counter in range(0,vel_image.GetNumberOfPoints()):
+        x,y,z=vel_image.GetPoint(counter)
+        counter_big=y*dims[0]*dims[1]+x*dims[0]+exam
+        #print x,y,z
+        #print counter_big
+        
+        vz=velocity.GetTuple3(counter_big)[2]
+        vy=velocity.GetTuple3(counter_big)[1]
+        phase_value=phase.GetTuple1(counter_big)
+        Array.InsertNextTuple3(vy,vz,0.0)
+        ArrayPhase.InsertNextTuple1(phase_value)
+        #if phase_value<0.0:
+        #    print phase_value
+    
+    vel_image.GetPointData().SetVectors(Array)
+    vel_image.GetPointData().SetScalars(ArrayPhase)
+    vel_image.GetPointData().SetActiveScalars("PhaseSlice")
+    vel_image.GetPointData().SetActiveVectors("VelocitySlice")
+    print vel_image.GetPointData().GetArray("PhaseSlice")
+    vel_image.Update()
+    
+    
+    
+    contour=vtk.vtkContourFilter()
+    contour.SetInput(vel_image)
+    #contour.SetValue(0,0.0)
+
+    contourMapper = vtk.vtkPolyDataMapper()
+    #contourMapper.SetScalarRange(phase.GetRange())
+    contourMapper.SetInputConnection(contour.GetOutputPort())
+    #contourMapper.SetColorMode
+ 
+    contourActor = vtk.vtkActor()
+    contourActor.SetMapper(contourMapper)
+
+    #contourActor.SetColor(0.0,0.1,0.2)
+    
+    rk4=vtk.vtkRungeKutta4()
+    line = vtk.vtkLineSource()
+    line.SetPoint1(50, 0, 0)
+    line.SetPoint2(0, 0, 0)
+    line.SetResolution(21)
+    streamer = vtk.vtkStreamLine()
+    streamer.SetInput(vel_image)
+    streamer.SetSource(line.GetOutput())
+    streamer.SetMaximumPropagationTime(300000)
+    #streamer.GetStepLengthMinValue()=0.01
+    #streamer.GetStepLengthMaxValue()=0.5
+    #streamer.SetTerminalSpeed(1e-13)
+    streamer.SetIntegrationStepLength(.2)
+    streamer.SetStepLength(.5)
+    #streamer.SetNumberOfThreads(1)
+    streamer.SetIntegrationDirectionToIntegrateBothDirections() 
+    #streamer.VorticityOn()
+    streamer.SetIntegrator(rk4)
+
+    streamMapper = vtk.vtkPolyDataMapper()
+    streamMapper.SetInputConnection(streamer.GetOutputPort())
+    #streamMapper.SetScalarRange(data.GetOutput().GetScalarRange())
+    streamActor = vtk.vtkActor()
+    streamActor.SetMapper(streamMapper)
+    streamActor.VisibilityOn()
+
+    
+    # Create the Renderer, RenderWindow, and RenderWindowInteractor
+    ren = vtk.vtkRenderer()
+    renWin = vtk.vtkRenderWindow()
+    renWin.AddRenderer(ren)
+    iren = vtk.vtkRenderWindowInteractor()
+    iren.SetRenderWindow(renWin)
+
+    # Add the actors to the render; set the background and size
+    ren.AddActor(streamActor)
+    ren.AddActor(contourActor)
+    #ren.SetBackground(1.0,1.0,1.0)
+    ren.SetBackground(0.1, 0.2, 0.4)
+    
+    renWin.SetSize(500, 500)
+
+    #ren.ResetCamera()
+    #cam1 = ren.GetActiveCamera()
+    #cam1.SetPosition(1000,0,500)
+    #cam1.SetFocalPoint(0,0,500)
+
+    iren.Initialize()
+    renWin.Render()
+    iren.Start()
+
+
     
 def read_vtk(name):
     import vtk
@@ -64,9 +201,10 @@ def read_vtk(name):
     gridreader = vtk.vtkXMLStructuredGridReader()
     gridreader.SetFileName(name)
     #gridreader.SetPointArrayStatus("Density",0)
-    #selection=gridreader.GetPointDataArraySelection()
-    #selection.DisableArray("Density")
+    selection=gridreader.GetPointDataArraySelection()
+    selection.DisableArray("Density")
     #selection.DisableArray("Velocity")
+    selection.DisableArray("Phase")
     gridreader.Update()
     
     grid  = gridreader.GetOutput()
@@ -74,7 +212,7 @@ def read_vtk(name):
     data  = grid.GetPointData()
     points=grid.GetPoints()
     dims  =grid.GetDimensions()
-    data.SetActiveScalars("Phase"); 
+    #data.SetActiveScalars("Phase"); 
     data.SetActiveVectors("Velocity")
     #Create a contour    
     contour=vtk.vtkContourFilter()
@@ -124,18 +262,28 @@ def read_vtk(name):
     #streamer.VorticityOn()
     streamer.SetIntegrator(rk4)
 
-    #integ = vtk.vtkRungeKutta4()
-    #sl = vtk.vtkStreamLine()
-    #sl.SetInputConnection(pl3d.GetOutputPort())
-    #sl.SetSource(rake.GetOutput())
-    #sl.SetIntegrator(integ)
-    #sl.SetMaximumPropagationTime(0.1)
-    #sl.SetIntegrationStepLength(0.1)
-    #sl.SetIntegrationDirectionToBackward()
-    #sl.SetStepLength(0.001)
 
-    #plane = vtk.vtkPlaneSource()
+
+    plane = vtk.vtkPlane()
+    #plane.SetInput(grid)
     #plane.SetResolution(50, 50)
+    plane.SetOrigin(25.0,10.0,0.0)
+    plane.SetNormal(1.0,0.0,0.0)
+
+    cutter=vtk.vtkCutter()
+    cutter.SetCutFunction(plane)
+    cutter.SetInput(grid)
+    cutter.Update()
+ 
+    cutterMapper =vtk.vtkPolyDataMapper()
+    cutterMapper.SetInputConnection(cutter.GetOutputPort(0))
+ 
+    # Create plane actor
+    planeActor =vtk.vtkActor()
+    planeActor.GetProperty().SetColor(1.0,1,0);
+    planeActor.GetProperty().SetLineWidth(2);
+    planeActor.SetMapper(cutterMapper);
+
     #transP1 = vtk.vtkTransform()
     #transP1.Translate(3.7, 0.0, 28.37)
     #transP1.Scale(5, 5, 5)
@@ -143,12 +291,6 @@ def read_vtk(name):
     #tpd1 = vtk.vtkTransformPolyDataFilter()
     #tpd1.SetInputConnection(plane.GetOutputPort())
     #tpd1.SetTransform(transP1)
-    #outTpd1 = vtk.vtkOutlineFilter()
-    #outTpd1.SetInputConnection(tpd1.GetOutputPort())
-    #mapTpd1 = vtk.vtkPolyDataMapper()
-    #mapTpd1.SetInputConnection(outTpd1.GetOutputPort())
-    #tpd1Actor = vtk.vtkActor()
-    #tpd1Actor.SetMapper(mapTpd1)
     #tpd1Actor.GetProperty().SetColor(0, 0, 0)
 
     #lineWidget = vtk.vtkLineWidget()
@@ -188,25 +330,89 @@ def read_vtk(name):
     iren.SetRenderWindow(renWin)
 
     # Add the actors to the render; set the background and size
-    ren.AddActor(contourActor)
-    ren.AddActor(outlineActor)
+    #ren.AddActor(contourActor)
+    #ren.AddActor(outlineActor)
     ren.AddActor(streamActor)
-    ren.AddActor(rake1Actor)
-    ren.AddActor(rake2Actor)
+    #ren.AddActor(rake1Actor)
+    #ren.AddActor(rake2Actor)
+    #ren.AddActor(planeActor)h=streamline(vz,vy,sz,sy,[0.1, 15000])
     #ren.SetBackground(1.0,1.0,1.0)
     ren.SetBackground(0.1, 0.2, 0.4)
+    
     renWin.SetSize(500, 500)
 
     # Zoom in closer
-    ren.ResetCamera()
+    #ren.ResetCamera()
     cam1 = ren.GetActiveCamera()
-    cam1.Zoom(1.4)
+    cam1.SetPosition(1000,0,500)
+    cam1.SetFocalPoint(0,0,500)
 
     iren.Initialize()
     renWin.Render()
     iren.Start()
+def draw_streamlines(name):
+    import vtk
+    import numpy
+    from PyNGL import Ngl
 
+    gridreader = vtk.vtkXMLStructuredGridReader()
+    gridreader.SetFileName(name)
+    #gridreader.SetPointArrayStatus("Density",0)
+    #selection=gridreader.GetPointDataArraySelection()
+    #selection.DisableArray("Density")
+    #selection.DisableArray("Velocity")
+    gridreader.Update()
+    
+    grid  = gridreader.GetOutput()
+    data  = grid.GetPointData()
+    points=grid.GetPoints()
+    dims  =grid.GetDimensions()
+    velocity=data.GetArray("Velocity")
+    phase=data.GetArray("Phase")
+    vz=numpy.zeros([dims[1],dims[2]])
+    vy=numpy.zeros([dims[1],dims[2]])
+    phase_numpy=numpy.zeros([dims[1],dims[2]])
+    print vz.shape
+    print vy.shape
+    for counter in range(0,points.GetNumberOfPoints()):
+        coorx,coory,coorz=points.GetPoint(counter)
+        #print coorx,coory,coorz
+        if coorx==1:
+            vz[int(coory),int(coorz)]=velocity.GetTuple3(counter)[2]
+            vy[int(coory),int(coorz)]=velocity.GetTuple3(counter)[1]
+            phase_numpy[int(coory),int(coorz)]=phase.GetTuple1(counter)
+    #data.SetActiveScalars("Phase"); 
+    #data.SetActiveVectors("Velocity")
+    numpy.savetxt("vz.txt",vz)
+    numpy.savetxt("vy.txt",vy)
+    numpy.savetxt("phase.txt",phase_numpy)
+    wks_type = "ps"
+    wks = Ngl.open_wks(wks_type,"test")
+    resources = Ngl.Resources()
+     
+     #uvar = file.variables["U_GRD_6_ISBL"]
+     #vvar = file.variables["V_GRD_6_ISBL"]
+     #if hasattr(uvar,"units"):
+     #  resources.tiMainString = "GRD_6_ISBL (u,v " + uvar.units + ")"
+     #else:
+        #resources.tiMainString = "GRD_6_ISBL"
+     #if hasattr(uvar,"_FillValue"):
+     #    resources.vfMissingUValueV = uvar._FillValue
+     # if hasattr(vvar,"_FillValue"):
+     #    resources.vfMissingVValueV = vvar._FillValue
+  
+    resources.tiMainFont    = "Times-Roman"
+    resources.tiXAxisString = "streamlines"
+    resources.vpHeightF = 0.25 # Define height, width, and location of plot.
+    resources.vpWidthF  = 7.5*0.25
 
+     
+     #plot = Ngl.streamline(wks,uvar[0,::2,::2],vvar[0,::2,::2],resources) 
+    plot=Ngl.streamline(wks,vz[:,::10],vy[:,::10],resources)
+     
+    #Ngl.end()
+
+    
 def show(name,slice):
     from enthought.tvtk.api import tvtk
     import pylab
@@ -241,5 +447,7 @@ if __name__=="__main__":
     name="../Temp/phase040000.vts"
     #name="/Users/shurik/Documents/Temp/Paraview/phase10000.vts"
     #read_paraview(name)
-    read_vtk(name)
+    #read_vtk(name)
+    read_vtk_2d(name)
+    #draw_streamlines(name)
     #show(name,300)
