@@ -157,14 +157,43 @@ The film thickness as it is seen from the picture is taken as $70$ percent of th
 Therefore the initalization width is $0.15*50=7.5$. 
 
 \section{Non-axisymmetric case}
-For example according to \cite{heil-threedim} for the capillary
-number $Ca=0.01$, the radiuses converge as $r_h=0.99$ and $r_d=1.1$. Therefore one needs to resolve
-as the $0.5\%$ of whole channel width to see the difference. That certainly implies so large grid
-that can kill the simulation at least $200x200x3000$. However, we can refer to artificially made
-interface as $1-2$ lattice Boltzmann units but keeping the capillary number as it is required. In
-this case we can refer like we can't resolve the interface. However, one can check whether
-completely underresolved interfaces can give something good with the continuous interface methods.
-The dimensionalization case is therefore as follows. Instead of starting with the capillary number
+As it was indicated before for a quite low capillary number the flow becomes axisymmetric. For
+example, according to \cite{heil-threedim} for the capillary
+number $Ca=0.01$, the axis and diagonal radiuses are $r_h=0.99$ and $r_d=1.1$ respectively.
+Therefore the film thickness in the axial direction is  $0.5\%$ of whole channel width to see the
+difference. Our previous calculations \cite{kuzmin-binary2d} show that the film thickness should be
+ resolved around $40-50$ percent for calculations to be convergent and grid independent. This
+condition certainly implies a large grid with the computational high demand. For instance, to
+properly simulate the abovementioned example the grid should be as 
+$200x200x3000$ nodes. In this section we want to examine the assumption of the underresolved
+interface whether it can produce the consistent film thicknesses for low capillary numbers. The
+interface occupies around $1-2$ lattice units. 
+
+Here we present simulations for the domain of size $52\mathrm{x}52\mathrm{x}1500$ which simulates
+the quarter of the channel using the mirror boundary conditions (Section \ref{append:sym}). That
+results in the effective grid size as $100\mathrm{x}100\mathrm{x}1500$. The simulation is carried
+out with the pressure gradient as:
+\begin{equation}
+\frac{\mathrm{d}P}{\mathrm{d}x}=1.6\,10^{-6}.
+\end{equation}
+The initial film thickness was taken as $6$ nodes. 
+
+One can see the phase profile in the middle of the bubble in
+Fig.\ref{fig:quarter:capillary:capillary01}. The associated capillary number is $0.053$ based on
+the calculation of the bubble velocity in the center of the bubble. The radiuses are as follows:
+$R_{axis}=0.99$ and $R_{diag}=1.400$. While th  
+1.4000714267 
+ 
+
+\begin{figure}
+\includegraphics[width=0.97\textwidth]{Figures/}
+\end{figure}
+ 
+
+
+\section{Capillary number}
+ The
+dimensionalization case is therefore as follows. Instead of starting with the capillary number
 simulations we initialize the initial thickness with $2.5$ lattice boltzmann units, change the
 pressure gradients through the following numbers:
 \begin{equation}
@@ -276,9 +305,25 @@ numerical domain. \label{fig:capillaries:train}}
 \end{figure}
 
 
-
 \section{Simulation setup}
 
+\appendix{Symmetric boundary conditions}
+\label{append:sym}
+For the memory save we performed the simulation of the quarter of the channel while using the
+antisymmetric boundary conditions. In the macroscopic variables the mirror boundary conditions
+require to have the same scalar fields, but for velocity only tangential velocities are the same
+but perpendicular have the opposite directions. This implies the following in terms of the
+macroscopic variables:
+\begin{equation}
+\rho_B = \rho_F, \quad \phi_B = \phi_F \quad U_{B\tau}=U_{F\tau}, U_{B n}=U_{F n}, 
+\end{equation}
+ where $B$ and $F$ stand for the boundary and the nearest fluid node, respectively. 
+
+In terms of the lattice Boltzmann populations this conditions require the same set of the
+populations for the boundary node as for the fluid node. However, the set is mirrored against the
+plane of the boundary. This case allows to conserve scalar fields, to have the same tangential
+velocities and to have opposite normal velocities. The grid was chosen as 52x52x1500, which is the
+effective calculated domain as 100x100x1500 grid nodes. 
 
 \bibliographystyle{unsrtnat}
 \bibliography{paper}
