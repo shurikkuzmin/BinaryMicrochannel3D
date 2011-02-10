@@ -180,16 +180,21 @@ The initial film thickness was taken as $6$ nodes.
 
 One can see the phase profile in the middle of the bubble in
 Fig.\ref{fig:quarter:capillary:capillary01}. The associated capillary number is $0.053$ based on
-the calculation of the bubble velocity in the center of the bubble. The radiuses are as follows:
-$R_{axis}=0.99$ and $R_{diag}=1.400$. While th  
-1.4000714267 
- 
-
+the calculation of the bubble velocity in the center of the bubble. The radiuses in this simulation
+are as $R_{axis}=0.93$ and $R_{diag}=1.06$. While $R_{axis}=0.93$ is underestimated parameter and
+we can't take into the consideration apriori, one can consider parameter $R_{diag}=1.06$ the
+parameters for the capillary number $0.053$ should be according to \citet{heil-threedim} as $0.97$
+and $1.05$ according to the VOF simulations of \citet{wang-non-circular}. One can conclude that
+even though the axis film thickness is not properly resolved the diagonal values are consistent and
+can give an approximate information. 
 \begin{figure}
-\includegraphics[width=0.97\textwidth]{Figures/}
+\includegraphics[width=0.97\textwidth]{Figures/quarter.eps}\\ %\hfill
+\includegraphics[width=0.97\textwidth]{Figures/stream_cap01.eps}\\
+\caption{Streamlines and phase profile of the quarter of the channel. The capillary number is
+$0.053$ and the film thickness is underresolved. \label{fig:quarter:capillary:capillary01}}
 \end{figure}
- 
-
+{\color{red} Add more data here either with better grid or with the less velocity that we can
+track the numbers.}
 
 \section{Capillary number}
  The
@@ -238,6 +243,64 @@ length. \label{fig:variation:bubble:ca:one}}
 
 
 \section{Steady-state case}
+phase140000.vts
+679 1225
+952
+Shape[1]= 52
+46.8951843799
+38.0090192997
+Velx 1.83514289361e-07
+Vely 1.83514289434e-07
+Velz 0.0030119820173
+0.937903687597 1.07505741172
+Capillary= 0.0532448227311
+phase150000.vts
+693 1240
+966
+Shape[1]= 52
+46.8788857523
+37.9120765245
+Velx 1.69288494763e-07
+Vely 1.69288494735e-07
+Velz 0.00302054511694
+0.937577715046 1.07231545597
+Capillary= 0.0533961983767
+phase160000.vts
+707 1255
+981
+Shape[1]= 52
+46.8620677255
+37.8057241388
+Velx 1.52729098327e-07
+Vely 1.52729098372e-07
+Velz 0.00302874387384
+0.93724135451 1.06930735625
+Capillary= 0.0535411332917
+phase170000.vts
+721 1269
+995
+Shape[1]= 52
+46.8470974943
+37.699205304
+Velx 1.36013430193e-07
+Vely 1.36013430134e-07
+Velz 0.00303548291501
+0.936941949886 1.06629454863
+Capillary= 0.0536602638346
+phase180000.vts
+735 1284
+1009
+Shape[1]= 52
+46.8329488966
+37.5823654668
+Velx 1.20677254065e-07
+Vely 1.20677254023e-07
+Velz 0.00304140201352
+0.936658977932 1.06298981898
+Capillary= 0.0537648997019
+
+
+
 We performed different simulations to understand a number of steps required for the problem to come
 on the steady-state. The grid to be simulated is $52\mathrm{x}52\mathrm{x}750$ with the initial
 width as $6.5$ lattice Boltzmann units together with $\frac{\mathrm{d}P}{\mathrm{d}x}=3

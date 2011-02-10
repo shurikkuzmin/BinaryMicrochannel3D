@@ -14,8 +14,8 @@ def Get_Zero(prof):
     zero=0
     #pylab.figure()
     #pylab.plot(prof)
-    for counter in range(0, len(prof)/2):
-        if prof[counter]>=0 and prof[counter+1]<0:
+    for counter in range(0, len(prof)):
+        if prof[counter]<0 and prof[counter+1]>=0:
             zero=-(prof[counter]*(counter+1)-prof[counter+1]*counter)/(prof[counter+1]-prof[counter])
     return zero+0.5
 
@@ -114,8 +114,11 @@ def Analyze_Phase(name):
     prof_axis=slice[0,1:]
     prof_diag=numpy.diag(slice[1:,1:])
     
-    axis_zero=1.0-Get_Zero(prof_axis)/(shape[1]-2.0)
-    diag_zero=math.sqrt(2.0)*(1.0-Get_Zero(prof_diag)/(shape[1]-2.0))
+    print "Shape[1]=",shape[1]
+    print Get_Zero(prof_axis)
+    print Get_Zero(prof_diag)
+    axis_zero=Get_Zero(prof_axis)/(shape[1]-2.0)
+    diag_zero=math.sqrt(2.0)*Get_Zero(prof_diag)/(shape[1]-2.0)
     
     print "Velx",velx_numpy[mid,0,0]
     print "Vely",vely_numpy[mid,0,0]
@@ -132,33 +135,37 @@ def Analyze_Phase(name):
     
     pylab.figure()
     pylab.imshow(slice[1:,1:])
-    pylab.show()
+    #pylab.show()
+    numpy.savetxt("velz.dat",velz_numpy[:,:,0].transpose())
+    numpy.savetxt("vely.dat",vely_numpy[:,:,0].transpose())
+    numpy.savetxt("phase.dat",phase_numpy[:,:,0].transpose())
 
-
-    #return axis_zero,diag_zero,capillary
+    return axis_zero,diag_zero,capillary
     #mlab.show()
     
 def Analyze_Consequence():
     ax_zeros=[]
     diag_zeros=[]
     capillaries=[]
-    for i in range(1,5):
-        dir_temp=str(i)
-        os.chdir(dir_temp)
+    file_list=[]
+    for root,dirs,files in os.walk(os.getcwd()):
+        for file in files:
+            if file[0:5]=="phase":   
+                file_list.append(file)
+    for file in sorted(file_list):
         print os.getcwd()
-        name="steady"+str(2*i)+"00000_0.vti"
-        print name
-        axis_zero, diag_zero, capillary=Analyze_Phase(name)
+        print file
+        axis_zero, diag_zero, capillary=Analyze_Phase(file)
         ax_zeros.append(axis_zero)
         diag_zeros.append(diag_zero)
         capillaries.append(capillary)
         #Calculate the capillary number
-        os.chdir("..")
-    pylab.plot(capillaries,ax_zeros)
-    pylab.plot(capillaries,diag_zeros)
-    numpy.savetxt("steady.txt",zip(capillaries,ax_zeros,diag_zeros))
+        #os.chdir("..")
+    #pylab.plot(capillaries,ax_zeros)
+    #pylab.plot(capillaries,diag_zeros)
+    #numpy.savetxt("steady.txt",zip(capillaries,ax_zeros,diag_zeros))
     pylab.show()
-    mlab.show()
+    #mlab.show()
     
 def Analyze_NoForce_Consequence():
     ax_zeros=[]
@@ -300,4 +307,4 @@ if __name__=="__main__":
     
     name="phase180000.vts"
     Analyze_Phase(name)
- 
+    #Analyze_Consequence()
