@@ -177,8 +177,25 @@ can give an approximate information.
 \caption{Streamlines and phase profile of the quarter of the channel. The capillary number is
 $0.053$ and the film thickness is underresolved. \label{fig:quarter:capillary:capillary01}}
 \end{figure}
-{\color{red} Add more data here either with better grid or with the less velocity that we can
-track the numbers.}
+For underresolved schemes we performed a number of simulations on GPU code with the grid of size
+$50\mathrm{x}50\mathrm{750}$. While changing the applied force in a manner indicated in Appendix
+\ref{append:scaling} the velocity of the bubble was increased to obtain larger capillary numbers,
+see Fig. \ref{fig:underresolved:capillaries}. One can see that the deviation between the diagonal
+and axial radiuses are quite significant and they coincide only when the interface is resolved
+($Ca\approx 1.0$). In calculations with better grids, i.e. quarter channels simulations on CPU, the
+axial radius coincides with the diagonal in the $0.5\%$ range. Moreover, the capillary number curve
+resembles already published date of \citet{heil-threedim} in a better way, see Fig.
+\ref{fig:capillary:comparison}. 
+\begin{figure}[ht]
+\includegraphics[width=0.97\textwidth]{Figures/underresolved_capillaries.eps}
+\caption{The underresolved profiles axis and diagonal radiuses versus capillary numbers. $50$
+percent resolution starts from $Ca=1.0$, which is quite high. One can see it's exactly where
+radiuses converge instead of $Ca=0.04$. {\color{red} To delete? However, one can see from
+simulations Fig.
+\ref{fig:wang:critical:capillary} and Fig.\ref{fig:thickness:variation:ca:ten} the thickness,
+especially for Fig.\ref{fig:thickness:variation:ca:ten}, can significantly variate over a bubble
+length.} \label{fig:underresolved:capillaries}}
+\end{figure}
 
 
 \section{Variation bubble length}
@@ -192,18 +209,21 @@ different capillaries numbers to present the diagonal radius variations over the
 The axis and diagonal radiuses variation over the bubble are shown in Figure
 \ref{fig:bubble:variation:capillaries}. The rather small capillary numbers one can see the increase
 in the rear menisci of the diagonal radius which coincides with the results of
-\citet{wang-non-circular}.
+\citet{wang-non-circular}. One can see that variation over the length can be neglected
+for relatively high $Ca$ numbers. 
 \begin{figure}[ht]
 \includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_36.eps}\hfill
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_61.eps}\\
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_88.eps}\hfill
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_117.eps}\\
+\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_46.eps}\\
+\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_61.eps}\hfill
+\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_88.eps}\\
+\includegraphics[width=0.97\textwidth]{Figures/bubble_length_ca_one.eps}
+\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_117.eps}
 \caption{The radiuses variations for the capillary number $Ca=0.46$.
 One can see the diagonal radius different from the axial radius near the front of the tip which is
 somehow coincides with the results of
 \citet{heil-threedim}. The results are presented for the
 capillary numbers (from left to right, top to bottom)
-$0.36$, $0.61$, $0.88$, $1.17$. \label{fig:bubble:variation:capillaries}}
+$0.36$,$0.46$, $0.61$, $0.88$,$1.06$,$1.17$. \label{fig:bubble:variation:capillaries}}
 \end{figure}
 \begin{figure}
 \includegraphics[width=0.97\textwidth]{Figures/variationoverlength.eps}
@@ -216,86 +236,52 @@ Concerning results indicated in Fig.
 small surface tension ({\color{red} See results of Pagonabarraga}). One can see that the difference
 between diagonal radius and
 usual radius is of order of $4\%$. That means it's 2 percent of the channel height. If the
-simulation is conducted by the grid $50\mathrm{x}50$ in the cross section that means that we will
-see the difference in one grid node. Therefore the grid is $52\mathrm{x}52\mathrm{750}$. Here we
-conduct a scaling:
+simulation is conducted by the grid $100\mathrm{x}100$ in the cross section that means that we will
+see the difference in two grid nodes. Therefore the grid is $102\mathrm{x}102\mathrm{1500}$. It is
+known from simulations that for the grid $102\mathrm{x}102\mathrm{x}1500$ the largest force gradient
+is $2\mathrm{x}10^{-5}$ with free energy binary liquid parameters $A=0.04$,$k=0.04$ and $Ca\approx
+1.0$. Therefore, we want to keep the same body force but to obtain larger capillary number. That
+can be done through the scaling indicated in Appendix \ref{append:scaling}:
 \begin{equation}
-Ca=\frac{\mu_{liq} U_{bubble}}{\gamma}
+\frac{\mathrm{d}P}{\mathrm{d}x}\propto \gamma Ca .
 \end{equation}
-The parameters for the binary liquid problem are chosen as $A=0.04$ and $k=0.01$. Therefore the
-surface tension is:
+Therefore the same body force can stand for capillary number ten times larger if the surface
+tension is ten times smaller:
 \begin{equation}
-\sigma = \sqrt{\frac{8 k A}{9}}=0.0596
+\gamma=\sqrt{\frac{8 k A}{9}}.
 \end{equation}
-The relaxation times for liquid and gas are taken as, $\tau_{gas}=0.7$ and $\tau_{liq}=2.5$,
-therefore the viscosities ratio is $10$.
-\begin{equation}
-\begin{aligned}
-&10=\frac{\frac{2}{3} U_{bubble}}{0.0596},
-&U_{bubble}=0.894
-\end{aligned}
-\end{equation}
-which is quite high for the lattice Boltzmann method. We can decrease the ratio by scaling
-parameters $k$ and $A$ while keeping the interface thickness. Let us choose parameters as $k=0.001$
-and $A=0.004$, therefore the mobility should be adjusted to address the issue with small parameters
-and small surface tension in this case. It parameters are chosen as $A=0.004$ and $k=0.001$ then
-the velocity of the bubble is  $0.0894$. Therefore we can adjust the pressure gradient to plug it
-into the bubble initialization:
-\begin{equation}
-\frac{\mathrm{d}P}{\mathrm{d}x}=\frac{8}{N_y^2} \gamma Ca=0.0001907,
-\end{equation}
-which is quite high for lattice Boltzmann simulations. Therefore probably one more time the surface
-tension needs to be reduced. {\color{red} Many authors state that increasing mobility kills the
-proper results of simulations}. 
-The film thickness as it is seen from the picture is taken as $70$ percent of the half channel.
-Therefore the initalization width is $0.15*50=7.5$. 
-
+The following can be satisfied if $A=0.004$ and $k=0.004$. Decreasing surface tension requires
+increasing the mobility of the interface to be able to adjust to the interface
+\cite{pagonabarraga-parameters}. We therefore performed the numerical simulation with those
+parameters and $\Gamma=20$ for the interface to be stable. 
+{\color{red} However, many authors state that increasing mobility kills
+the
+proper results of simulations}.
+{\color{red} Need to wait results from bugaboo under LargeCap simulation}
 
 \section{Capillary number}
- The
-dimensionalization case is therefore as follows. Instead of starting with the capillary number
-simulations we initialize the initial thickness with $2.5$ lattice boltzmann units, change the
-pressure gradients through the following numbers:
-\begin{equation}
-\frac{\mathrm{d}P}{\mathrm{d}x}=
-\begin{cases}
-1\dots10\mathrm{x}10^{-6}\\
-10,15\dots 100 \mathrm{x}10^{-6}
-\end{cases}
-\end{equation}
-After performing the simulations we determine the $R_{axis}$, $R_{diag}$ versus calculated
+We performed a number of simulations with quarter CPU code and GPU train simulations and compared
+them with data obtained by \cite{heil-threedim}. After performing the simulations we determine the
+$R_{axis}$, $R_{diag}$ versus calculated
 capillary number
 \begin{equation}
 Ca=\frac{\mu_{liq} U_{bubble}}{\gamma}.
 \end{equation}
 To perform simulations we
 started with the following parameters as
-$k=0.04$,$A=0.04$,$\Gamma=1.0$,$N_x\mathrm{x}N_y\mathrm{x}N_z=52\mathrm{x}52\mathrm{x}750$.
-For underresolved schemes, the pressure gradient doesn't work in the way we expect. Therefore, we
-take pressure gradient in the following way and later on establish the associated capillary number.
-We want to keep track of $R_{diag}$ when the $R_{axis}$ is underresolved. The preliminary results
-for the film thickness measured in the middle of the bubble are shown in Fig.
-\ref{fig:underresolved:capillaries}. 
+$k=0.04$,$A=0.04$,$\Gamma=1.0$. We performed different grids calculations with GPU and CPU codes.
+The GPU code (see section \ref{section:bubble:train} about bubble train simulations) simulates a
+quarter of the bubble and operates on the grid $100\mathrm{x}100\mathrm{x}1500$. The CPU refined
+grid operates on whole $160\mathrm{x}160\mathrm{x}1500$. In this case we see short bubbles as the
+length to height ratio is $\frac{500}{160}=3.125$. GPU  For GPU grids due to memory constrains we
+chose the grid as $N_x\mathrm{x}N_y\mathrm{x}N_z=52\mathrm{x}52\mathrm{x}750$. One can see the
+comparison presented in Fig. \ref{fig:capillary:comparison}.
 \begin{figure}
-\includegraphics[width=0.97\textwidth]{Figures/underresolved_capillaries.eps}
-\caption{The underresolved profiles axis and diagonal radiuses versus capillary numbers. $50$
-percent resolution starts from $Ca=1.0$, which is quite high. One can see it's exactly where
-radiuses converge instead of $Ca=0.04$. However, one can see from simulations Fig.
-\ref{fig:wang:critical:capillary} and Fig.\ref{fig:thickness:variation:ca:ten} the thickness,
-especially for Fig.\ref{fig:thickness:variation:ca:ten}, can significantly variate over a bubble
-length. \label{fig:underresolved:capillaries}}
+\includegraphics[width=0.97\textwidth]{Figures/capillaries_comparison.eps}
+\caption{The comparison between different runs of codes for the axial and the diagonal radiuses
+versus capillary numbers. \ref{fig:capillary:comparison}}. One can see that the code mimics
+behavior.
 \end{figure}
-
-One can see the variation of thickness over the bubble length for the given capillary $Ca=1.06$ in
-Fig. \ref{fig:variation:bubble:ca:one}. One can see that variation over the length can be neglected
-for relatively high $Ca$ numbers.
-\begin{figure}
-\includegraphics[width=0.97\textwidth]{Figures/bubble_length_ca_one.eps}
-\caption{The bubble length variation over for given $Ca=1.06$.
-One can see that there is no such high variation over the bubble
-length. \label{fig:variation:bubble:ca:one}}
-\end{figure}
-
 
 \section{Steady-state case}
 We performed different simulations to understand a number of steps required for the problem to come
@@ -311,12 +297,14 @@ profiles in
 the middle of the bubble is shown in Fig. \ref{fig:steady:state:profile:example}.
 \begin{table}
 \begin{tabular}{|c|c|c|c|}
+\hline
 $N_{iter}$&$Ca$&$R_{axis}$&$R_{diag}$\\
 $140000$&$0.0532$&$0.9379$&$1.075$\\
 $150000$&$0.0533$&$0.9375$&$1.072$\\
 $160000$&$0.0535$&$0.9372$&$1.069$\\
 $170000$&$0.0536$&$0.9369$&$1.066$\\
 $180000$&$0.0537$&$0.9366$&$1.062$\\
+\hline
 \end{tabular}
 \caption{Results for the steady-state case. One can see that $200000$ steps are enough to structure
 the bubble. However, the interface is underresolved. That could be the influence of the bubble
@@ -342,6 +330,7 @@ The same as in the previous example can help us to identify the necessary capill
 most important thing is to establish different accentricity factors.
 
 \section{Train simulation}
+\label{section:bubble:train}
 As far as the requirements for the grid are ``heavy'' we performed a bunch of simulations to
 examine how the distance between bubbles influences on the thickness. For this purpose the
 simulation was conducted on the grid 82x82x750. We examined different initialized distances between
@@ -390,6 +379,22 @@ populations for the boundary node as for the fluid node. However, the set is mir
 plane of the boundary. This case allows to conserve scalar fields, to have the same tangential
 velocities and to have opposite normal velocities. The grid was chosen as 52x52x1500, which is the
 effective calculated domain as 100x100x1500 grid nodes. 
+
+\appendix{Scaling procedure}
+\label{append:scaling}
+For scaling purposes one need to obtain setup a body force as $\frac{\mathrm{d}P}{\mathrm{d}x}$. If
+one obtained a certain velocity of the bubble with the associated gradient then another gradient
+can be obtained through the porpotionality condition as:
+\begin{equation}
+\frac{\mathrm{d}P}{\mathrm{d}x}=\frac{8}{N_y^2} \gamma Ca,
+\end{equation}
+or in other words th functionality can be extended as:
+\begin{equation}
+\dfrac{\dfrac{\mathrm{d}P_1}{\mathrm{d}x}}{\dfrac{\mathrm{d}P_2}{\mathrm{d}x}}=\frac{Ca_1}{Ca_2}
+\frac{N_{
+y2}^2 }{N_{y1}^2}
+\end{equation}
+
 
 \bibliographystyle{unsrtnat}
 \bibliography{paper}
