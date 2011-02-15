@@ -139,6 +139,57 @@ different capillary numbers.
 velocity depending on the capillary number.  \label{fig:wang:critical:capillary}}
 \end{figure}
 
+\section{Steady-state case}
+We performed different simulations to understand a number of steps required for the problem to come
+on the steady-state. The grid to be simulated is $52\mathrm{x}52\mathrm{x}750$ which simulates the
+quarter of the channel with the initial
+width as $6.5$ lattice Boltzmann units together with $\frac{\mathrm{d}P}{\mathrm{d}x}=1.6
+\mathrm{x}10^{-6}$. The simulation was performed for $140000$,$150000$,$160000$, $170000$ and
+$180000$ iterations. The results are summarised in Table \ref{table:steady:state}. Whole the
+capillary number varies only in the 4th digit, radiuses are one percent accurate. 
+
+As well we performed longer simulations in the range of moderate capillary numbers after
+$140000$, $160000$, $180000$, $200000$, $220000$, $240000$. The results for the capillary number
+based on the bubble velocity in the middle crossection are shown in Table \ref{table:steady:state}. 
+%{\color{red} What is it One of the
+%profiles in
+%the middle of the bubble is shown in Fig. \ref{fig:steady:state:profile:example}. }
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+$N_{iter}$&$Ca$&$R_{axis}$&$R_{diag}$\\
+$140000$&$0.0532$&$0.9379$&$1.075$\\
+$150000$&$0.0533$&$0.9375$&$1.072$\\
+$160000$&$0.0535$&$0.9372$&$1.069$\\
+$170000$&$0.0536$&$0.9369$&$1.066$\\
+$180000$&$0.0537$&$0.9366$&$1.062$\\
+\hline
+\end{tabular}\\
+\begin{tabular}{|c|c|c|c|}
+\hline
+$N_{iter}$&$Ca$&$R_{axis}$&$R_{diag}$\\
+$140000$&$0.3578$&$0.8657$&$0.8708$\\
+$160000$&$0.3590$&$0.8650$&$0.8702$\\
+$180000$&$0.3598$&$0.8647$&$0.8700$\\
+$200000$&$0.3603$&$0.8645$&$0.8698$\\
+$220000$&$0.3607$&$0.8644$&$0.8697$\\
+$240000$&$0.3609$&$0.8645$&$ 0.8697$\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Underresolved capillary number results and resolved Results for the steady-state case. One
+can see that $200000$ steps are enough to structure
+the bubble. \label{table:steady:state}}
+\end{table}
+
+%\begin{figure}
+%\includegraphics[width=0.47\textwidth]{Figures/bullet.eps}\hfill
+%\includegraphics[width=0.47\textwidth]{Figures/example_crossection.eps}\\
+%\caption{Slice in the middle of the bubble and
+%three-dimensional example. \label{fig:steady:state:profile:example}}
+%\end{figure}
+
 \section{Non-axisymmetric case}
 We first start with the non-axisymmetric case. As it was indicated before for a quite low capillary
 number the flow becomes axisymmetric. For
@@ -154,7 +205,8 @@ interface whether it can produce the consistent film thicknesses for low capilla
 interface occupies around $1-2$ lattice units. 
 
 Here we present simulations for the domain of size $52\mathrm{x}52\mathrm{x}1500$ which simulates
-the quarter of the channel using the mirror boundary conditions (Section \ref{append:sym}). That
+the quarter of the channel using the mirror boundary conditions (See Appendix \ref{append:sym}).
+That
 results in the effective grid size as $100\mathrm{x}100\mathrm{x}1500$. The simulation is carried
 out with the pressure gradient as:
 \begin{equation}
@@ -163,7 +215,9 @@ out with the pressure gradient as:
 The initial film thickness was taken as $6$ nodes. 
 
 One can see the phase profile in the middle of the bubble in
-Fig.\ref{fig:quarter:capillary:capillary01}. The associated capillary number is $0.053$ based on
+Fig.\ref{fig:quarter:capillary:capillary01}. For comparison reason the axisymmetric phase profile
+for $Ca=0.6$ is presented in Fig. \ref{fig:bubble:axisymmetric}. The associated capillary number is
+$0.053$ based on
 the calculation of the bubble velocity in the center of the bubble. The radiuses in this simulation
 are as $R_{axis}=0.93$ and $R_{diag}=1.06$. While $R_{axis}=0.93$ is underestimated parameter and
 we can't take into the consideration apriori, one can consider parameter $R_{diag}=1.06$ the
@@ -177,7 +231,14 @@ can give an approximate information.
 \caption{Streamlines and phase profile of the quarter of the channel. The capillary number is
 $0.053$ and the film thickness is underresolved. \label{fig:quarter:capillary:capillary01}}
 \end{figure}
-For underresolved schemes we performed a number of simulations on GPU code with the grid of size
+\begin{figure}[ht]
+\includegraphics[width=0.97\textwidth]{Figures/square.eps}
+\caption{The middle bubble phase profile. One can see that the diagonal radius coincides with the
+axial radius. {\color{red} $Ca=0.5$} \label{fig:bubble:axisymmetric}}
+\end{figure}
+
+
+For underresolved schemes we performed a number of simulations on a GPU code with the grid of size
 $50\mathrm{x}50\mathrm{750}$. While changing the applied force in a manner indicated in Appendix
 \ref{append:scaling} the velocity of the bubble was increased to obtain larger capillary numbers,
 see Fig. \ref{fig:underresolved:capillaries}. One can see that the deviation between the diagonal
@@ -197,6 +258,23 @@ especially for Fig.\ref{fig:thickness:variation:ca:ten}, can significantly varia
 length.} \label{fig:underresolved:capillaries}}
 \end{figure}
 
+\section{Velocity pattern}
+We examined two different velocity patterns to identify change of pattern. Two capillaries numbers
+were taken below and above the numbers indicated in Table \ref{table:recirculation:data}, as
+$Ca=0.36$ and $Ca=0.88$.Velocity streamlines are
+indicated in Fig. \ref{fig:streamlines:pattern}. One can see that the vortex indicated in
+Fig.\ref{fig:heil:recirculating} doesn't appear in present calculations. This fact can be
+explained because the simulation is carried our for the binary-liquid case but not free-surface
+interface presented in the classical Bretherton problem. In the latter case the void phase pushes
+the liquid towards the walls. In the present simulation there is no a void phase. Then the
+streamlines have the ability to go through the interface and we exactly see this situation occuring.
+\begin{figure}[ht]
+\includegraphics[width=0.97\textwidth]{Figures/streamlines_ca036.eps}\\
+\includegraphics[width=0.97\textwidth]{Figures/streamlines_ca088.eps}
+\caption{Streamlines for $Ca=0.36$ and $Ca=0.88$. One can see that there are no vortexes created
+before the bubble. It can be explained by the fact that the binary-liquid model is simulated
+instead of free-surface interface gas air finger flow.\label{fig:streamlines:pattern}}
+\end{figure}
 
 \section{Variation bubble length}
 The works of \citet{heil-threedim} of \citet{wang-non-circular} show the variation of the bubble
@@ -216,7 +294,7 @@ for relatively high $Ca$ numbers.
 \includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_46.eps}\\
 \includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_61.eps}\hfill
 \includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_88.eps}\\
-\includegraphics[width=0.97\textwidth]{Figures/bubble_length_ca_one.eps}
+\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_one.eps}
 \includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_117.eps}
 \caption{The radiuses variations for the capillary number $Ca=0.46$.
 One can see the diagonal radius different from the axial radius near the front of the tip which is
@@ -257,7 +335,7 @@ parameters and $\Gamma=20$ for the interface to be stable.
 {\color{red} However, many authors state that increasing mobility kills
 the
 proper results of simulations}.
-{\color{red} Need to wait results from bugaboo under LargeCap simulation}
+{\color{red} Need to wait results from bugaboo.westgrid.ca under LargeCap simulation}
 
 \section{Capillary number}
 We performed a number of simulations with quarter CPU code and GPU train simulations and compared
@@ -279,55 +357,10 @@ comparison presented in Fig. \ref{fig:capillary:comparison}.
 \begin{figure}
 \includegraphics[width=0.97\textwidth]{Figures/capillaries_comparison.eps}
 \caption{The comparison between different runs of codes for the axial and the diagonal radiuses
-versus capillary numbers. \ref{fig:capillary:comparison}}. One can see that the code mimics
-behavior.
+versus capillary numbers. \label{fig:capillary:comparison}}. One can see that the code mimics
+behavior of the earlier published results.
 \end{figure}
 
-\section{Steady-state case}
-We performed different simulations to understand a number of steps required for the problem to come
-on the steady-state. The grid to be simulated is $52\mathrm{x}52\mathrm{x}750$ which simulates the
-quarter of the channel with the initial
-width as $6.5$ lattice Boltzmann units together with $\frac{\mathrm{d}P}{\mathrm{d}x}=1.6
-\mathrm{x}10^{-6}$. The simulation was performed for $140000$,$150000$,$160000$, $170000$ and
-$180000$ iterations. The results are summarised in Table \ref{table:steady:state}. Whole the
-capillary number varies only in the 4th digit, radiuses are one percent accurate. 
-
-One of the
-profiles in
-the middle of the bubble is shown in Fig. \ref{fig:steady:state:profile:example}.
-\begin{table}
-\begin{tabular}{|c|c|c|c|}
-\hline
-$N_{iter}$&$Ca$&$R_{axis}$&$R_{diag}$\\
-$140000$&$0.0532$&$0.9379$&$1.075$\\
-$150000$&$0.0533$&$0.9375$&$1.072$\\
-$160000$&$0.0535$&$0.9372$&$1.069$\\
-$170000$&$0.0536$&$0.9369$&$1.066$\\
-$180000$&$0.0537$&$0.9366$&$1.062$\\
-\hline
-\end{tabular}
-\caption{Results for the steady-state case. One can see that $200000$ steps are enough to structure
-the bubble. However, the interface is underresolved. That could be the influence of the bubble
-length.\label{table:steady:state}}
-\end{table}
-\begin{figure}
-\includegraphics[width=0.47\textwidth]{Figures/bullet.eps}\hfill
-\includegraphics[width=0.47\textwidth]{Figures/example_crossection.eps}\\
-\caption{Slice in the middle of the bubble and
-three-dimensional example. \label{fig:steady:state:profile:example}}
-\end{figure}
-
-
-To understand the influence of the steady-state case
-For the steady-state regime the following parameters were obtained
-We want to perform understanding of the steady state regime. As well probably it's good idea to
-change domain as well, to reduce the length but to insure enough length of the bubble. The
-steady-state calculations are performed on $52\mathrm{x}52\mathrm{x}750$ with large enough the
-interface. 
-
-\section{Capillary number region}
-The same as in the previous example can help us to identify the necessary capillary regime. The
-most important thing is to establish different accentricity factors.
 
 \section{Train simulation}
 \label{section:bubble:train}
@@ -344,7 +377,8 @@ $0.783$,$0.778$,$0.772$,$0.764$,$0.753$,$0.747$. Thus, one can see the great imp
 on each other velocity for the given body force. However, in terms of the film thicknesses those
 numbers look adequate. One can see the film thicknesses dependency on the capillary number for
 simulations obtained by \citet{heil-threedim} and bubble train simulations data in Fig.
-\ref{fig:capillaries:train}. One can see that the results are consistent and in a good agreement.
+\ref{fig:capillaries:train} and in Fig. \ref{fig:capillary:comparison}. One can see that the
+results are consistent and in a good agreement.
 Therefore, though the bubble train mutual motion influences on the film thickness by increasing the
 associated capillary number,  however, the film thickness is in accordance with the capillary
 number correlation. Thus, the decrease of the numerical domain is quantified and can be used to
@@ -359,10 +393,15 @@ thickness and capillary number stays the same. This can help for simulations to 
 numerical domain. \label{fig:capillaries:train}}
 \end{figure}
 
+\section{Conclusion}
+The present work conducts the binary-liquid simulations with the lattice Boltzman method. The
+method is a continuous interface method. Along with similarity of results with already published
+results of \citet{heil-threedim} and \citet{wang-non-circular}, the differencies were found,
+especially in the velocity pattern. Results evedince that the lattice Boltzmann binary liquids
+simulations can be used for simulation of gas bubbles in the microchannel. 
 
-\section{Simulation setup}
-
-\appendix{Symmetric boundary conditions}
+\appendix
+\section{Symmetric boundary conditions}
 \label{append:sym}
 For the memory save we performed the simulation of the quarter of the channel while using the
 antisymmetric boundary conditions. In the macroscopic variables the mirror boundary conditions
@@ -380,7 +419,7 @@ plane of the boundary. This case allows to conserve scalar fields, to have the s
 velocities and to have opposite normal velocities. The grid was chosen as 52x52x1500, which is the
 effective calculated domain as 100x100x1500 grid nodes. 
 
-\appendix{Scaling procedure}
+\section{Scaling procedure}
 \label{append:scaling}
 For scaling purposes one need to obtain setup a body force as $\frac{\mathrm{d}P}{\mathrm{d}x}$. If
 one obtained a certain velocity of the bubble with the associated gradient then another gradient

@@ -4,6 +4,8 @@ import numpy
 import os
 import pylab
 from numpy import genfromtxt
+import vtk
+import math
  
 def draw_capillaries():
     dirs=["Force0000002","Force0000002x82","Force0000005x52"]
@@ -104,6 +106,165 @@ def draw_capillaries():
     pylab.savefig("capillaries_comparison.eps",format="EPS",dpi=300)
     pylab.show()
 
+
+def Get_Zero(prof):
+    zero=0
+    #pylab.figure()
+    #pylab.plot(prof)
+    for counter in range(0, len(prof)):
+        if prof[counter]<0 and prof[counter+1]>=0:
+            zero=-(prof[counter]*(counter+1)-prof[counter+1]*counter)/(prof[counter+1]-prof[counter])
+    return zero+0.5
+
+def Analyze_Consequence():
+    ax_zeros=[]
+    diag_zeros=[]
+    capillaries=[]
+    file_list=[]
+    os.chdir("Force0000002/4")
+    for root,dirs,files in os.walk(os.getcwd()):
+        for file in files:
+            if file[0:5]=="phase":   
+                file_list.append(file)
+    for file in sorted(file_list):
+        print os.getcwd()
+        print file
+        axis_zero, diag_zero, capillary=extract_profiles(file)
+        ax_zeros.append(axis_zero)
+        diag_zeros.append(diag_zero)
+        capillaries.append(capillary)
+        #Calculate the capillary number
+        #os.chdir("..")
+    #pylab.plot(capillaries,ax_zeros)
+    #pylab.plot(capillaries,diag_zeros)
+    #numpy.savetxt("steady.txt",zip(capillaries,ax_zeros,diag_zeros))
+    pylab.show()
+    #mlab.show()
+
+def extract_profiles(name):
+    
+    gridreader = vtk.vtkXMLStructuredGridReader()
+    gridreader.SetFileName(name)
+    gridreader.Update()
+    
+    grid  = gridreader.GetOutput()
+    data  = grid.GetPointData()
+    points=grid.GetPoints()
+    dims  =grid.GetDimensions()
+    velocity=data.GetArray("Velocity")
+    phase=data.GetArray("Phase")
+    vz=numpy.zeros([dims[1],dims[2]])
+    vy=numpy.zeros([dims[1],dims[2]])
+    vx=numpy.zeros([dims[1],dims[2]])
+    phase_numpy=numpy.zeros([dims[1],dims[2]])
+    
+    print vz.shape
+    print vy.shape
+
+    #for counter in range(0,points.GetNumberOfPoints()):
+    #    coorx,coory,coorz=points.GetPoint(counter)
+    #    if coorx==0:
+    #        velx,vely,velz=velocity.GetTuple3(counter)
+    #       vz[int(coory),int(coorz)]=velz
+    #        vy[int(coory),int(coorz)]=vely
+    #        vx[int(coory),int(coorz)]=velx
+    #       phase_numpy[int(coory),int(coorz)]=phase.GetTuple1(counter)
+
+    for coory in range(0,dims[1]):
+        for coorz in range(0,dims[2]):
+            counter=coorz*dims[0]*dims[1]+coory*dims[0]
+            velx,vely,velz=velocity.GetTuple3(counter)
+            vz[coory,coorz]=velz
+            vy[coory,coorz]=vely
+            vx[coory,coorz]=velx
+            phase_numpy[coory,coorz]=phase.GetTuple1(counter)
+
+
+    numpy.savetxt("vz.txt",vz)
+    numpy.savetxt("vy.txt",vy)
+    numpy.savetxt("phase.txt",phase_numpy)
+
+    #parameters of the binary liquid model
+    k=0.04
+    a=0.04
+    
+    center=phase_numpy[0,:]
+    z1 = numpy.min(numpy.where(center < 0.0))
+    z2 = numpy.max(numpy.where(center < 0.0))
+    if z1==0:
+        z2=numpy.min(numpy.where(center>0.0))+dims[2]
+        z1=numpy.max(numpy.where(center>0.0))
+    print z1,z2
+    
+    mid =((z1+z2)/2)%dims[2]
+    print mid
+    
+    phase_mid=numpy.zeros([dims[0],dims[1]])    
+    #for counter in range(0,points.GetNumberOfPoints()):
+    #    coorx,coory,coorz=points.GetPoint(counter)
+    #    if coorz==mid:
+    #       phase_mid[int(coorx),int(coory)]=phase.GetTuple1(counter)
+    for coorx in range(0,dims[0]):
+        for coory in range(0,dims[1]):
+            counter=mid*dims[0]*dims[1]+coory*dims[0]+coorx
+            phase_mid[coorx,coory]= phase.GetTuple1(counter)
+    
+    pylab.figure()
+    pylab.imshow(phase_mid[1:,1:])
+    
+    prof_axis=phase_mid[0,1:]
+    prof_diag=numpy.diag(phase_mid[1:,1:])
+
+    print Get_Zero(prof_axis)
+    print Get_Zero(prof_diag)
+    axis_zero=Get_Zero(prof_axis)/(dims[0]-2.0)
+    diag_zero=math.sqrt(2.0)*Get_Zero(prof_diag)/(dims[0]-2.0)
+    
+    print "Velx",vx[0,mid]
+    print "Vely",vy[0,mid]
+    print "Velz",vz[0,mid]
+    
+    #Calculation of the capillary number
+    capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+    
+    print axis_zero,diag_zero
+    print "Capillary=",capillary
+
+    pylab.figure()
+    pylab.plot(numpy.diag(phase_mid[1:,1:]))
+    
+    return axis_zero,diag_zero,capillary
+
+    #pylab.show()
+
+def extract_streamlines():
+    ax_zeros=[]
+    diag_zeros=[]
+    capillaries=[]
+ 
+    dirs=["Force0000002/4","Force0000002/8"]
+    for dir in dirs:
+        os.chdir(dir)
+        print os.getcwd()
+        file="phase250000.vts"
+        
+        if dir=="Force0000002/4":
+            file="phase240000.vts"
+        axis_zero, diag_zero, capillary=extract_profiles(file)
+        ax_zeros.append(axis_zero)
+        diag_zeros.append(diag_zero)
+        capillaries.append(capillary)
+        #Calculate the capillary number
+        os.chdir("../..")
+    #pylab.plot(capillaries,ax_zeros)
+    #pylab.plot(capillaries,diag_zeros)
+    #numpy.savetxt("steady.txt",zip(capillaries,ax_zeros,diag_zeros))
+    pylab.show()
+    #mlab.show()
+
+
 if __name__=="__main__":
-    draw_capillaries()
+    #draw_capillaries()
+    #Analyze_Consequence()
+    extract_streamlines()
     pylab.show()
