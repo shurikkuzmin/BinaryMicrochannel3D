@@ -172,9 +172,86 @@ def Analyze_Phase(name):
 
     #return axis_zero,diag_zero,capillary
 
+def Compare(name1,name2):
+    import math
+    arr=numpy.load(name1)
+
+    dims=arr['phi'].shape
+    velx=arr['v'][0,:,:]
+    vely=arr['v'][1,:,:]
+    phi=arr['phi']
+
+    center=phi[dims[0]/2,:]
+    z1 = numpy.min(numpy.where(center < 0.0))
+    z2 = numpy.max(numpy.where(center < 0.0))
+    if z1==0:
+        z2=numpy.min(numpy.where(center>0.0))+dims[1]
+        z1=numpy.max(numpy.where(center>0.0))
+    pylab.figure()
+    pylab.plot(center)
+    print z1,z2
+
+    mid =((z1+z2)/2)%dims[1]
+    print mid
+    print "Velx=",velx[dims[0]/2,mid] 
+    print "Vely=",vely[dims[0]/2,mid]
+    print "Dims=",dims
+    print "Capillary=",velx[dims[0]/2,mid]*2.0/3.0/(math.sqrt(8.0*0.04*0.04/9.0))
+
+    x,y=numpy.mgrid[0:dims[0],0:dims[1]]
+    x_short=x[::10,::150]
+    y_short=y[::10,::150]
+    velx_short=velx[::10,::150]
+    vely_short=vely[::10,::150]
+
+    pylab.figure()
+    pylab.imshow(arr['phi'])
+
+    pylab.figure(figsize=[31,2.5])
+    pylab.quiver(y_short,x_short,velx_short,vely_short,scale=0.4,width=0.002,headwidth=2)# ,scale=0.1)
+
+
+    #3d image
+    vy_3d=numpy.loadtxt(name2+"vy.txt")
+    vz_3d=numpy.loadtxt(name2+"vz.txt")
+    phase_3d=numpy.loadtxt(name2+"phase.txt")
+    dims=phase_3d.shape
+    center=phase_3d[dims[0]/2,:]
+    z1 = numpy.min(numpy.where(center < 0.0))
+    z2 = numpy.max(numpy.where(center < 0.0))
+    if z1==0:
+        z2=numpy.min(numpy.where(center>0.0))+dims[1]
+        z1=numpy.max(numpy.where(center>0.0))
+    pylab.figure()
+    pylab.plot(center)
+    print z1,z2
+
+    mid =((z1+z2)/2)%dims[1]
+    print mid
+    print "Velx=",vz_3d[0,mid] 
+    print "Vely=",vy_3d[0,mid]
+    print "Dims=",dims
+    print "Capillary=",vz_3d[0,mid]*2.0/3.0/(math.sqrt(8.0*0.04*0.04/9.0))
+
+    x,y=numpy.mgrid[0:dims[0],0:dims[1]]
+    x_short=x[::3,::75]
+    y_short=y[::3,::75]
+    velx_short=vz_3d[::3,::75]
+    vely_short=vy_3d[::3,::75]
+
+    pylab.figure()
+    pylab.imshow(phase_3d, origin="lower")
+
+    pylab.figure(figsize=[31,2.5])
+    pylab.quiver(y_short,x_short,velx_short,vely_short,scale=0.6,width=0.0023,headwidth=2)# ,scale=0.1)
+   
+    pylab.show()
 
 
 if __name__=="__main__":
-    #name="../../binary_microchannel/Sailfish/Grid/Results/202/grid400000.npz"
-    name="../Sailfish/Asymmetric/50/asym200000_0.vti"
-    Analyze_Phase(name)
+    #name1="../../binary_microchannel/Sailfish/Grid/Results/202/grid400000.npz"
+    name1="20/capillary200000.npz"
+    name2="4/"
+    #name="../Sailfish/Asymmetric/50/asym200000_0.vti"
+    #Analyze_Phase(name)
+    Compare(name1,name2)
