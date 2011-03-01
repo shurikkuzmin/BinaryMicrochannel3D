@@ -243,15 +243,19 @@ def Compare(name1,name2):
     pylab.imshow(phase_3d, origin="lower")
 
     pylab.figure(figsize=[31,2.5])
-    pylab.quiver(y_short,x_short,velx_short,vely_short,scale=0.6,width=0.0023,headwidth=2)# ,scale=0.1)
-   
+    pylab.quiver(y_short,x_short,velx_short-0.013,vely_short,scale=0.6,width=0.0023,headwidth=2)# ,scale=0.1)
+    pylab.contour(phase_3d,[0.0])
     pylab.show()
 
 
 if __name__=="__main__":
     #name1="../../binary_microchannel/Sailfish/Grid/Results/202/grid400000.npz"
-    name1="20/capillary200000.npz"
-    name2="4/"
-    #name="../Sailfish/Asymmetric/50/asym200000_0.vti"
+    #Mac filenames
+    #name1="20/capillary200000.npz"
+    #name2="4/"
+    
+    #Linux filenames
+    name1="../../binary_microchannel/Sailfish/Capillary/Results/20/capillary200000.npz"
+    name2="../Results/Force0000002/4/"
     #Analyze_Phase(name)
     Compare(name1,name2)
