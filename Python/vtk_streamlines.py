@@ -372,21 +372,45 @@ def extract_profiles_vtk(name):
     #contour.SetInput(phase_image)
     contour.SetValue(0,0.0)
     contour.Update()
-    
+   
     #cont_points=contour.GetOutput().GetPoints()
     probe=vtk.vtkProbeFilter()
     probe.SetInputConnection(contour.GetOutputPort())
     probe.SetSource(extract.GetOutput())
     probe.Update()
+    
+    filt_points=vtk.vtkMaskPoints()
+    filt_points.SetInputConnection(probe.GetOutputPort())    
+    #filt_points.SetMaximumNumberOfPoints(200)
+    #filt_points.SetRandomMode(1)
+    filt_points.SetOnRatio(10)
+    arrow=vtk.vtkArrowSource()
+    glyph=vtk.vtkGlyph3D()
+    glyph.SetInputConnection(filt_points.GetOutputPort())
+    glyph.SetSourceConnection(arrow.GetOutputPort())
+    glyph.SetVectorModeToUseVector()
+    glyph.SetScaleModeToScaleByVector()
+    glyph.SetScaleFactor(400.0)
+    
+    glyphMapper=vtk.vtkPolyDataMapper()
+    glyphMapper.SetInputConnection(glyph.GetOutputPort())
+
+    glyphActor=vtk.vtkActor()
+    glyphActor.SetMapper(glyphMapper)
+    glyphActor.GetProperty().SetColor(0.1,0.5,0.2)
+    print glyphActor.GetProperty().GetColor()    
     #print "Probe=", probe.GetOutput()
     calc=vtk.vtkArrayCalculator()
     calc.SetInput(probe.GetOutput())
-    calc.AddVectorArrayName("Velocity",1,1,1)
-    calc.SetResultArrayName("Velocity Magnitude")
-    calc.SetFunction("mag(Velocity)")
+    #calc.AddVectorArrayName("Velocity",1,1,1)    
+    calc.AddScalarVariable("Vz", "Velocity", 2)
+    calc.SetResultArrayName("Velocity comp 2")
+    calc.SetFunction("Vz")    
+    #calc.SetResultArrayName("Velocity Magnitude")
+    #calc.SetFunction("mag(Velocity)")
     calc.Update()
     print calc.GetOutput()
- 
+    
     xyplot = vtk.vtkXYPlotActor()
     vel=probe.GetOutput().GetPointData().GetArray("Velocity")
     
@@ -419,34 +443,44 @@ def extract_profiles_vtk(name):
     #contourMapper.SetScalarRange(phase.GetRange())
     contourMapper.SetInputConnection(contour.GetOutputPort())
     
-    sliceMapper = vtk.vtkDataSetMapper()
+    sliceMapper = vtk.vtkImageMapper()
+    #sliceMapper = vtk.vtkDataSetMapper()
     sliceMapper.SetInput(extract.GetOutput())
-    sliceMapper.SetColorModeToMapScalars()
+    sliceMapper.SetColorLevel(1000)    
+    sliceMapper.SetColorWindow(2000)    
+    #sliceMapper.SetColorModeToMapScalars()
  
     #print polydata.GetClassName()
     
     contourActor = vtk.vtkActor()
     contourActor.SetMapper(contourMapper)
    
-    sliceActor = vtk.vtkActor()
+    sliceActor = vtk.vtkActor2D()
     sliceActor.SetMapper(sliceMapper)
 
     ren = vtk.vtkRenderer()
-    ren.AddActor(contourActor)
-    ren.AddActor(sliceActor)
+    #ren.AddActor(contourActor)
+    ren.AddActor2D(sliceActor)
+    #ren.AddActor(glyphActor)
     ren.SetBackground(0.1, 0.2, 0.4)
-    ren.SetViewport(0, 0, .5, 1)
+    #ren.SetColor(0.1,0.5,0.2)    
+    #ren.SetViewport(0, 0, .3, 1)
 
     ren2=vtk.vtkRenderer()
     ren2.SetBackground(1, 1, 1)
-    ren2.SetViewport(0.5, 0.0, 1.0, 1.0)
+    ren2.SetViewport(0.3, 0.0, 1.0, 1.0)
     ren2.AddActor2D(xyplot)
 
     renWin = vtk.vtkRenderWindow()
     renWin.AddRenderer(ren)
-    renWin.AddRenderer(ren2)
-    renWin.SetSize(1000, 500)
-
+    #renWin.AddRenderer(ren2)
+    renWin.SetSize(500, 500)
+    
+    #win=vtk.vtkWindowToImageFilter()
+    #win.SetInput(renWin)
+    
+    
+    
     iren = vtk.vtkRenderWindowInteractor()
     iren.SetRenderWindow(renWin)
 
@@ -454,6 +488,11 @@ def extract_profiles_vtk(name):
     iren.Initialize()
     renWin.Render()
     iren.Start()
+    
+    #save=vtk.vtkPostScriptWriter()
+    #save.SetInput(win.GetOutput())
+    #save.SetFileName("big_window.eps")
+    #save.Write()
     
     
     #vz=numpy.zeros([dims[1],dims[2]])
