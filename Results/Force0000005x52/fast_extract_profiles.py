@@ -295,6 +295,9 @@ def extract_consequence():
     cap_table=[]
     axis_table=[]
     diag_table=[]
+    vel_bubble_table=[]
+    vel_interface_table=[]
+    vel_slug_table=[]
     for dir in dirs:
         name="phase250000.vts"
         #if dir=='4':
@@ -388,7 +391,8 @@ def extract_consequence():
         #print "Velz",vz[0,mid]
     
         #Calculation of the capillary number
-        capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+        #capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+        capillary=vz[0,z2%dims[2]]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)        
         prof_axis=phase_mid[0,1:]
         prof_diag=numpy.diag(phase_mid[1:,1:])
         axis_mid=Get_Zero(prof_axis)/(dims[0]-2.0)
@@ -398,7 +402,12 @@ def extract_consequence():
         cap_table.append(capillary)
         axis_table.append(axis_mid)
         diag_table.append(diag_mid)
+        vel_bubble_table.append(vz[0,mid])
+        vel_interface_table.append(vz[0,z2%dims[2]])
+        vel_slug_table.append(vz[0,((z2+z1+dims[2])/2)%dims[2]])
 
+
+        
         fig=pylab.figure()
         #pylab.plot(numpy.diag(phase_mid[1:,1:]))
         pylab.plot(rads_axis,"g-.",linewidth=3,markersize=4)
@@ -428,7 +437,7 @@ def extract_consequence():
     pylab.figure()
     pylab.plot(axis_table)
     pylab.plot(diag_table)
-    numpy.savetxt("capillaries.txt",zip(cap_table,axis_table,diag_table))
+    numpy.savetxt("capillaries.txt",zip(cap_table,axis_table,diag_table,vel_bubble_table,vel_interface_table,vel_slug_table))
     pylab.show()
 
     

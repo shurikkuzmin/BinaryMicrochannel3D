@@ -122,7 +122,8 @@ def Analyze_Phase(name):
     #print "Velz",velz_numpy[dims[0]/2,dims[1]/2,mid]
     
     #Calculation of the capillary number
-    capillary=velx_numpy[dims[0]/2,dims[1]/2,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+    #capillary=velx_numpy[dims[0]/2,dims[1]/2,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+    capillary=velx_numpy[dims[0]/2,dims[1]/2,z2%dims[2]]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)
     
     #pylab.figure()
     #pylab.imshow(phase_numpy[:,:,mid])
@@ -158,33 +159,45 @@ def Analyze_Consequence():
     #pylab.show()    
 
 def Draw_Consequence():
-    #from numpy import genfromtxt
+    from numpy import genfromtxt
 
     arr=numpy.loadtxt("underresolved.txt")
     capillaries=arr[:,0]
     axis_zeros=arr[:,1]
     diag_zeros=arr[:,2]
+    heil=genfromtxt("heil.csv",delimiter=';',dtype=float)
     
-    #To define later to compare with real stuff
-    #capillary_theor=[0.03,0.05,0.08,0.1,0.2,0.4,0.6,0.8]
-    #capillary_str=["3","5","8","10","20","40","60","80"]
-    #width_theor=[0.04,0.06,0.08,0.1,0.12,0.13,0.15,0.16]
-
-    
-    #read the giavedoni data (not precise though)
-    #giavedoni=genfromtxt("planarcasesolution.csv",delimiter=',',dtype=float)[1:]
-
     fig=pylab.figure()
+    ax=fig.add_subplot(111)
+ 
+    pylab.semilogx(capillaries,axis_zeros,"bD-",linewidth=3,markersize=10)
+    pylab.semilogx(capillaries,diag_zeros,"ys-",linewidth=3,markersize=10)
+ 
+    pylab.semilogx(heil[:,0],heil[:,1],linewidth=2)
+    #pylab.semilogx(capillary_theor,radiusses,'o-',markersize=7,linewidth=2)
+    #pylab.loglog(giavedoni[:,0],giavedoni[:,1]/2.0,"bD-",linewidth=3,markersize=10)
+    #pylab.loglog(capillary_theor,width_theor,"ys--",linewidth=3,markersize=10)
+    #pylab.loglog(capillaries,widths,"go-",linewidth=3,markersize=10)
+
+    pylab.xlim(xmin=0.05,xmax=1.05)
+    #pylab.ylim(ymin=0.01)
+    #numpy.savetxt("capillary.dat",zip(capillaries,widths))
+    
+    pylab.xticks(fontsize=20)
+    pylab.yticks(fontsize=20)
+    
+    pylab.ylabel(r'''$R_{diag},R_{axes}$''',fontsize=30)
+    pylab.xlabel(r'''$Ca$''',fontsize=30)
+    
+    
     
     #pylab.loglog(giavedoni[:,0],giavedoni[:,1]/2.0,"bD-",linewidth=3,markersize=10)
     #pylab.loglog(capillary_theor,width_theor,"ys--",linewidth=3,markersize=10)
     #pylab.loglog(capillaries,widths,"go-",linewidth=3,markersize=10)
-    pylab.plot(capillaries,axis_zeros,"bD-",linewidth=3,markersize=10)
-    pylab.plot(capillaries,diag_zeros,"ys-",linewidth=3,markersize=10)
     
     #pylab.xlim(0.02,1.5)
     #pylab.ylim(ymin=0.01)
-    fig.subplots_adjust(left=0.15,bottom=0.15)  
+    fig.subplots_adjust(left=0.17,bottom=0.17)  
     #pylab.xticks(fontsize=20)
     #pylab.yticks(fontsize=20)
     pylab.xlabel(r'''$Ca$''',fontsize=30)
@@ -271,10 +284,10 @@ def Analyze_Bubble(name):
 
 if __name__=="__main__":
     
-    #Draw_Consequence()
+    Draw_Consequence()
     #Analyze_Phase("15/asym200000_0.vti")
     #Run_Simulations()
-    #Analyze_Simulations()    
+    #Analyze_Consequence()    
     #Analyze_Velocities()
-    Analyze_Bubble("75/asym200000_0.vti")
+    #Analyze_Bubble("75/asym200000_0.vti")
     pylab.show()

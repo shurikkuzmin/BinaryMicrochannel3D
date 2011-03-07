@@ -141,8 +141,8 @@ def extract_profiles(name):
     print "Velz",vz[0,mid]
     
     #Calculation of the capillary number
-    capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
-    
+    #capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+    capillary=vz[0,z2%dims[2]]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)
     print axis_zero,diag_zero
     print "Capillary=",capillary
     vel_bulk=vz[0,((z1+z2+dims[2])/2)%dims[2]]
@@ -171,17 +171,17 @@ def extract_profiles(name):
     x,y=numpy.mgrid[0:dims[0],0:dims[2]]
     positive=numpy.where(phase_numpy>0.0)
     negative=numpy.where(phase_numpy<0.0)
-    large=numpy.where(x>35)
+    large=numpy.where(x>25)
     x_short=x[::3,::15]
     y_short=y[::3,::15]
     vz_diff_mask=vz_diff #[numpy.where(phase_numpy>0.0)]
-    #vz_diff_mask[negative]=None
-    #vz_diff_mask[large]=None
+    vz_diff_mask[negative]=None
+    vz_diff_mask[large]=None
     
     velx_short=vz_diff_mask[::3,::15]
     vy_mask=vy #[numpy.where(phase_numpy>0.0)]
-    #vy_mask[negative]=None
-    #vy_mask[large]=None
+    vy_mask[negative]=None
+    vy_mask[large]=None
     
     vely_short=vy_mask[::3,::15]
 
@@ -192,7 +192,7 @@ def extract_profiles(name):
     
     fig=pylab.figure(figsize=[23,2.5])
     fig=fig.subplots_adjust(bottom=0.15,top=0.8)
-    pylab.quiver(y_short,x_short,velx_short,vely_short,scale=0.4,width=0.0023,headwidth=2)# ,scale=0.1)
+    pylab.quiver(y_short,x_short,velx_short,vely_short,scale=0.1,width=0.0023,headwidth=2)# ,scale=0.1)
     pylab.title(r'''$Ca='''+str(capillary)[0:4]+r'''$''',size=30)
     pylab.contour(phase_numpy,[0.0],linewidths=[4])
     if capillary>=1.0:
@@ -587,12 +587,12 @@ def comparison_vortexes():
    
 
 if __name__=="__main__":
-    #name="../Results/Force0000002/4/phase240000.vts"
-    name="../Results/Force0000002/10/phase250000.vts"
+    name="../Results/Force0000002/8/phase250000.vts"
+    #name="../Results/Force0000002/10/phase250000.vts"
     
     #comparison_vortexes()
-    #extract_profiles(name)
-    extract_profiles_vtk(name)
+    extract_profiles(name)
+    #extract_profiles_vtk(name)
     #extract_bubble(name)
     #pylab.show()
  

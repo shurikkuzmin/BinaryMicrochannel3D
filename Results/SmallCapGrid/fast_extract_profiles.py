@@ -291,17 +291,13 @@ def extract_bubble(name):
     
 def extract_consequence():
     import os
-    dirs=['4','6','8','10']
+    dirs=['3','4','6','7','8','10']
+    names=['175000','250000','100000','225000','175000','100000']    
     cap_table=[]
     axis_table=[]
     diag_table=[]
-    vel_bubble_table=[]
-    vel_interface_table=[]
-    vel_slug_table=[]
-    for dir in dirs:
-        name="phase250000.vts"
-        if dir=='4':
-            name="phase240000.vts"
+    for dir_count,dir in enumerate(dirs):
+        name="phase"+names[dir_count]+".vts"
         os.chdir(dir)
         print os.getcwd()
         gridreader = vtk.vtkXMLStructuredGridReader()
@@ -352,7 +348,6 @@ def extract_consequence():
         mid =((z1+z2)/2)%dims[2]
         print mid
     
-        #raw_input()
         phase_mid=numpy.zeros([dims[0],dims[1]])    
         for coorx in range(0,dims[0]):
             for coory in range(0,dims[1]):
@@ -397,7 +392,6 @@ def extract_consequence():
     
         #Calculation of the capillary number
         #capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
-        
         capillary=vz[0,z2%dims[2]]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)
         prof_axis=phase_mid[0,1:]
         prof_diag=numpy.diag(phase_mid[1:,1:])
@@ -408,9 +402,6 @@ def extract_consequence():
         cap_table.append(capillary)
         axis_table.append(axis_mid)
         diag_table.append(diag_mid)
-        vel_bubble_table.append(vz[0,mid])
-        vel_interface_table.append(vz[0,z2%dims[2]])
-        vel_slug_table.append(vz[0,((z2+z1+dims[2])/2)%dims[2]])
 
         #fig=pylab.figure()
         #pylab.plot(numpy.diag(phase_mid[1:,1:]))
@@ -441,7 +432,7 @@ def extract_consequence():
     pylab.figure()
     pylab.plot(axis_table)
     pylab.plot(diag_table)
-    numpy.savetxt("capillaries.txt",zip(cap_table,axis_table,diag_table,vel_bubble_table,vel_interface_table,vel_slug_table))
+    numpy.savetxt("capillaries.txt",zip(cap_table,axis_table,diag_table))
     pylab.show()
 
     
