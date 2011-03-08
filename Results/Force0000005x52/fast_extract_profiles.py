@@ -288,6 +288,19 @@ def extract_bubble(name):
     #return axis_zero,diag_zero,capillary
 
     pylab.show()
+
+def calculate_flowrates(phase_mid,velz_mid,velz_bulk):
+    area=numpy.ones(phase_mid.shape)    
+    liq=numpy.where(phase_mid>0.0)
+    bubble=numpy.where(phase_mid<0.0)
+    vol_bubble=numpy.sum(velz_mid[bubble])
+    vol_liq=numpy.sum(velz_mid[liq])
+    vol_pos=numpy.sum(velz_bulk)
+    area_bubble=numpy.sum(area[bubble])
+    area_liq=numpy.sum(area[liq])
+    
+    return vol_bubble,vol_liq,vol_pos,area_bubble,area_liq
+
     
 def extract_consequence():
     import os
@@ -298,6 +311,12 @@ def extract_consequence():
     vel_bubble_table=[]
     vel_interface_table=[]
     vel_slug_table=[]
+    vol_bubble_table=[]
+    vol_liq_table=[]
+    vol_pos_table=[]
+    area_bubble_table=[]
+    area_liq_table=[]
+
     for dir in dirs:
         name="phase250000.vts"
         #if dir=='4':
@@ -355,6 +374,9 @@ def extract_consequence():
         #raw_input()
         phase_mid=numpy.zeros([dims[0],dims[1]])    
         phase_cur=numpy.zeros([dims[0],dims[1]])
+        velz_mid=numpy.zeros([dims[0],dims[1]])        
+        velz_bulk=numpy.zeros([dims[0],dims[1]])        
+ 
         rads_axis=[]
         rads_diag=[]
     
@@ -366,12 +388,20 @@ def extract_consequence():
                 for coory in range(0,dims[1]):
                     counter=z*dims[0]*dims[1]+coory*dims[0]+coorx
                     phase_cur[coorx,coory]= phase.GetTuple1(counter)
+                    velz_mid[coorx,coory]=velocity.GetTuple3(counter)[2]
         
             if z==((z1+z2)/2)%dims[2]:
                 for coorx in range(0,dims[0]):
                     for coory in range(0,dims[1]):
                         counter=z*dims[0]*dims[1]+coory*dims[0]+coorx
                         phase_mid[coorx,coory]= phase.GetTuple1(counter)
+        
+            if z==((z1+z2+dims[2])/2)%dims[2]:
+                for coorx in range(0,dims[0]):
+                    for coory in range(0,dims[1]):
+                        counter=z*dims[0]*dims[1]+coory*dims[0]+coorx
+                        velz_bulk[coorx,coory]= velocity.GetTuple3(counter)[2]
+        
         
             prof_axis=phase_cur[0,1:]
             prof_diag=numpy.diag(phase_cur[1:,1:])
@@ -392,6 +422,7 @@ def extract_consequence():
     
         #Calculation of the capillary number
         #capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+        vol_bubble,vol_liq,vol_pos,area_bubble,area_liq=calculate_flowrates(phase_mid,velz_mid,velz_bulk)                
         capillary=vz[0,z2%dims[2]]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)        
         prof_axis=phase_mid[0,1:]
         prof_diag=numpy.diag(phase_mid[1:,1:])
@@ -405,6 +436,11 @@ def extract_consequence():
         vel_bubble_table.append(vz[0,mid])
         vel_interface_table.append(vz[0,z2%dims[2]])
         vel_slug_table.append(vz[0,((z2+z1+dims[2])/2)%dims[2]])
+        vol_bubble_table.append(vol_bubble)
+        vol_liq_table.append(vol_liq)
+        vol_pos_table.append(vol_pos)
+        area_bubble_table.append(area_bubble)
+        area_liq_table.append(area_liq)
 
 
         
@@ -437,7 +473,7 @@ def extract_consequence():
     pylab.figure()
     pylab.plot(axis_table)
     pylab.plot(diag_table)
-    numpy.savetxt("capillaries.txt",zip(cap_table,axis_table,diag_table,vel_bubble_table,vel_interface_table,vel_slug_table))
+    numpy.savetxt("capillaries.txt",zip(cap_table,axis_table,diag_table,vel_bubble_table,vel_interface_table,vel_slug_table,vol_bubble_table,vol_liq_table,vol_pos_table,area_bubble_table,area_liq_table))
     pylab.show()
 
     

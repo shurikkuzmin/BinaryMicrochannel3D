@@ -438,7 +438,8 @@ def extract_consequence():
     
 
 if __name__=="__main__":
-    name="../Results/Force0000002/10/phase250000.vts"
+    #name="../Results/Force0000002/10/phase250000.vts"
+    name="4/phase250000.vts"
     #extract_profiles(name)
-    #extract_bubble(name)
-    extract_consequence()
+    extract_bubble(name)
+    #extract_consequence()

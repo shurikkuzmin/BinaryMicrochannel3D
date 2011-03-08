@@ -100,17 +100,55 @@ def draw_capillaries():
 def draw_velocities():
     names=["force0000002_vel","force0000002x82_vel","force0000005x52_vel"]
     style=["<","^",">"]
-    fig=pylab.figure()
-
+    fig1=pylab.figure(1)
+    fig2=pylab.figure(2)
+    xcoors=[]
+    ycoors=[]
+    numpy.hstack
     for counter,name in enumerate(names):
         mat=numpy.loadtxt("Capillaries/cap_"+name+".txt")
+        xcoors=numpy.hstack((xcoors,mat[:,0]))
+        ycoors=numpy.hstack((ycoors,numpy.divide(mat[:,3]-mat[:,5],mat[:,5])))
         
         #print mat.shape
-        
-        pylab.plot(mat[:,0],(mat[:,3]-mat[:,5])/mat[:,5]),style[counter],markersize=10,linewidth=2)
+        pylab.figure(1)        
+        pylab.plot(mat[:,0],numpy.divide(mat[:,3]-mat[:,5],mat[:,5]),style[counter],markersize=10,linewidth=2)
+        pylab.figure(2)
+        pylab.plot(mat[:,0],numpy.divide(mat[:,4]-mat[:,5],mat[:,5]),style[counter],markersize=10,linewidth=2)        
         #pylab.plot(mat[:,0],mat[:,2],"+")
 
+    #Fit a line, ``y = mx + c``, through some noisy data-points:
+
+    #>>> x = np.array([0, 1, 2, 3])
+    #>>> y = np.array([-1, 0.2, 0.9, 2.1])
+
+    ##By examining the coefficients, we see that the line should have a
+    #gradient of roughly 1 and cuts the y-axis at more-or-less -1.
+
+    #We can rewrite the line equation as ``y = Ap``, where ``A = [[x 1]]``
+    #and ``p = [[m], [c]]``.  Now use `lstsq` to solve for `p`:
+
+    A = numpy.vstack([xcoors, numpy.ones(len(xcoors))]).T
+    #>>> A
+    #array([[ 0.,  1.],
+    #       [ 1.,  1.],
+    #       [ 2.,  1.],
+    #       [ 3.,  1.]])
+
+    a, b = numpy.linalg.lstsq(A, ycoors)[0]
+    #>>> print m, c
+    #1.0 -0.95
+
+    #Plot the data along with the fitted line:
+
+    #>>> import matplotlib.pyplot as plt
+    #>>> plt.plot(x, y, 'o', label='Original data', markersize=10)
+    pylab.figure(1)    
+    pylab.plot(xcoors, a*xcoors + b, 'r', label='Fitted line')
+    #>>> plt.legend()
+    #>>> plt.show()
     
+        
     #capillary_theor=[0.905,0.986,1.08,1.19,1.33,1.49]
     #radiusses=[0.783,0.778,0.772,0.764,0.753,0.747]
    
@@ -145,7 +183,7 @@ def draw_velocities():
     pylab.xticks(fontsize=20)
     pylab.yticks(fontsize=20)
     
-    pylab.ylabel(r'''$R_{diag},R_{axes}$''',fontsize=30)
+    pylab.ylabel(r'''$W$''',fontsize=30)
     pylab.xlabel(r'''$Ca$''',fontsize=30)
     
     
@@ -155,7 +193,7 @@ def draw_velocities():
     #legtext = leg.get_texts() # all the text.Text instance in the legend
     #for text in legtext:
     #    text.set_fontsize(20) 
-    #fig.subplots_adjust(left=0.17,bottom=0.17) 
+    fig1.subplots_adjust(left=0.17,bottom=0.17) 
 
     #for line in ax.yaxis.get_majorticklines():
         # line is a Line2D instance
