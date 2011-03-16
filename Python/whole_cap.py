@@ -2,6 +2,7 @@
 import numpy
 import pylab
 from numpy import genfromtxt
+<<<<<<< HEAD
 
 def draw_capillaries_paper():
     names=["force0000002","force0000002x82"]
@@ -100,6 +101,9 @@ def draw_capillaries_paper():
 
 
 
+=======
+import math
+>>>>>>> 847167bd5b558c0919de9ec707d4bd3cb4ff091f
 def draw_capillaries():
     names=["force0000002","force0000002x82","force0000005x52"]
     style=["<","^",">"]
@@ -196,23 +200,28 @@ def draw_capillaries():
     pylab.show()
     
 def draw_velocities():
-    names=["force0000002_vel","force0000002x82_vel","force0000005x52_vel"]
+    names=["force0000002_rel","force0000002x82_rel","force0000005x52_rel"]
     style=["<","^",">"]
     fig1=pylab.figure(1)
-    fig2=pylab.figure(2)
+    #fig2=pylab.figure(2)
     xcoors=[]
     ycoors=[]
     #numpy.hstack
     for counter,name in enumerate(names):
+        if counter>=1:
+		    continue
         mat=numpy.loadtxt("Capillaries/cap_"+name+".txt")
-        xcoors=numpy.hstack((xcoors,mat[:,0]))
-        ycoors=numpy.hstack((ycoors,numpy.divide(mat[:,3]-mat[:,5],mat[:,5])))
-        
+        xcoors=numpy.hstack((xcoors,numpy.log10(mat[:,0])))
+        #ycoors=numpy.hstack((ycoors,numpy.divide(mat[:,3]-mat[:,5],mat[:,5])))
+        ycoors=numpy.divide(mat[:,4]-mat[:,8]/(52.0*52.0),mat[:,4])
+
+        print mat[:,6]+mat[:,7],mat[:,8]
         #print mat.shape
         pylab.figure(1)        
-        pylab.plot(mat[:,0],numpy.divide(mat[:,3]-mat[:,5],mat[:,5]),style[counter],markersize=10,linewidth=2)
-        pylab.figure(2)
-        pylab.plot(mat[:,0],numpy.divide(mat[:,4]-mat[:,5],mat[:,5]),style[counter],markersize=10,linewidth=2)        
+        #pylab.plot(mat[:,0],numpy.divide(mat[:,3]-mat[:,5],mat[:,5]),style[counter],markersize=10,linewidth=2)
+        pylab.semilogx(mat[:,0],numpy.divide(mat[:,4]-mat[:,8]/(52.0*52.0),mat[:,4]),style[counter],markersize=10,linewidth=2)
+        #pylab.figure(2)
+        #pylab.plot(mat[:,0],numpy.divide(mat[:,4]-mat[:,5],mat[:,5]),style[counter],markersize=10,linewidth=2)        
         #pylab.plot(mat[:,0],mat[:,2],"+")
 
     #Fit a line, ``y = mx + c``, through some noisy data-points:
@@ -234,15 +243,16 @@ def draw_velocities():
     #       [ 3.,  1.]])
 
     a, b = numpy.linalg.lstsq(A, ycoors)[0]
-    #>>> print m, c
+    print a, b
     #1.0 -0.95
 
     #Plot the data along with the fitted line:
 
     #>>> import matplotlib.pyplot as plt
     #>>> plt.plot(x, y, 'o', label='Original data', markersize=10)
-    pylab.figure(1)    
-    pylab.plot(xcoors, a*xcoors + b, 'r', label='Fitted line')
+    pylab.figure(1)
+        
+    pylab.semilogx(numpy.power(len(xcoors)*[10.0],xcoors), a*xcoors + b, 'r', label='Fitted line')
     #>>> plt.legend()
     #>>> plt.show()
     
