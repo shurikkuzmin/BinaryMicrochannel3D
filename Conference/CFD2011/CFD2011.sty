@@ -1,0 +1,76 @@
+%-------------------------------------------------------------------------
+%This LaTeX style file was prepared to honor the author instructions
+%given for
+%the CFD2011 conference in Trondheim, june 2011.
+%
+%The package was created by
+%Sverre Gullikstad Johnsen, sverre.g.johnsen@sintef.no
+%SINTEF Materials and Chemistry
+%Process technology, flow technology
+%-------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+\ProvidesPackage{CFD2011}[2011/10/01 Prepared for the CFD2011 conference
+in Trondheim]
+
+
+\usepackage{array}
+\usepackage{nicefrac}
+\usepackage{savesym}
+  % to make pdflatex work on .eps-graphics
+  % ---------------------------------------
+   \usepackage{ifpdf}
+   \ifpdf
+     \usepackage[pdftex]{graphicx}
+     \usepackage{epstopdf}
+   \else
+     \usepackage[dvips]{graphicx}
+   \fi
+\savesymbol{nomenclature}
+\usepackage{nomencl}
+\restoresymbol{OWN}{nomenclature}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{bm}
+\usepackage{balance}   %to balance the columns at the last page
+\usepackage[bookmarks=true, colorlinks=true, pdfstartview=FitV, linkcolor=black,citecolor=black, urlcolor=black, a4paper, hypertexnames=false]{hyperref}
+
+
+%% % -----------------------------------------------------------------
+%% % New Commands
+%% % -----------------------------------------------------------------
+%\renewcommand{\cite}[1]{\citep{#1}}
+
+ %redefine the spacing between nomenclature elements
+\setlength{\nomitemsep}{-\parsep}
+  %redefine \nomgroup so that greek symbols are separated from the 
+  %roman symbols in the nomenclature
+   \RequirePackage{ifthen}
+   \renewcommand{\nomgroup}[1]{%
+     \ifthenelse{\equal{#1}{G}}{\item[\textit{Greek Symbols}]}{%
+       \ifthenelse{\equal{#1}{L}}{\item[]\item[\textit{Latin Symbols}]}{%
+         \ifthenelse{\equal{#1}{S}}{\item[]\item[\textit{Sub/superscripts}]}{}}}}
+
+
+%define new figure environment
+   \newcommand{\figwidth}{1.0\linewidth}
+   \newcommand{\InsFig}[3]{
+     \begin{figure}[!hb]
+       \centering
+       \includegraphics[width=\figwidth]{#1}
+       \caption{#2}
+       \label{fig:#3}
+     \end{figure}
+   }
+   \newcommand{\InsFigRot}[3]{
+     \begin{figure}[!hb]
+       \centering
+       \includegraphics[height=\figwidth, angle=-90]{#1}
+       \caption{#2}
+       \label{fig:#3}
+     \end{figure}
+   }
+
+ %define new table environment
+   \newcommand{\InsTab}[1]{
+     \input{#1}
+   }

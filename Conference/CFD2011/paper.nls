@@ -1,0 +1,37 @@
+%Nomenclature for the CFD2011 paper template
+
+\begin{thenomenclature} 
+%%%%%%%%%%%%%%%%%%%%%
+%Greek symbols
+%%%%%%%%%%%%%%%%%%%%%
+ \nomgroup{G}
+
+  \item [{$\rho$}]\begingroup Uniform density, $[\nicefrac{kg}{m^3}]$\nomeqref {0}
+		\nompageref{1}
+  \item [{$\mu$}]\begingroup Liquid kinematic viscosity, $[\nicefrac{kg}{ms}]$\nomeqref {0}
+		\nompageref{1}
+  \item [{$\nu$}] \begingroup LBM dynamic viscosity, $[lbu]$\nomeqref {0}
+		\nompageref{1}
+  \item [{$\tau$}] \begingroup LBM relaxation parameter, \nomeqref {0}
+		\nompageref{1}
+
+
+%%%%%%%%%%%%%%%%%%%%%
+%Roman symbols
+%%%%%%%%%%%%%%%%%%%%%
+ \nomgroup{L}
+
+  \item [{$U_{bubble} $}]\begingroup Bubble interface velocity magnitude, $[m/s]$.\nomeqref {0}
+		\nompageref{1}
+
+
+%%%%%%%%%%%%%%%%%%%%%
+%subscripts
+%%%%%%%%%%%%%%%%%%%%%
+ \nomgroup{S}
+
+  \item [{$liq$}]\begingroup Liquid,\nomeqref {0}
+		\nompageref{1}
+  \item [{$i$}]\begingroup Index $i$. related to the direction.\nomeqref {0}
+		\nompageref{1}
+\end{thenomenclature}

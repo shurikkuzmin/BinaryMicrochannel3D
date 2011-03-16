@@ -169,36 +169,88 @@ def extract_profiles(name):
     #fig=pylab.figure()
     #pylab.imshow(phase_numpy,origin="lower")
     x,y=numpy.mgrid[0:dims[0],0:dims[2]]
+    deltax=0.5/(dims[0]-1)
+    deltay=15.0/(dims[2]-1)
     positive=numpy.where(phase_numpy>0.0)
     negative=numpy.where(phase_numpy<0.0)
     large=numpy.where(x>25)
-    x_short=x[::3,::15]
-    y_short=y[::3,::15]
+    bounds=numpy.where(numpy.logical_and(y>z1-5,y<z2%dims[2]+10))
+    print z1,z2 #,bounds
+    #print y<z1-30
+    x_short=x[::3,::25]*deltay
+    y_short=y[::3,::25]*deltax
     vz_diff_mask=vz_diff #[numpy.where(phase_numpy>0.0)]
     vz_diff_mask[negative]=None
     vz_diff_mask[large]=None
+    vz_diff_mask[bounds]=None
     
-    velx_short=vz_diff_mask[::3,::15]
+    velx_short=vz_diff_mask[::3,::25]
     vy_mask=vy #[numpy.where(phase_numpy>0.0)]
     vy_mask[negative]=None
     vy_mask[large]=None
+    vz_diff_mask[bounds]=None
     
-    vely_short=vy_mask[::3,::15]
+    vely_short=vy_mask[::3,::25]
 
     #pylab.figure()
     #phase_neg=phase_numpy
     #phase_neg[negative]=None
     #pylab.imshow(phase_neg, origin="lower")
     
-    fig=pylab.figure(figsize=[23,2.5])
+    fig=pylab.figure(figsize=[10,10])
     fig=fig.subplots_adjust(bottom=0.15,top=0.8)
-    pylab.quiver(y_short,x_short,velx_short,vely_short,scale=0.1,width=0.0023,headwidth=2)# ,scale=0.1)
-    pylab.title(r'''$Ca='''+str(capillary)[0:4]+r'''$''',size=30)
-    pylab.contour(phase_numpy,[0.0],linewidths=[4])
+    #axes=fig.xaxis
+    pylab.quiver(y_short,x_short,velx_short,vely_short,scale=0.08,width=0.0033,headwidth=10,headlength=5,headaxislength=5)# ,scale=0.1)
+    pylab.title(r'''$Ca='''+str(capillary)[0:4]+r'''$''',size=40)
+    pylab.contour(phase_numpy,[0.0],linewidths=[4],extent=(0.0,15,0.0,0.5))
+   
+   
+    pylab.xticks(fontsize=24)
+    pylab.yticks(fontsize=24)
+    
+    pylab.ylabel(r'''$y$''',fontsize=30)
+    pylab.xlabel(r'''$x$''',fontsize=30)
+    
+    
+    
+    #labels=[r'''$H_{eff}='''+str(value-2)+r'''$''' for value in ny]
+    #leg=pylab.legend(["CPU results","Refined grid","Large body force","Heil","GPU results"],fancybox=True)
+    #legtext = leg.get_texts() # all the text.Text instance in the legend
+    #for text in legtext:
+    #    text.set_fontsize(20) 
+    #fig.subplots_adjust(left=0.17,bottom=0.17) 
+
+    #for line in ax.yaxis.get_majorticklines():
+        # line is a Line2D instance
+        #line.set_color('green')
+        #line.set_markersize(25)
+    #    line.set_markeredgewidth(2)
+
+    #for line in ax.xaxis.get_majorticklines():
+        # line is a Line2D instance
+        #line.set_color('green')
+        #line.set_markersize(25)
+    #    line.set_markeredgewidth(2)
+    
+    #for line in ax.yaxis.get_minorticklines():
+        # line is a Line2D instance
+        #line.set_color('green')
+        #line.set_markersize(25)
+     #   line.set_markeredgewidth(2)
+
+    #for line in ax.xaxis.get_minorticklines():
+        # line is a Line2D instance
+        #line.set_color('green')
+        #line.set_markersize(25)
+    #    line.set_markeredgewidth(2)
+
+   
     if capillary>=1.0:
         name_cap=str(capillary*100)[0:3]
     else:
         name_cap=str(capillary*100)[0:2]
+    pylab.xlim(xmax=15)
+    pylab.ylim(ymax=0.5)
     pylab.savefig("vortex_ca"+name_cap+".eps",format="EPS",dpi=300)
     pylab.show()
 

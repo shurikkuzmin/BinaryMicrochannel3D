@@ -1,0 +1,137 @@
+\documentclass{CFD2011}
+\usepackage{CFD2011}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%This template is created for complying with the author instructions for the 
+%8th International Conference on CFD in Oil & Gas, Metallurgical and Process Industries
+%hosted by SINTEF/NTNU, Trondheim Norway
+%21-23 June 2011
+%
+%Sverre G. Johnsen (sverre.g.johnsen@sintef.no)
+%SINTEF Materials and Chemistry
+
+
+%Required files:
+%   ExampleFile.tex
+%   xampleFile.nls
+%   CFD2011.bst
+%   CFD2011.cls
+%   CFD2011.sty
+%   References.bib
+
+%Example-specific files:
+%   figure.eps
+%   Table.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\title{Industrial Applications of CFD}
+\paperID{CFD11-52}
+\author{Ola}{Nordmann} %{forename}{surname}
+\presenting  %the previous author is presenting the paper (name becomes underlined)
+\address{SINTEF Materials and Chemistry, 7465 Trondheim, NORWAY}%affiliation of the previous author
+\email{ola.nordmann@sintef.no}%e-mail address of the previous author
+\author{Zhi}{L. Xie}
+\address{NTNU Department of Physics, 7491 Trondheim, NORWAY}
+\email{lin.xie@ntnu.no}
+%\author{Sverre}{G. Johnsen}
+%\address{SINTEF Materials and Chemistry, 7465 Trondheim, NORWAY}
+%\email{sverre.g.johnsen@sintef.no}
+
+
+
+\begin{document}
+\maketitle  %create the title page
+\headers   %create the page headers and footers
+
+
+\abstract{
+  This file is an example \LaTeX file for submission to CFD2011.  A
+  limit of 10 pages applies.
+}
+\keywords{
+  CFD, hydrodynamics, chemical reactors
+}
+\normalfont\normalsize
+
+
+
+%\section{Nomenclature}
+A complete list of symbols used, with dimensions, is required.
+%the nomenclature needs to be entered into the file ExampleFile.nls
+\printnomenclature[0.7cm]  
+\vskip .1em
+
+
+\section{Introduction}
+The introduction goes here.
+
+
+\newpage
+
+
+
+\section{Model Description}
+You should give a thorough description of your model.
+\vspace{4cm}
+\subsection{Example of Subheading}
+Here is how to produce a numbered equation under a second level
+heading \cite{James1988}.
+\vspace{2cm}\\
+\emph{Continuity equation}
+\begin{equation}
+  \frac{\partial \rho_G}{\partial t}+\nabla\left(\rho_G\mathbf
+    u\right)=0
+\end{equation}
+
+\subsubsection*{Example of Sub-subheading}
+This is how \cite{Luke1988} produced an unnumbered equation under a
+third level heading.
+\begin{equation}
+  \mathbf J=\sigma(\mathbf E+\mathbf u\times\mathbf B)
+\end{equation}
+\newpage
+
+\InsFig{figure}{Schematic diagram of geometry.}{label1}
+\InsFigRot{figure}{Rotated schematic diagram of geometry.}{label2}
+
+
+\section{Results}
+The results of using the \LaTeX template is a great looking paper.
+In Figures \ref{fig:label1} and \ref{fig:label2} it can be seen how figures are easily included.
+In Table \ref{tab:label} it is seen how we can include a table.
+The table is constructed in the file table.tex, where also the table caption and label are defined.
+
+
+\newpage
+\InsTab{Table}
+
+
+\section{Conclusion}
+The conclusions are:
+\begin{enumerate}
+  \item Trondheim is a nice city.
+  \item CFD is great fun, and useful too.
+\end{enumerate}
+
+\newpage
+
+
+%% %---------------------------
+%% %BIBLIOGRAPHY
+%% %---------------------------
+%The bibliography is created using BiBTeX
+\bibliographystyle{CFD2011}
+\bibliography{References}   
+
+
+\newpage
+\section{Appendix A}
+List of animation files:
+s10.avi Motion of the spherical particles.
+v10.mped Flow field around each particle.
+
+
+\end{document}

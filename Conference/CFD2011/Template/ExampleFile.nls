@@ -1,0 +1,41 @@
+%Nomenclature for the CFD2011 paper template
+
+\begin{thenomenclature} 
+
+%%%%%%%%%%%%%%%%%%%%%
+%Greek symbols
+%%%%%%%%%%%%%%%%%%%%%
+ \nomgroup{G}
+
+  \item [{$\rho$}]\begingroup Mass density, $[\nicefrac{kg}{m^3}]$\nomeqref {0}
+		\nompageref{1}
+  \item [{$\rho$}]\begingroup Mass densityDynamic viscosity, $[\nicefrac{kg}{ms}]$\nomeqref {0}
+		\nompageref{1}
+
+%%%%%%%%%%%%%%%%%%%%%
+%Roman symbols
+%%%%%%%%%%%%%%%%%%%%%
+ \nomgroup{L}
+
+  \item [{$a $}]\begingroup PressureCharacteristic length, $[m]$.\nomeqref {0}
+		\nompageref{1}
+  \item [{$p $}]\begingroup Pressure, $[Pa]$.\nomeqref {0}
+		\nompageref{1}
+  \item [{$\mathbf u$}]\begingroup VolumeVelocity, $[\nicefrac{m}{s}]$.\nomeqref {0}\nompageref{1}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%
+%subscripts
+%%%%%%%%%%%%%%%%%%%%%
+ \nomgroup{S}
+
+  \item [{$G$}]\begingroup Gas.\nomeqref {0}
+		\nompageref{1}
+  \item [{$i$}]\begingroup Index $i$.\nomeqref {0}
+		\nompageref{1}
+  \item [{$j$}]\begingroup Index $j$.\nomeqref {0}
+		\nompageref{1}
+
+\end{thenomenclature}
