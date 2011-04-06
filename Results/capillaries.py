@@ -27,7 +27,6 @@ def draw_capillaries():
     capillary_theor=[0.905,0.986,1.08,1.19,1.33,1.49]
     radiusses=[0.783,0.778,0.772,0.764,0.753,0.747]
    
-   
     #style=["bo","rH","c<","y>","bs","g^"]
     #color=["b","r","c","y","b","g"]
     #style_diff=["b-","r:","c-.","y--","b^","g<"]

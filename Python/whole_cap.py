@@ -2,7 +2,7 @@
 import numpy
 import pylab
 from numpy import genfromtxt
-<<<<<<< HEAD
+import math
 
 def draw_capillaries_paper():
     names=["force0000002","force0000002x82"]
@@ -99,11 +99,6 @@ def draw_capillaries_paper():
     pylab.savefig("capillaries_comparison.eps",format="EPS",dpi=300)
     pylab.show()
 
-
-
-=======
-import math
->>>>>>> 847167bd5b558c0919de9ec707d4bd3cb4ff091f
 def draw_capillaries():
     names=["force0000002","force0000002x82","force0000005x52"]
     style=["<","^",">"]

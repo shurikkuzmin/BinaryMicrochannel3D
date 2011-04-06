@@ -8,21 +8,33 @@
 
   \item [{$\rho$}]\begingroup Uniform density, $[\nicefrac{kg}{m^3}]$\nomeqref {0}
 		\nompageref{1}
-  \item [{$\mu$}]\begingroup Liquid kinematic viscosity, $[\nicefrac{kg}{ms}]$\nomeqref {0}
+  \item [{$\mu$}]\begingroup LBM chemical potential, $[lbu]$\nomeqref {0}
 		\nompageref{1}
   \item [{$\nu$}] \begingroup LBM dynamic viscosity, $[lbu]$\nomeqref {0}
 		\nompageref{1}
-  \item [{$\tau$}] \begingroup LBM relaxation parameter, \nomeqref {0}
+  \item [{$\tau$}] \begingroup LBM relaxation parameter, $[lbu]$ \nomeqref {0}
 		\nompageref{1}
+\item [{$\gamma$}] \begingroup LBM intefacial tension, $[lbu]$ \nomeqref {0}
+		\nompageref{1}
+  \item [$\xi$] \begingroup LBM characteristic length for the interface thickness, $[nodes]$.
+\nomeqref {0}	\nompageref{1}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%
 %Roman symbols
 %%%%%%%%%%%%%%%%%%%%%
  \nomgroup{L}
+  \item [{$\frac{\mathrm{d}P}{\mathrm{d}x}$}] \begingroup LBM pressure gradient, $[lbu]$
+\nomeqref {0} \nompageref{1}
+  \item [{$k$}] \begingroup LBM intefacial tension coefficient, $[lbu]$
+\nomeqref {0} \nompageref{1}
+  \item [{$A$}] \begingroup LBM free energy model parameter, $[lbu]$
+\nomeqref {0} \nompageref{1}
 
-  \item [{$U_{bubble} $}]\begingroup Bubble interface velocity magnitude, $[m/s]$.\nomeqref {0}
+\item [{$U_{bubble} $}]\begingroup Bubble interface velocity magnitude, $[m/s]$.\nomeqref {0}
 		\nompageref{1}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%
@@ -30,8 +42,17 @@
 %%%%%%%%%%%%%%%%%%%%%
  \nomgroup{S}
 
-  \item [{$liq$}]\begingroup Liquid,\nomeqref {0}
+  \item [{$liq$}]\begingroup Liquid \nomeqref {0}
 		\nompageref{1}
-  \item [{$i$}]\begingroup Index $i$. related to the direction.\nomeqref {0}
+
+  \item [{$gas$}]\begingroup Gas \nomeqref {0}
 		\nompageref{1}
+
+  \item [{$i$}]\begingroup Index related to the lattice direction\nomeqref {0}
+		\nompageref{1}
+
+  \item [{$\alpha,\beta$}]\begingroup Index related to the coordinate $x$, $y$ or $z$
+direction\nomeqref {0}
+		\nompageref{1}
+
 \end{thenomenclature}
