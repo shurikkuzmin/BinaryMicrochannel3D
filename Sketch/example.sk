@@ -1,0 +1,20 @@
+def microchannel {
+
+def p1 (-2,-1,0) def p2 (2,-1,0)
+def p3 (2,1,0) def p4 (-2,1,0)
+def p5 (-2,-1,1) def p6(2,-1,1)
+def p7 (-2,1,1) def p8(2,1,1)
+
+% faces of the tetrahedron.
+polygon(p1)(p2)(p3)(p4) % original front polygon
+polygon(p1)(p5)(p6)(p2) % bottom
+polygon(p4)(p7)(p8)(p3) % left
+polygon(p5)(p6)(p8)(p7) % rear
+
+}
+{microchannel}  % tetrahedron in original position
+put { rotate(10, (0,0,0), [1,0,0]) } {microchannel}
+
+% vertices of the tetrahedron
+% polygon(0,0,1)(1,0,0)(0,1,0)
+global { language tikz }
