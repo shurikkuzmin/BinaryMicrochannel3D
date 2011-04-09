@@ -216,47 +216,17 @@ The main discussion here follows and is based on the two-dimensional benchmark a
 \cite{kuzmin-binary2d}. It was indicated that the benchmark layout should have certain
 dimensions. Instead of using 
 
-\begin{tikzpicture}
-%\draw (-2,-1,0,0)--(0,0,1);
-%\draw (0,0,1)--(0,1,1);
-\draw (-2,-1,0)--(2,-1,0)--(2,1,0)--(-2,1,0)--cycle;
-\draw (-2,-1,0)--(-2,-1,1)--(2,-1,1)--(2,-1,0)--cycle;
-\draw (-2,1,0)--(-2,1,1)--(2,1,1)--(2,1,0)--cycle;
-\draw (-2,-1,1)--(2,-1,1)--(2,1,1)--(-2,1,1)--cycle;
-\draw[rotate=90] (-2,0,0) circle (0.5);
-%(Label(XY()*"$x$",align=-3Y));
-%//surface s=surface(f,(0,0),(pi,2pi),100,Spline);
-%draw("$z$",project(O--X),Arrow);
-%draw("$y$",project(O--Y),Arrow);
-%draw("$x$",project(O--Z),Arrow);
-%//draw(YZ);
-%label(project("W",Y,Z,(2,0,-0.3)));
-%label(project("L",X,Z,(0,-1,-0.3)));
-%label(project("H",Y,Z,(-2,-0.8,0.5)));
-%draw(face1);
-%draw(face2);
-%draw(face3);
-%draw(face4);
-\end{tikzpicture}
-\begin{tikzpicture}[line join=round]
-\filldraw[draw=none,fill=white](-2,0)--(2,0)--(2,1)--(-2,1)--cycle;
-\draw(2,0)--(2,1)--(-2,1)--(-2,0);
-\filldraw[fill=white](-2,-.985)--(2,-.985)--(2,.985)--(-2,.985)--cycle;
-\filldraw[fill=white](-2,-.985)--(-2,-1.158)--(2,-1.158)--(2,-.985)--cycle;
-\filldraw[draw=none,fill=white](-2,0)--(-2,-1)--(2,-1)--(2,0)--cycle;
-\draw(-2,0)--(-2,-1)--(2,-1)--(2,0);
-\filldraw[fill=white](-2,1)--(-2,1)--(2,1)--(2,1)--cycle;
-\filldraw[draw=none,fill=white](-2,-.087)--(-2,-1.158)--(2,-1.158)--(2,-.087)--cycle;
-\draw(-2,-.087)--(-2,-1.158)--(2,-1.158)--(2,-.087);
-\filldraw[fill=white](-2,-1)--(-2,-1)--(2,-1)--(2,-1)--cycle;
-\filldraw[draw=none,fill=white](-2,.839)--(-2,-1)--(2,-1)--(2,.839)--cycle;
-\draw(-2,.839)--(-2,-1)--(2,-1)--(2,.839);
-\filldraw[fill=white](-2,.985)--(-2,.811)--(2,.811)--(2,.985)--cycle;
-\filldraw[draw=none,fill=white](-2,.839)--(2,.839)--(2,1)--(-2,1)--cycle;
-\draw(2,.839)--(2,1)--(-2,1)--(-2,.839);
-\filldraw[draw=none,fill=white](-2,-.087)--(2,-.087)--(2,.811)--(-2,.811)--cycle;
-\draw(2,-.087)--(2,.811)--(-2,.811)--(-2,-.087);
-\end{tikzpicture}% End sketch output
+\begin{figure}[ht]
+\includegraphics[bb=152 638 406 718,width=\textwidth]{Figures/benchmark_classical.eps}
+\caption{The classical benchmark. The semiinfinite gas bubble
+propagates through the liquid media. \label{fig:classical:benchmark}}
+\end{figure}
+\begin{figure}[ht]
+\includegraphics[bb=152 638 406 718,width=\textwidth]{Figures/benchmark_classical.eps}
+\caption{The classical benchmark. The semiinfinite gas bubble
+propagates through the liquid media. \label{fig:classical:benchmark}}
+\end{figure}
+
 
 
  In order to avoid the mutual 

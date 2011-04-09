@@ -1,0 +1,165 @@
+def microchannel {
+
+def len 4
+
+def p1 (-len,-1,-1) def p2 (len,-1,-1)
+def p3 (len,1,-1) def p4 (-len,1,-1)
+def p5 (-len,-1,1) def p6(len,-1,1)
+def p7 (-len,1,1) def p8(len,1,1)
+def rad 0.8
+def cent1 (-len/4.0,rad,0)
+def cent2 (len/4.0,rad,0)
+def sphere1 (len/4.0,0.0,0.0)
+def sphere2 (0.0,rad,0.0)
+% faces of the tetrahedron.
+polygon[cull=false,fill=none](p1)(p2)(p3)(p4) % original front polygon
+polygon[cull=false,fill=none](p1)(p5)(p6)(p2) % bottom
+polygon[cull=false,fill=none](p4)(p7)(p8)(p3) % left
+polygon[cull=false,fill=none](p5)(p6)(p8)(p7) % rear
+
+line[line style=dashed](-len/4.0-rad,0,0)(-len/4.0-rad,-1.85,0)
+line[line style=dashed](len/4.0+rad,0,0)(len/4.0+rad,-1.85,0)
+line[arrows=<->,line width=1pt](-len/4.0-rad,-1.85,0)(len/4.0+rad,-1.85,0)
+
+
+def n_cyl_segs 20  def n_views 5  
+def I [1,0,0] def J [0,1,0] def K [0,0,1] % canonical unit vectors
+def endopts [fillcolor=lightgray]
+% repeat { n_views, rotate(180/n_views, [I]) then translate([I] * 2.1) } 
+sweep[endopts]{ n_cyl_segs<>, rotate(360/n_cyl_segs, [1,0,0]) } 
+      line[fillcolor=white](cent1)(cent2) %(-1,1)(1,1)
+def joint_rad 1
+def joint_sphere {
+    def n_joint_faces 18
+    sweep [fillcolor=red] { n_cyl_segs, rotate(360.0 / n_cyl_segs, [I]) }
+      sweep { n_joint_faces, rotate(-180.0 / n_joint_faces,[K]) } 
+        (sphere2) %line(sphere1)(sphere2)
+}
+def axes {
+    def shift (0.0,-0.5,0.0)
+    def arr1 (-len,-2.2,-1)
+    def arr2 (-len,-2.2,1)
+    def arr3 (len,-2.2,1)
+    def arr4 (-len-0.5,-1,-1)
+    def arr5 (-len-0.5,1,-1)
+    %def arr2 (p5)+(shift)
+    line[line style=dashed] (p1)(arr1)
+    line[line style=dashed] (p5)(arr2)
+    line[line style=dashed] (p6)(arr3) 
+    line[line style=dashed] (p4)(arr5)
+    line[line style=dashed] (p1)(arr4)
+    line[arrows=<->,line width=1.5pt] (arr2)(arr3)
+    line[arrows=<->,line width=1.5pt] (arr1)(arr2)
+    line[arrows=<->,line width=1.5pt] (arr4)(arr5)
+    line[arrows=->,line width=2pt] (rad+len/4.0,0,0)(rad+len/4.0+1,0,0)
+    %def sz 1
+    %line [arrows=<->,linewidth=4pt] (sz,0,0)(0,0,0)(0,sz,0)
+    %line [arrows=->]  (0,0,0)(0,0,sz)
+    %line [linewidth=.2pt,linecolor=blue,linestyle=dashed] (0,0,0)(0,0,-10)
+    %special |\uput[r]#1{$x$}\uput[u]#2{$y$}\uput[l]#3{$z$}|
+    %  (sz,0,0)(0,sz,0)(0,0,sz)
+}
+
+def crosssection
+{
+    def cross1 (0,1,1)
+    def cross2 (0,1,-1)
+    def cross3 (0,-1,-1)
+    def cross4 (0,-1,1)
+    line[line style=dashed] (cross1)(cross2)
+    line[line style=dashed] (cross2)(cross3)
+    line[line style=dashed] (cross3)(cross4)
+    line[line style=dashed] (cross4)(cross1)
+    line[line style=dashed] (0,1.0,0)(0,2.5,0)
+    line[line style=dashed] (0,2.5,0)(1,2.5,0)
+}
+def bubble_crosssection
+{
+   def cross1 (0,1,1)
+   def cross2 (0,1,-1)
+   def cross3 (0,-1,-1)
+   def cross4 (0,-1,1)
+   polygon[cull=false,fill=none](cross1)(cross2)(cross3)(cross4)
+   
+   %{crosssection}
+   def radius 0.4
+   def left1 (0.0,0.8-radius,-0.8)
+   def left2 (0.0,-0.8+radius,-0.8)
+   def right1 (0.0,0.8-radius,0.8)
+   def right2 (0.0,-0.8+radius,0.8)
+   def top1 (0.0,0.8,-0.8+radius)
+   def top2 (0.0,0.8,0.8-radius)
+   def bottom1 (0.0,-0.8,-0.8+radius)
+   def bottom2 (0.0,-0.8,0.8-radius)
+   line (left1)(left2)
+   line (right1)(right2)
+   line (top1)(top2)
+   line (bottom1)(bottom2)
+   line[line style=dashed] (0,0,0)(0,1.25,1.25)
+   line[line style=dashed] (0,1.25,1.25)(0,1.25,2.0)
+   line[line style=dashed] (0,0,0)(0,0,-2.5)
+   line[arrows=->,line width=1pt] (0,0,0)(0,0,-0.8)
+   line[arrows=->,line width=1pt] (0,0,0)(0,0.8-radius*(1.0-0.707106),0.8-radius*(1.0-0.707106))
+   def number_segs 10
+   def arc{
+      sweep{ number_segs, rotate(90/number_segs, [-1,0,0]) } 
+      (0,0,radius)
+   }
+   put{translate([0,0.8-radius,0.8-radius])}{arc}
+   put{rotate(90,[1,0,0]) then translate([0,-0.8+radius,0.8-radius])}{arc}
+   put{rotate(180,[1,0,0]) then translate([0,-0.8+radius,-0.8+radius])}{arc}
+   put{rotate(270,[1,0,0]) then translate([0,0.8-radius,-0.8+radius])}{arc}
+    
+   special |\node at #1 {$R_{diag}$};|[lay=in]
+         (0,1.5,1.5) 
+   special |\node at #1 {$R_{axis}$};|[lay=in]
+         (0,0.25,-1.7)
+
+}
+
+def p1_center (-len-1.0,0.0,-1.0)
+def p2_center (-len-0.5,-2.5,0.5)
+def p3_center (1.0,-2.9,-1.0)
+def p4_center (rad+len/4.0+1.0,0.35,0)
+def square_center (-len,0,0)
+
+special |\node at #1 {$5 H_{\mathrm{eff}}$};|
+    (0,-1.65,0.0)
+
+
+special |\node at #1 {$H_{\mathrm{eff}}$}; |[lay=in]
+    (p1_center) 
+
+special |\node at #1 {$W=H_{\mathrm{eff}}$}; |[lay=in]
+    (p2_center) 
+
+special |\node at #1 {$L=15 H_{\mathrm{eff}}$}; |[lay=in]
+    (p3_center)
+
+special |\node at #1 {$\displaystyle U_{\mathrm{bubble}}$};|[lay=in] 
+    (p4_center)
+
+    
+    %(p2)(p3)(p4)
+         %\uput[r]#2{$P2$}
+         %\uput[u]#3{$P3$}
+         %\uput[d]#4{$P4$}|
+
+
+{axes}
+
+put {translate([len/4.0,0,0])}{joint_sphere}
+put {rotate(180,[0,0,1]) then translate([-len/4.0,0,0])}{joint_sphere}
+
+{crosssection}
+put {rotate(90,[0,1,0]) then translate([0,3.8,0])}{bubble_crosssection}
+ 
+}
+%{microchannel}  % tetrahedron in original position
+%put { rotate(30, (0,0,0), unit([1,1,0])) } {microchannel}
+def eye (-5,2,10)
+def look_at (0,0,0)
+  put { view((eye), (look_at)) } {microchannel}
+
+
+global { language tikz }

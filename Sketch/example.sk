@@ -16,6 +16,8 @@ polygon[cull=false,fill=none](p1)(p2)(p3)(p4) % original front polygon
 polygon[cull=false,fill=none](p1)(p5)(p6)(p2) % bottom
 polygon[cull=false,fill=none](p4)(p7)(p8)(p3) % left
 polygon[cull=false,fill=none](p5)(p6)(p8)(p7) % rear
+
+
 def n_cyl_segs 20  def n_views 5  
 def I [1,0,0] def J [0,1,0] def K [0,0,1] % canonical unit vectors
 def endopts [fillcolor=lightgray]
@@ -31,9 +33,21 @@ def joint_sphere {
 }
 def axes {
     def shift (0.0,-0.5,0.0)
-    def arr1 (p1)+(shift)
-    def arr2 (p5)+(shift)
-    line [arrows=<->,line width=4pt] (arr1)(arr2)
+    def arr1 (-len,-1.5,-1)
+    def arr2 (-len,-1.5,1)
+    def arr3 (len,-1.5,1)
+    def arr4 (-len-0.5,-1,-1)
+    def arr5 (-len-0.5,1,-1)
+    %def arr2 (p5)+(shift)
+    line[line style=dashed] (p1)(arr1)
+    line[line style=dashed] (p5)(arr2)
+    line[line style=dashed] (p6)(arr3) 
+    line[line style=dashed] (p4)(arr5)
+    line[line style=dashed] (p1)(arr4)
+    line[arrows=<->,line width=1.5pt] (arr2)(arr3)
+    line[arrows=<->,line width=1.5pt] (arr1)(arr2)
+    line[arrows=<->,line width=1.5pt] (arr4)(arr5)
+    line[arrows=->,line width=2pt] (rad,0,0)(rad+1,0,0)
     %def sz 1
     %line [arrows=<->,linewidth=4pt] (sz,0,0)(0,0,0)(0,sz,0)
     %line [arrows=->]  (0,0,0)(0,0,sz)
@@ -41,13 +55,46 @@ def axes {
     %special |\uput[r]#1{$x$}\uput[u]#2{$y$}\uput[l]#3{$z$}|
     %  (sz,0,0)(0,sz,0)(0,0,sz)
 }
+
+def p1_center (-len-1.0,0.0,-1.0)
+def p2_center (-len-0.5,-1.75,0.5)
+def p3_center (1.0,-2.3,-1.0)
+def p4_center (rad+1.0,0.35,0)
+def square_center (-len,0,0)
+
+special |\node at #1 {$P_{in}$};|
+    (square_center)
+
+special |\node at #1 {$H$}; |
+    (p1_center) 
+
+special |\node at #1 {$W$}; |
+    (p2_center) 
+
+special |\node at #1 {$L$}; |
+    (p3_center)
+
+special |\node at #1 {$\displaystyle U_{\mathrm{bubble}}$};| 
+    (p4_center)
+
+    
+    %(p2)(p3)(p4)
+         %\uput[r]#2{$P2$}
+         %\uput[u]#3{$P3$}
+         %\uput[d]#4{$P4$}|
+
+
 {axes}
 
 {joint_sphere}
 
-
+ 
 }
 %{microchannel}  % tetrahedron in original position
-put { rotate(30, (0,0,0), [1,1,0]) } {microchannel}
+%put { rotate(30, (0,0,0), unit([1,1,0])) } {microchannel}
+def eye (-5,2,10)
+def look_at (0,0,0)
+  put { view((eye), (look_at)) } {microchannel}
+
 
 global { language tikz }
