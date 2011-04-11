@@ -214,17 +214,37 @@ is concluded with a summary of the main findings.
 \label{sec:numerical:benchmark}
 The main discussion here follows and is based on the two-dimensional benchmark approach
 \cite{kuzmin-binary2d}. It was indicated that the benchmark layout should have certain
-dimensions. Instead of using 
+dimensions to conduct simulations. The classical Bretherton benchmark layout is represented in Fig.
+\ref{fig:classical:benchmark}. It describes the gas finger propagation through the liquid media.
+The film thickness in this case is measured at the inlet. In lattice Boltzmann framework such
+formulation has certain challenges \cite{kuzmin-binary2d}. Some of them are attributed to the
+dynamic coupling of the inlet and outlet conditions \cite{giavedoni-numerical}. Instead, we
+proposed the numerical benchmark indicated in Fig. \ref{fig:lbm:benchmark}. The dimensions of the
+channel are chosen as $H_{\mathrm{eff}}\times H_{\mathrm{eff}} \times 15 H_{\mathrm{eff}}$. The
+initialized bubble length is taken as $5 H_{\mathrm{eff}}$.\citet{giavedoni-numerical} showed that
+the film stabilizes at the distances of $2.6-4.0$ diameters
+from the front tip depending on the Reynolds number.  We chose to measure the film thickness in the
+middle of the bubble, which is located at least at a distance of $2.5-3$ channel heights from the 
+bubble tip. Moreover, the film thickness examination, see Section
+\ref{section:film:thickness:variation}, shows that for the capillary range of interest, i.e.
+$0.05\leq Ca \leq 1$, the standard deviation of the film thickness from the bubble middle film
+thickness is around $7$
+percent for small capillary numbers ($Ca=0.05$) and less than $1$ percent for larger ones ($Ca
+\geq 0.1$). %at the distances one channel height from the rear tip upto one channel
+
+
+This length of the bubble was shown as
+sufficient for the film thickness to stabilize.   
 
 \begin{figure}[ht]
-\includegraphics[bb=152 638 406 718,width=\textwidth]{Figures/benchmark_classical.eps}
+\includegraphics*[bb=153 610 405 717,width=\textwidth]{Figures/benchmark_classical.eps} 
 \caption{The classical benchmark. The semiinfinite gas bubble
 propagates through the liquid media. \label{fig:classical:benchmark}}
-\end{figure}
-\begin{figure}[ht]
-\includegraphics[bb=152 638 406 718,width=\textwidth]{Figures/benchmark_classical.eps}
+\end{figure}[ht]
+\begin{figure}
+\includegraphics*[bb=152 480 410 713,width=\textwidth]{Figures/benchmark_lbm.eps}
 \caption{The classical benchmark. The semiinfinite gas bubble
-propagates through the liquid media. \label{fig:classical:benchmark}}
+propagates through the liquid media. \label{fig:lbm:benchmark}}
 \end{figure}
 
 
