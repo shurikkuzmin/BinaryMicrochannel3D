@@ -49,7 +49,10 @@ def axes {
     line[line style=dashed] (p4)(arr5)
     line[line style=dashed] (p1)(arr4)
     line[arrows=<->,line width=1.5pt] (arr2)(arr3)
-    line[arrows=<->,line width=1.5pt] (arr1)(arr2)
+    special |\draw[arrows=<->,line width=3pt] #1 -- #2 node[below,sloped,midway] {$W=H_{\mathrm{eff}}$}; |
+         (arr1)(arr2)
+
+    %line[arrows=<->,line width=1.5pt] (arr1)(arr2)
     line[arrows=<->,line width=1.5pt] (arr4)(arr5)
     line[arrows=->,line width=2pt] (rad+len/4.0,0,0)(rad+len/4.0+1,0,0)
     %def sz 1
@@ -96,7 +99,7 @@ def bubble_crosssection
    line (top1)(top2)
    line (bottom1)(bottom2)
    line[line style=dashed] (0,0,0)(0,1.25,1.25)
-   line[line style=dashed] (0,1.25,1.25)(0,1.25,2.0)
+   #line[line style=dashed] (0,1.25,1.25)(0,1.25,2.0)
    line[line style=dashed] (0,0,0)(0,0,-2.5)
    line[arrows=->,line width=1pt] (0,0,0)(0,0,-0.8)
    line[arrows=->,line width=1pt] (0,0,0)(0,0.8-radius*(1.0-0.707106),0.8-radius*(1.0-0.707106))
@@ -110,8 +113,10 @@ def bubble_crosssection
    put{rotate(180,[1,0,0]) then translate([0,-0.8+radius,-0.8+radius])}{arc}
    put{rotate(270,[1,0,0]) then translate([0,0.8-radius,-0.8+radius])}{arc}
     
-   special |\node at #1 {$R_{diag}$};|[lay=in]
-         (0,1.5,1.5) 
+   #special |\node at #1 {$R_{diag}$};|[lay=in]
+   #      (0,1.5,1.5)
+   special |\draw #1 -- #2 node[sloped,above,midway] {$R_{diag}$};|
+         (0,1.25,1.25)(0,1.25,2.0)  
    special |\node at #1 {$R_{axis}$};|[lay=in]
          (0,0.25,-1.7)
 
@@ -130,8 +135,8 @@ special |\node at #1 {$5 H_{\mathrm{eff}}$};|
 special |\node at #1 {$H_{\mathrm{eff}}$}; |[lay=in]
     (p1_center) 
 
-special |\node at #1 {$W=H_{\mathrm{eff}}$}; |[lay=in]
-    (p2_center) 
+%special |\node at #1 {$W=H_{\mathrm{eff}}$}; |[lay=in]
+%    (p2_center) 
 
 special |\node at #1 {$L=15 H_{\mathrm{eff}}$}; |[lay=in]
     (p3_center)
