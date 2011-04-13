@@ -74,14 +74,6 @@ def extract_profiles(name):
     print vz.shape
     print vy.shape
 
-    #for counter in range(0,points.GetNumberOfPoints()):
-    #    coorx,coory,coorz=points.GetPoint(counter)
-    #    if coorx==0:
-    #        velx,vely,velz=velocity.GetTuple3(counter)
-    #       vz[int(coory),int(coorz)]=velz
-    #        vy[int(coory),int(coorz)]=vely
-    #        vx[int(coory),int(coorz)]=velx
-    #       phase_numpy[int(coory),int(coorz)]=phase.GetTuple1(counter)
 
     for coory in range(0,dims[1]):
         for coorz in range(0,dims[2]):
@@ -93,9 +85,9 @@ def extract_profiles(name):
             phase_numpy[coory,coorz]=phase.GetTuple1(counter)
 
 
-    numpy.savetxt("vz.txt",vz)
-    numpy.savetxt("vy.txt",vy)
-    numpy.savetxt("phase.txt",phase_numpy[1:,1:])
+    #numpy.savetxt("vz.txt",vz)
+    #numpy.savetxt("vy.txt",vy)
+    #numpy.savetxt("phase.txt",phase_numpy[1:,1:])
 
     #parameters of the binary liquid model
     k=0.04
@@ -113,10 +105,6 @@ def extract_profiles(name):
     print mid
     
     phase_mid=numpy.zeros([dims[0],dims[1]])    
-    #for counter in range(0,points.GetNumberOfPoints()):
-    #    coorx,coory,coorz=points.GetPoint(counter)
-    #    if coorz==mid:
-    #       phase_mid[int(coorx),int(coory)]=phase.GetTuple1(counter)
     for coorx in range(0,dims[0]):
         for coory in range(0,dims[1]):
             counter=mid*dims[0]*dims[1]+coory*dims[0]+coorx
@@ -133,12 +121,9 @@ def extract_profiles(name):
     axis_zero=Get_Zero(prof_axis)/(dims[0]-2.0)
     diag_zero=math.sqrt(2.0)*Get_Zero(prof_diag)/(dims[0]-2.0)
     
-    print "Velx",vx[0,mid]
-    print "Vely",vy[0,mid]
-    print "Velz",vz[0,mid]
     
     #Calculation of the capillary number
-    capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+    capillary=vz[0,z2%dims[2]]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
     
     print axis_zero,diag_zero
     print "Capillary=",capillary
@@ -146,9 +131,9 @@ def extract_profiles(name):
     pylab.figure()
     pylab.plot(numpy.diag(phase_mid[1:,1:]))
     
-    #return axis_zero,diag_zero,capillary
+    return axis_zero,diag_zero,capillary
 
-    pylab.show()
+    #pylab.show()
 
 def extract_bubble(name):
     
@@ -476,10 +461,16 @@ def extract_consequence():
     numpy.savetxt("capillaries.txt",zip(cap_table,axis_table,diag_table,vel_bubble_table,vel_interface_table,vel_slug_table,vol_bubble_table,vol_liq_table,vol_pos_table,area_bubble_table,area_liq_table))
     pylab.show()
 
+def steady_state():
+    for counter in range(140000,260000,20000):
+        filename="4/phase"+str(counter)+".vts"
+        print filename
+        extract_profiles(filename)
     
 
 if __name__=="__main__":
-    name="../Results/Force0000002/10/phase250000.vts"
+    #name="../Results/Force0000002/10/phase250000.vts"
     #extract_profiles(name)
+    steady_state()    
     #extract_bubble(name)
-    extract_consequence()
+    #extract_consequence()

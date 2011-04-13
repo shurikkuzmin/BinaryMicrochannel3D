@@ -5,7 +5,7 @@
 \usepackage{amssymb}
 \usepackage{bm}
 \usepackage{color}
-\usepackage{tikz}
+\usepackage{tabularx}
 \begin{document}
 \begin{abstract}
 Classical Bretherton problem describes the propagation of gas fingers through liquid media with
@@ -227,14 +227,20 @@ from the front tip depending on the Reynolds number. \citet{heil-threedim} measu
 middle of the bubble, which is located at least at a distance of $2.5-3$ channel heights from the 
 bubble tip.%at the distances one channel height from the rear tip upto one channel
 
-For simplicity, the periodic boundary conditions are applied. Thus, the bubble train is simulated. To avoid the mutual influence of bubbles on each other the channel length was chosen as $15 H_{\mathrm{eff}}$. Periodic boundary conditions imply as well that the fluid is accelerated by a body force in the framework of the LBM but not with the pressure difference. Therefore, we can not address simulations with upward and downward flows \citet{cerro-bubble}. It is assumed that the gravity effects are negligible and the flow is in the horizontal direction driven by the body force.  
+For simplicity, the periodic boundary conditions are applied. Thus, the bubble train is simulated.
+To avoid the mutual influence of bubbles on each other the channel length was chosen as $15
+H_{\mathrm{eff}}$. Periodic boundary conditions imply as well that the fluid is accelerated by a
+body force in the framework of the LBM but not with the pressure difference. Therefore, we can not
+address simulations with upward and downward flows \cite{cerro-bubble-train}. It is assumed that
+the gravity effects are negligible and the flow is in the horizontal direction driven by the body
+force. 
 \begin{figure}[ht]
 \includegraphics*[bb=153 610 405 717,width=\textwidth]{Figures/benchmark_classical.eps} 
 \caption{The classical benchmark. The semiinfinite gas bubble
 propagates through the liquid media. \label{fig:classical:benchmark}}
 \end{figure}[ht]
 \begin{figure}
-\includegraphics*[bb=152 480 410 713,width=\textwidth]{Figures/benchmark_lbm.eps}
+\includegraphics*[bb=152 470 410 713,width=\textwidth]{Figures/benchmark_lbm.eps}
 \caption{The classical benchmark. The semiinfinite gas bubble
 propagates through the liquid media. \label{fig:lbm:benchmark}}
 \end{figure}
@@ -268,60 +274,191 @@ Equation (\ref{radii:experimental}) shows that a change in the Reynolds number $
 
 Thus, having limitations of the computational memory and performance requirements the focus of the present work is a feasibility study of the binary liquid lattice Boltzmann method for the microchannel simulations with square crossections conducted in the moderate capillary number range $0.1 \leq Ca \leq 1.0$. We base our work on comparison with the already available studies. 
 
-To further reduce the computational overhead only quarter of the channel is simulated, see Appendix \ref{appendix}. The next section further examines the steady-state approach, the dependency of the radii on the moderate capillary number values $0.1\leq Ca \leq 1.0$, the velocity pattern, the relative bubble velocity and the aspect ratio.
+To further reduce the computational overhead only quarter of the channel is simulated, see Appendix
+\ref{append:sym}. The next section briefly explains the binary liquid lattice Boltzmann model. Then
+the steady-state approach, the dependency of the radii on the moderate capillary number values
+$0.1\leq Ca \leq 1.0$, the velocity pattern, the relative bubble velocity and the aspect ratio are
+examined, see Section \ref{sec:results}.
+
+\section{Binary liquid lattice Boltzmann model}
+The lattice Boltzmann equation (LBE) operates on a rectangular grid representing the
+physical domain. It utilizes
+probability distribution functions (also known as particle populations)
+containing information about
+macroscopic variables, such as fluid density and momentum. LBE consists of
+two parts: a local collision step, and a propagation step which transports
+information from one node to another in certain
+directions specified by the discrete velocity set.
+The LBE is typically implemented as follows:
+\begin{equation}
+\label{standard:implementation}
+\begin{aligned}
+&f_i^{*}(\bm{x},t)=\omega f_i^{eq}(\bm{x},t)-(1-\omega) f_i(\bm{x},t) +
+F_i,&&\text{collision step}\\
+&f_i(\bm{x}+\bm{c_i},t+1)=f_i^{*}(\bm{x},t),&&\text{propagation step}, 
+\end{aligned}
+\end{equation}
+where $f_i$ is the probability distribution function in the direction $\bm{c_i}$, $\omega$ is the
+relaxation parameter, and $F_i$ is the external force population. 
+
+The binary fluid LB model is
+based on a free-energy functional \cite{swift,landau}, and operates with two
+sets of populations: one to track the pressure and the velocity fields, and another to represent the
+phase field $\phi$ indicating gas or liquid.
+The equilibrium populations \cite{pooley-contact} are defined as:
+\begin{equation}
+\label{set:equilibrium:binary}
+\begin{aligned}
+&f_i^{eq}&&=w_i 
+\biggl(3
+p_0 - k \phi \Delta \phi
++\frac{u_{\alpha}c_{i\alpha}}{c_s^2}+\frac{Q_{i\alpha\beta}u_{\alpha } u_ {
+\beta}}{2 c_s^4}\biggr)\\
+&&&+k w_i^{\alpha\beta} \partial_{\alpha} \phi\partial_{\beta} \phi, i=1\div Q-1\\
+&f_0^{eq}&&=\rho-\sum_{i\neq0}{f_i^{eq}}\\
+&g_i^{eq}&&=w_i\left(\Gamma \mu + \frac{\phi c_{i\alpha} u_{i\alpha}}{c_s^2}+\phi
+\frac{Q_{i\alpha\beta}u_{\alpha}u_{\beta}}{2 c_s^4}\right), i=1\div Q-1\\
+&g_0^{eq}&&=\phi-\sum_{i\neq0}{g_i^{eq}}\quad,
+\end{aligned}
+\end{equation}
+where $\Gamma$ is the mobility parameter; the chemical potential
+$\mu=-A\phi+A\phi^3-k\Delta\phi$; $k$ is the parameter related to the surface
+tension; $A$ is the parameter of the free-energy model; $Q$ is the number of the directions ($9$ and
+$19$ for the $D2Q9$ and $D3Q19$ models, correspondingly); the tensor
+$Q_{i\alpha\beta}=c_{i\alpha} c_{i\beta} - c_s^2 \delta_{\alpha\beta}$ with
+the sound speed parameter $c_s^2=1/3$. The bulk pressure
+is expressed as $p_0=c_s^2 \rho +A (-0.5 \phi^2+0.75 \phi^4)$. The particular weights and velocity
+sets for the $D2Q9$ and $D3Q15$ models are indicated in Appendix A. 
+
+The set of equations (\ref{set:equilibrium:binary}) restores the macroscopic
+fluid equations as:
+\begin{equation}
+\begin{aligned}
+&\partial_t \rho+ \partial_{\alpha} \rho u_{\alpha}=0\\
+&\rho\left(\partial_t+u_{\beta}\partial_{\beta}\right) u_{\alpha}=
+-\partial_{\beta}P_{\alpha \beta} +
+\nu\partial_{\beta}\left(\rho\partial_{\alpha}u_{\beta}+\rho\partial_{\beta} u_{\alpha}\right)\\
+&\partial_t \phi + \partial_{\alpha} \phi u_{\alpha}=M \partial^2_{\beta\beta} \mu,
+\end{aligned}
+\label{binary:fluid:system}
+\end{equation}
+where $\nu=c_s^2 (\tau-1/2)$ is the dynamic viscosity,
+$M=\Gamma(\tau_{\phi}-1/2)$ is the mobility parameter, and $\tau=\frac{1}{\omega}$ and $\tau_{\phi}$
+are the relaxation parameters of density and phase fields. 
+
+The system allows the separation of the liquid
+phase with $\phi=1$ and a so-called gas phase with $\phi=-1$. The
+relaxation time is taken as linearly dependent on the relaxation
+times $\tau_{\mathrm{gas}}$ and $\tau_{\mathrm{liq}}$:
+$\tau=\tau_{\mathrm{gas}}+\frac{\phi+1}{2}(\tau_{\mathrm{liq}}-\tau_{\mathrm{gas}})$. This allows
+to change viscosity from the gas viscosity
+$\nu_{\mathrm{gas}}=\frac{1}{3}\Bigl(\tau_{\mathrm{gas}}-\frac{1}{2}\Bigr)$ to the liquid viscosity
+$\nu_{\mathrm{liq}}=\frac{1}{3}\Bigl(\tau_{\mathrm{liq}}-\frac{1}{2}\Bigr)$ while phase changes
+accordingly.The surface tension in the framework of the binary liquid model is $\sqrt{\frac{8 k
+A}{9}}$.
+
+Velocity set is defined as:
+\begin{equation} 
+\begin{aligned}
+&c_{ix}=\{0,1,-1,0, 0,0, 0,1,-1, 1,-1,0, 0, 0, 0,1,-1, 1,-1\}\\
+&c_{iy}=\{0,0, 0,1,-1,0, 0,1, 1,-1,-1,1,-1, 1,-1,0, 0, 0, 0\}\\
+&c_{iz}=\{0,0, 0,0, 0,1,-1,0, 0, 0, 0,1, 1,-1,-1,1, 1,-1,-1\}.
+\end{aligned}
+\end{equation}
+The weights are $w_0=0$, $w_{1-6}=\frac{1}{6}$ and $w_{7-18}=\frac{1}{12}$. The weights
+related to the inclusion of the surface tension are:
+\begin{equation}
+\begin{aligned}
+&w^{xx}_{1-2}=w^{yy}_{3-4}=w^{zz}_{5-6}=\frac{5}{12}\\
+&w^{xx}_{3-6}=w^{yy}_{1-2,5-6}=w^{zz}_{1-4}=-\frac{1}{3}\\
+&w^{xx}_{7-10,15-18}=w^{yy}_{7-14}=w^{zz}_{11-18}=-\frac{1}{24}\\
+&w^{xx}_{11-15,}=w^{yy}_{15-18}=w^{zz}_{7-10}=\frac{1}{12}\\
+&w^{xy}_{7,10}=-w^{xy}_{8,9}=w^{yz}_{11,14}=-w^{yz}_{12,13}=w^{zx}_{15,18}=-w^{zx}_{16,17}=\frac{1}{
+4}.
+\end{aligned}
+\end{equation}
+
 
 \section{Results}
+\label{sec:results}
+This section describes numerical simulations. First, we examine when the steady-state approach is
+achieved. Then, the critical capillary number is identified when the transition from the
+non-symmetrical to axisymmetrical bubble shape occurs. The dependency of the radii on the capillary
+number is presented for the range of moderate capillary numbers $0.1 \leq Ca 1.0$. Results are
+concluded with studies of the velocity pattern,{\color{red} the aspect ratio, and the influence of
+inertia}.
 
-\section{Steady-state approach}
+
+\subsection{Steady-state approach}
 We performed different simulations to understand a number of steps required for the problem to come
 on the steady-state. The grid to be simulated is $52\mathrm{x}52\mathrm{x}750$ which simulates the
 quarter of the channel with the initial
-width as $6.5$ lattice Boltzmann units together with $\frac{\mathrm{d}P}{\mathrm{d}x}=1.6
-\mathrm{x}10^{-6}$. The simulation was performed for $140000$,$150000$,$160000$, $170000$ and
-$180000$ iterations. The results are summarised in Table \ref{table:steady:state}. Whole the
+width as $6.5$ lattice Boltzmann units together with the body force as
+$\frac{\mathrm{d}P}{\mathrm{d}x}=1.6
+\mathrm{x}10^{-6}$. The simulation was performed for $140000$, $160000$, $180000$, $200000$,
+$220000$ and
+$240000$ iterations. The results are summarised in Table \ref{table:steady:state}. Whole the
 capillary number varies only in the 4th digit, radiuses are one percent accurate. 
- 
-As well we performed longer simulations in the range of moderate capillary numbers after
-$140000$, $160000$, $180000$, $200000$, $220000$, $240000$. The results for the capillary number
-based on the bubble velocity in the middle crossection are shown in Table \ref{table:steady:state}. 
-%{\color{red} What is it One of the
-%profiles in
-%the middle of the bubble is shown in Fig. \ref{fig:steady:state:profile:example}. }
 \begin{table}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
+\begin{tabularx}{\textwidth}{|X|X|X|X|}
 \hline
 $N_{iter}$&$Ca$&$R_{axis}$&$R_{diag}$\\
-$140000$&$0.0532$&$0.9379$&$1.075$\\
-$150000$&$0.0533$&$0.9375$&$1.072$\\
-$160000$&$0.0535$&$0.9372$&$1.069$\\
-$170000$&$0.0536$&$0.9369$&$1.066$\\
-$180000$&$0.0537$&$0.9366$&$1.062$\\
 \hline
-\end{tabular}\\
-\begin{tabular}{|c|c|c|c|}
+$140000$&$0.1879$&$0.8657$&$0.8708$\\
+$160000$&$0.1878$&$0.8650$&$0.8702$\\
+$180000$&$0.1882$&$0.8647$&$0.8700$\\
+$200000$&$0.1893$&$0.8645$&$0.8698$\\
+$220000$&$0.1925$&$0.8644$&$0.8697$\\
+$240000$&$0.1961$&$0.8645$&$0.8697$\\
 \hline
-$N_{iter}$&$Ca$&$R_{axis}$&$R_{diag}$\\
-$140000$&$0.3578$&$0.8657$&$0.8708$\\
-$160000$&$0.3590$&$0.8650$&$0.8702$\\
-$180000$&$0.3598$&$0.8647$&$0.8700$\\
-$200000$&$0.3603$&$0.8645$&$0.8698$\\
-$220000$&$0.3607$&$0.8644$&$0.8697$\\
-$240000$&$0.3609$&$0.8645$&$ 0.8697$\\
-\hline
-\end{tabular}
-\end{center}
-\caption{Underresolved capillary number results and resolved Results for the steady-state case. One
+\end{tabularx}
+\caption{Results for the steady-state case. One
 can see that $200000$ steps are enough to structure
-the bubble. \label{table:steady:state}}
+the bubble and approach the steady state. The small noise in the capillary number is connected to
+the identification of the interface. One needs to address the interpolation and the spurious
+currents existing in the system. All other parameters are relaxed to the
+steady-state.\label{table:steady:state}}
 \end{table}
 
-%\begin{figure}
-%\includegraphics[width=0.47\textwidth]{Figures/bullet.eps}\hfill
-%\includegraphics[width=0.47\textwidth]{Figures/example_crossection.eps}\\
-%\caption{Slice in the middle of the bubble and
-%three-dimensional example. \label{fig:steady:state:profile:example}}
-%\end{figure}
+The bubble velocity is the velocity of the interface. One can see it with ...
+
+\subsection{Radii transition}
+Due to performance issues we can only access the
+transition region, i.e. $Ca\geq 0.05$. In this region the proper resolution of the film thickness
+is guaranteed. To identify the critical capillary number $\widehat{Ca}$ a number of simulations
+were conducted. Surprisingly the transition occurs in the region computationally accessible for
+current simulations. In comparison with the results of the \citet{heil-threedim}
+($\widehat{Ca}=0.04$) our
+results are more close to the VOF continuous interface method simulation by
+\citet{wang-non-circular} ($\widehat{Ca}=0.1$) and experimental dependency of
+\citet{shikazono-square}, see Table
+\ref{table:transition:results}. The transition happens for $Ca\approx 0.09$.  One can see
+two examples of non-symmetric and axisymmetric bubble shapes for $Ca=0.053$ and $Ca=1.13$, see Fig.
+\ref{fig:crosssections:sym}.  
+\begin{table}
+\begin{tabularx}{\textwidth}{|X|X|X|X|X|X|}
+\hline
+$Ca$&$R_{axis}$&$R_{diag}$&$Re$&$R_{axis,Wang}$&$R_{diag,Wang}$\\
+\hline
+$0.053$&$0.95$&$1.01$&$0.907$&$0.99$&$0.99$\\
+$0.078$&$0.93$&$0.95$&$1.062$&$0.96$&$0.96$\\
+$0.132$&$0.89$&$0.89$&$1.80$&$0.93$&$0.93$\\
+\hline
+\end{tabularx}
+\caption{Simulation results in terms of $R_{axis}$ and $R_{diag}$ for the transition region between
+non-symmetric and axisymmetric cases. $R_{axis,Wang}$ and $R_{diag,Wang}$ are experimental
+correlations by \citet{wang-non-circular}. \label{table:transition:results}}
+\end{table}
+\begin{figure}[ht]
+\includegraphics[width=0.5\textwidth]{Figures/phase_crossection_ca5.eps}
+\includegraphics[width=0.5\textwidth]{Figures/phase_crossection_ca13.eps}\\
+\caption{Crosssections of the phase field in the middle of the bubble for $Ca=0.053$
+(left) and $Ca=1.13$ (right). Crosssections are rescaled on the half channel height. Other
+parameters are indicated in Table \ref{table:transition:results}. One can see that the left picture
+is asymmetric in comparison
+with the right one. The transition happens for $Ca\approx 0.09$.\label{fig:crosssections:sym}}
+\end{figure}
+
 
 \section{Non-axisymmetric case}
 We first start with the non-axisymmetric case. As it was indicated before for a quite low capillary
