@@ -234,11 +234,11 @@ body force in the framework of the LBM but not with the pressure difference. The
 address simulations with upward and downward flows \cite{cerro-bubble-train}. It is assumed that
 the gravity effects are negligible and the flow is in the horizontal direction driven by the body
 force. 
-\begin{figure}[ht]
+\begin{figure}[!]
 \includegraphics*[bb=153 610 405 717,width=\textwidth]{Figures/benchmark_classical.eps} 
 \caption{The classical benchmark. The semiinfinite gas bubble
 propagates through the liquid media. \label{fig:classical:benchmark}}
-\end{figure}[ht]
+\end{figure}[!]
 \begin{figure}
 \includegraphics*[bb=152 470 410 713,width=\textwidth]{Figures/benchmark_lbm.eps}
 \caption{The classical benchmark. The semiinfinite gas bubble
@@ -420,7 +420,24 @@ currents existing in the system. All other parameters are relaxed to the
 steady-state.\label{table:steady:state}}
 \end{table}
 
-The bubble velocity is the velocity of the interface. One can see it with ...
+To further examine the steady-state the velocity in the streamwise direction is plotted. The values
+of the velocity are taken on the contour where phase values are taken as $\phi=0$. This corresponds
+ to the bubble interface. One can see the contour plot and the corressponing streamwise velocity
+component in Fig. \ref{fig:velocity:contour}. The crossection is a plane $x=0$, where $x$ points
+towards the reader, $z$ is the streamwise direction. As far as fluxes inside the bubble has
+clockwise and counterclockwise directions, see Section \ref{sec:velocity}, one needs to thoroughly
+examine only the points corresponding to the front and the rear bubble tips. If one finds it equal
+to each other, then it's exactly the velocity with which the bubble propagates in the microchannel. 
+\begin{figure}[h!]
+\includegraphics[width=\textwidth]{Figures/velocity_interface_contour.eps}\\
+\includegraphics[width=\textwidth]{Figures/velocity_interface_values.eps}\\
+\caption{The bubble shape and the corresponding streamwise velocities taken on the bubble
+interface. Directions $y$ and $z$ are scaled to the half of the channel
+$H_{\mathrm{eff}}/2$. One can see that the bubble front and rear tips are propagating with the
+same velocities, which is actually the bubble velocity. For more details on velocity patterns
+see Section \ref{sec:velocity}. \label{fig:velocity:contour}}
+\end{figure}
+
 
 \subsection{Radii transition}
 Due to performance issues we can only access the
@@ -529,6 +546,7 @@ length.} \label{fig:underresolved:capillaries}}
 \end{figure}
 
 \section{Velocity pattern}
+\label{sec:velocity}
 We examined two different velocity patterns to identify change of pattern. Two capillaries numbers
 were taken below and above the numbers indicated in Table \ref{table:recirculation:data}, as
 $Ca=0.36$ and $Ca=0.88$.Velocity streamlines are

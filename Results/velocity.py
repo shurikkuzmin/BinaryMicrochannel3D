@@ -264,78 +264,152 @@ def read_vtk_2d(name):
     data  = grid.GetPointData()
     points=grid.GetPoints()
     dims  =grid.GetDimensions()
-    #data.SetActiveScalars("Phase"); 
+    data.SetActiveScalars("Phase"); 
     data.SetActiveVectors("Velocity")
     velocity=data.GetArray("Velocity")
     phase = data.GetArray("Phase")
     
-    vel_image=vtk.vtkImageData()
-    vel_image.SetDimensions(dims[1],dims[2],1)
-    vel_image.SetSpacing(1.0, 1.0, 1.0)
-    vel_image.SetOrigin(0.0, 0.0, 0.0)
-
+    image=vtk.vtkImageData()
+    image.SetSpacing(1.0,1.0,1.0)
+    image.SetOrigin(0.0,0.0,0.0)
+    image.SetDimensions(dims[0],dims[1],dims[2])
+    image.GetPointData().SetScalars(phase)
+    image.GetPointData().SetVectors(velocity)
+    image.Update()
+    print "image=",image
     
-    Array = vtk.vtkDoubleArray()
-    Array.SetNumberOfComponents(3)
-    Array.SetNumberOfTuples(points.GetNumberOfPoints())
-    Array.Initialize()
-    Array.SetName("VelocitySlice")
-
-    ArrayPhase = vtk.vtkDoubleArray()
-    ArrayPhase.SetNumberOfComponents(1)
-    ArrayPhase.SetNumberOfTuples(points.GetNumberOfPoints())
-    ArrayPhase.Initialize()
-    ArrayPhase.SetName("PhaseSlice")
-    
-    #for counter in range(0,10):
-    #    print points.GetPoint(counter)
-    #raw_input()
-    exam=1
-    #print dims[0],dims[1],dims[2]
-    #raw_input()
-    for counter in range(0,vel_image.GetNumberOfPoints()):
-        x,y,z=vel_image.GetPoint(counter)
-        counter_big=y*dims[0]*dims[1]+x*dims[0]+exam
-        #print x,y,z
-        #print counter_big
-        
-        vz=velocity.GetTuple3(counter_big)[2]
-        vy=velocity.GetTuple3(counter_big)[1]
-        phase_value=phase.GetTuple1(counter_big)
-        Array.InsertNextTuple3(vy,vz,0.0)
-        ArrayPhase.InsertNextTuple1(phase_value)
-        #if phase_value<0.0:
-        #    print phase_value
-    
-    vel_image.GetPointData().SetVectors(Array)
-    vel_image.GetPointData().SetScalars(ArrayPhase)
-    vel_image.GetPointData().SetActiveScalars("PhaseSlice")
-    vel_image.GetPointData().SetActiveVectors("VelocitySlice")
-    print vel_image.GetPointData().GetArray("PhaseSlice")
-    vel_image.Update()
-    
-    
+    extract=vtk.vtkExtractVOI()
+    extract.SetInput(image)
+    extract.SetVOI(0,0,0,dims[1]-1,0,dims[2]-1)
+    extract.Update()
     
     contour=vtk.vtkContourFilter()
-    contour.SetInput(vel_image)
+    contour.SetInputConnection(extract.GetOutputPort())
     contour.SetValue(0,0.0)
     contour.Update()
 
-    cont=contour.GetOutput()
+    probe=vtk.vtkProbeFilter()
+    probe.SetInputConnection(contour.GetOutputPort())    
+    probe.SetSource(image)
+    probe.SpatialMatchOn()    
+    probe.Update()
+
+    print "Probe=",probe.GetOutput()
+
+    cont=probe.GetOutput()
+    vel=cont.GetPointData().GetArray("Velocity")    
+    phi=cont.GetPointData().GetArray("Phase")    
     cont_points=cont.GetPoints()
     x_numpy=numpy.zeros(cont_points.GetNumberOfPoints())
     y_numpy=numpy.zeros(cont_points.GetNumberOfPoints())
-    vel_numpy=numpy.zeros(cont_points.GetNumberOfPoints())
+    z_numpy=numpy.zeros(cont_points.GetNumberOfPoints())    
     
+    velx_numpy=numpy.zeros(cont_points.GetNumberOfPoints())
+    vely_numpy=numpy.zeros(cont_points.GetNumberOfPoints())
+    velz_numpy=numpy.zeros(cont_points.GetNumberOfPoints())
+    
+    phi_numpy=numpy.zeros(cont_points.GetNumberOfPoints())
+
     for counter in range(0,cont.GetPoints().GetNumberOfPoints()):
         x,y,z=cont_points.GetPoint(counter)
         x_numpy[counter]=x
         y_numpy[counter]=y
-        #vel_numpy[counter]=cont.GetData().GetVector().GetTuple3        
-        print x,y,z
-        
-    pylab.figure()
-    pylab.plot(y_numpy,x_numpy,"+")
+        z_numpy[counter]=z
+        velx_numpy[counter]=vel.GetTuple3(counter)[0]
+        vely_numpy[counter]=vel.GetTuple3(counter)[1]
+        velz_numpy[counter]=vel.GetTuple3(counter)[2]
+        phi_numpy[counter]=phi.GetTuple1(counter)
+       
+    
+    
+    #Velocity of the interface
+    vz=numpy.zeros([dims[1],dims[2]])
+    vy=numpy.zeros([dims[1],dims[2]])
+    vx=numpy.zeros([dims[1],dims[2]])
+    phase_numpy=numpy.zeros([dims[1],dims[2]])
+    
+    print vz.shape
+    print vy.shape
+
+    for coory in range(0,dims[1]):
+        for coorz in range(0,dims[2]):
+            counter=coorz*dims[0]*dims[1]+coory*dims[0]
+            velx,vely,velz=velocity.GetTuple3(counter)
+            vz[coory,coorz]=velz
+            vy[coory,coorz]=vely
+            vx[coory,coorz]=velx
+            phase_numpy[coory,coorz]=phase.GetTuple1(counter)
+
+   
+    center=phase_numpy[0,:]
+    z1 = numpy.min(numpy.where(center < 0.0))
+    z2 = numpy.max(numpy.where(center < 0.0))
+    if z1==0:
+        z2=numpy.min(numpy.where(center>0.0))+dims[2]
+        z1=numpy.max(numpy.where(center>0.0))
+    print z1,z2
+    
+    mid =((z1+z2)/2)%dims[2]
+    print vz[0,z2%dims[2]]
+    print vz[0,((z1+z2)/2)%dims[2]]
+
+    y_numpy=y_numpy/50.0
+    z_numpy=z_numpy/50.0
+    fig=pylab.figure(figsize=(10,3))
+    pylab.plot(z_numpy,y_numpy,"o",markersize=5,color="black")
+    pylab.ylim(ymax=1.0)
+    #pylab.xlim(xmin=0.1,xmax=5)
+    #pylab.ylim(ymin=0.01)
+    #numpy.savetxt("capillary.dat",zip(capillaries,widths))
+    
+    pylab.xticks(fontsize=16)
+    pylab.yticks(fontsize=16)
+    
+    pylab.ylabel(r'''$y$''',fontsize=30)
+    pylab.xlabel(r'''$z$''',fontsize=30)
+    fig.subplots_adjust(bottom=0.25) 
+    pylab.savefig("velocity_interface_contour.eps",dpi=300)
+
+    
+    
+    #labels=[r'''$H_{eff}='''+str(value-2)+r'''$''' for value in ny]
+    #leg=pylab.legend(["CPU results","Refined grid","Large body force","Heil","GPU results"],fancybox=True)
+    #legtext = leg.get_texts() # all the text.Text instance in the legend
+    #for text in legtext:
+    #    text.set_fontsize(20) 
+
+    
+    
+    #pylab.figure()
+    #pylab.plot(z_numpy,phi_numpy,"g+")
+    #pylab.figure()
+    #pylab.plot(z_numpy,velx_numpy,"+")    
+    #pylab.figure()
+    #pylab.plot(z_numpy,vely_numpy,"+")    
+    fig=pylab.figure(figsize=(10,3))
+    pylab.plot(z_numpy,velz_numpy,"o",markersize=5,color="black")
+    
+
+    #pylab.plot(z_numpy,y_numpy,"o",markersize=5,color="black")
+    
+    #pylab.xlim(xmin=0.1,xmax=5)
+    #pylab.ylim(ymin=0.01)
+    #numpy.savetxt("capillary.dat",zip(capillaries,widths))
+    
+    pylab.xticks(fontsize=16)
+    pylab.yticks(fontsize=16)
+    
+    pylab.ylabel(r'''$U$''',fontsize=30)
+    pylab.xlabel(r'''$z$''',fontsize=30)
+    fig.subplots_adjust(bottom=0.25)
+    pylab.savefig("velocity_interface_values.eps",dpi=300)
+     
+    
+    #pylab.figure()
+    #pylab.plot(vz[0,:],"+")
+    
+    #pylab.figure()
+    #pylab.imshow(phase_numpy)
     #Visualization part 
     #contourMapper=vtk.vtkPolyDataMapper2D()    
     ##contourMapper = vtk.vtkPolyDataMapper()
