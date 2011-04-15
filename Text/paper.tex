@@ -100,7 +100,7 @@ diagonal radius and the bubble has the non-circular shape in the channel crossec
 the bubble shape mimics the shape of the square and looks like a rounded square. The dependence
 of the diagonal and axial radii on the capillary number is shown in Fig. 
 \ref{fig:heil:three:dim}.
-\begin{figure}[ht]
+\begin{figure}[h]
 \includegraphics[width=\textwidth]{Figures/capillary_width_heil.eps}
 \caption{\citet{heil-threedim} results for the variation of the deposited liquid for the range of
 capillary number. One can see the asymmetry between diagonal and axis diameter for the capillary
@@ -234,15 +234,20 @@ body force in the framework of the LBM but not with the pressure difference. The
 address simulations with upward and downward flows \cite{cerro-bubble-train}. It is assumed that
 the gravity effects are negligible and the flow is in the horizontal direction driven by the body
 force. 
-\begin{figure}[!]
+\begin{figure}[h]
 \includegraphics*[bb=153 610 405 717,width=\textwidth]{Figures/benchmark_classical.eps} 
-\caption{The classical benchmark. The semiinfinite gas bubble
-propagates through the liquid media. \label{fig:classical:benchmark}}
-\end{figure}[!]
-\begin{figure}
+\caption{The classical benchmark layout is presented . The semiinfinite gas bubble
+propagates through the liquid media. The inlet pressure is specified $P_{in}$, the outlet is the
+free outflow. The bubble propagates with constant velocity $U_{\mathrm{bubble}}$. 
+\label{fig:classical:benchmark}}
+\end{figure}
+\begin{figure}[h]
 \includegraphics*[bb=152 470 410 713,width=\textwidth]{Figures/benchmark_lbm.eps}
-\caption{The classical benchmark. The semiinfinite gas bubble
-propagates through the liquid media. \label{fig:lbm:benchmark}}
+\caption{The lattice Boltzmann benchmark layout is used in present calculcations. The dimensions of
+the domain are chosen as $H_{\mathrm{eff}}\times H_{\mathrm{eff}}\times 15 H_{\mathrm{eff}}$. The
+length of the bubble was chosen as $5 H_{\mathrm{eff}}$ for the film thickness to stabilize.
+Periodic boundary conditions are applied in the streamwise direction. The flow is driven by body
+force. \label{fig:lbm:benchmark}}
 \end{figure}
 
 It was indicated \cite{kuzmin-binary2d} that the film thickness for two-dimensional simulations should be at least as twice large
@@ -289,7 +294,7 @@ macroscopic variables, such as fluid density and momentum. LBE consists of
 two parts: a local collision step, and a propagation step which transports
 information from one node to another in certain
 directions specified by the discrete velocity set.
-The LBE is typically implemented as follows:
+The LBE is typically implemented as follows \cite{ginzburg-boundary-main}:
 \begin{equation}
 \label{standard:implementation}
 \begin{aligned}
@@ -299,7 +304,8 @@ F_i,&&\text{collision step}\\
 \end{aligned}
 \end{equation}
 where $f_i$ is the probability distribution function in the direction $\bm{c_i}$, $\omega$ is the
-relaxation parameter, and $F_i$ is the external force population. 
+relaxation parameter, and $F_i$ is the external force population. The external force population
+mimics the force behavior, Eq. \ref{full:navier:stokes}.
 
 The binary fluid LB model is
 based on a free-energy functional \cite{swift,landau}, and operates with two
@@ -314,10 +320,10 @@ The equilibrium populations \cite{pooley-contact} are defined as:
 p_0 - k \phi \Delta \phi
 +\frac{u_{\alpha}c_{i\alpha}}{c_s^2}+\frac{Q_{i\alpha\beta}u_{\alpha } u_ {
 \beta}}{2 c_s^4}\biggr)\\
-&&&+k w_i^{\alpha\beta} \partial_{\alpha} \phi\partial_{\beta} \phi, i=1\div Q-1\\
+&&&+k w_i^{\alpha\beta} \partial_{\alpha} \phi\partial_{\beta} \phi, 1\leq i \leq Q-1\\
 &f_0^{eq}&&=\rho-\sum_{i\neq0}{f_i^{eq}}\\
 &g_i^{eq}&&=w_i\left(\Gamma \mu + \frac{\phi c_{i\alpha} u_{i\alpha}}{c_s^2}+\phi
-\frac{Q_{i\alpha\beta}u_{\alpha}u_{\beta}}{2 c_s^4}\right), i=1\div Q-1\\
+\frac{Q_{i\alpha\beta}u_{\alpha}u_{\beta}}{2 c_s^4}\right), \leq i \leq Q-1\\
 &g_0^{eq}&&=\phi-\sum_{i\neq0}{g_i^{eq}}\quad,
 \end{aligned}
 \end{equation}
@@ -333,6 +339,7 @@ sets for the $D2Q9$ and $D3Q15$ models are indicated in Appendix A.
 The set of equations (\ref{set:equilibrium:binary}) restores the macroscopic
 fluid equations as:
 \begin{equation}
+\label{full:navier:stokes}
 \begin{aligned}
 &\partial_t \rho+ \partial_{\alpha} \rho u_{\alpha}=0\\
 &\rho\left(\partial_t+u_{\beta}\partial_{\beta}\right) u_{\alpha}=
@@ -432,7 +439,7 @@ to each other, then it's exactly the velocity with which the bubble propagates i
 \includegraphics[width=\textwidth]{Figures/velocity_interface_contour.eps}\\
 \includegraphics[width=\textwidth]{Figures/velocity_interface_values.eps}\\
 \caption{The bubble shape and the corresponding streamwise velocities taken on the bubble
-interface. Directions $y$ and $z$ are scaled to the half of the channel
+interface after $240000$ iterations. Directions $y$ and $z$ are scaled to the half of the channel
 $H_{\mathrm{eff}}/2$. One can see that the bubble front and rear tips are propagating with the
 same velocities, which is actually the bubble velocity. For more details on velocity patterns
 see Section \ref{sec:velocity}. \label{fig:velocity:contour}}
@@ -477,120 +484,55 @@ with the right one. The transition happens for $Ca\approx 0.09$.\label{fig:cross
 \end{figure}
 
 
-\section{Non-axisymmetric case}
-We first start with the non-axisymmetric case. As it was indicated before for a quite low capillary
-number the flow becomes axisymmetric. For
-example, according to \cite{heil-threedim} for the capillary
-number $Ca=0.01$, the axis and diagonal radiuses are $r_h=0.99$ and $r_d=1.1$ respectively.
-Therefore the film thickness in the axial direction is  $0.5\%$ of whole channel width to see the
-difference. Our previous calculations \cite{kuzmin-binary2d} show that the film thickness should be
- resolved around $40-50$ percent for calculations to be convergent and grid independent. This
-condition certainly implies a large grid with the computational high demand. For instance, to
-properly simulate the abovementioned example the grid should be as 
-$200x200x3000$ nodes. In this section we want to examine the assumption of the underresolved
-interface whether it can produce the consistent film thicknesses for low capillary numbers. The
-interface occupies around $1-2$ lattice units. 
-
-Here we present simulations for the domain of size $52\mathrm{x}52\mathrm{x}1500$ which simulates
-the quarter of the channel using the mirror boundary conditions (See Appendix \ref{append:sym}).
-That
-results in the effective grid size as $100\mathrm{x}100\mathrm{x}1500$. The simulation is carried
-out with the pressure gradient as:
-\begin{equation}
-\frac{\mathrm{d}P}{\mathrm{d}x}=1.6\,10^{-6}.
-\end{equation}
-The initial film thickness was taken as $6$ nodes. 
-
-One can see the phase profile in the middle of the bubble in
-Fig.\ref{fig:quarter:capillary:capillary01}. For comparison reason the axisymmetric phase profile
-for $Ca=0.6$ is presented in Fig. \ref{fig:bubble:axisymmetric}. The associated capillary number is
-$0.053$ based on
-the calculation of the bubble velocity in the center of the bubble. The radiuses in this simulation
-are as $R_{axis}=0.93$ and $R_{diag}=1.06$. While $R_{axis}=0.93$ is underestimated parameter and
-we can't take into the consideration apriori, one can consider parameter $R_{diag}=1.06$ the
-parameters for the capillary number $0.053$ should be according to \citet{heil-threedim} as $0.97$
-and $1.05$ according to the VOF simulations of \citet{wang-non-circular}. One can conclude that
-even though the axis film thickness is not properly resolved the diagonal values are consistent and
-can give an approximate information. 
-\begin{figure}
-\includegraphics[width=0.97\textwidth]{Figures/quarter.eps}\\ %\hfill
-\includegraphics[width=0.97\textwidth]{Figures/stream_cap01.eps}\\
-\caption{Streamlines and phase profile of the quarter of the channel. The capillary number is
-$0.053$ and the film thickness is underresolved. \label{fig:quarter:capillary:capillary01}}
-\end{figure}
-\begin{figure}[ht]
-\includegraphics[width=0.97\textwidth]{Figures/square.eps}
-\caption{The middle bubble phase profile. One can see that the diagonal radius coincides with the
-axial radius. {\color{red} $Ca=0.5$} \label{fig:bubble:axisymmetric}}
-\end{figure}
-
-
-For underresolved schemes we performed a number of simulations on a GPU code with the grid of size
-$50\mathrm{x}50\mathrm{750}$. While changing the applied force in a manner indicated in Appendix
-\ref{append:scaling} the velocity of the bubble was increased to obtain larger capillary numbers,
-see Fig. \ref{fig:underresolved:capillaries}. One can see that the deviation between the diagonal
-and axial radiuses are quite significant and they coincide only when the interface is resolved
-($Ca\approx 1.0$). In calculations with better grids, i.e. quarter channels simulations on CPU, the
-axial radius coincides with the diagonal in the $0.5\%$ range. Moreover, the capillary number curve
-resembles already published date of \citet{heil-threedim} in a better way, see Fig.
-\ref{fig:capillary:comparison}. 
-\begin{figure}[ht]
-\includegraphics[width=0.97\textwidth]{Figures/underresolved_capillaries.eps}
-\caption{The underresolved profiles axis and diagonal radiuses versus capillary numbers. $50$
-percent resolution starts from $Ca=1.0$, which is quite high. One can see it's exactly where
-radiuses converge instead of $Ca=0.04$. {\color{red} To delete? However, one can see from
-simulations Fig.
-\ref{fig:wang:critical:capillary} and Fig.\ref{fig:thickness:variation:ca:ten} the thickness,
-especially for Fig.\ref{fig:thickness:variation:ca:ten}, can significantly variate over a bubble
-length.} \label{fig:underresolved:capillaries}}
-\end{figure}
-
 \section{Velocity pattern}
 \label{sec:velocity}
-We examined two different velocity patterns to identify change of pattern. Two capillaries numbers
-were taken below and above the numbers indicated in Table \ref{table:recirculation:data}, as
-$Ca=0.36$ and $Ca=0.88$.Velocity streamlines are
-indicated in Fig. \ref{fig:streamlines:pattern}. One can see that the vortex indicated in
-Fig.\ref{fig:heil:recirculating} doesn't appear in present calculations. This fact can be
-explained because the simulation is carried our for the binary-liquid case but not free-surface
-interface presented in the classical Bretherton problem. In the latter case the void phase pushes
-the liquid towards the walls. In the present simulation there is no a void phase. Then the
-streamlines have the ability to go through the interface and we exactly see this situation occuring.
-\begin{figure}[ht]
-\includegraphics[width=0.97\textwidth]{Figures/streamlines_ca036.eps}\\
-\includegraphics[width=0.97\textwidth]{Figures/streamlines_ca088.eps}
-\caption{Streamlines for $Ca=0.36$ and $Ca=0.88$. One can see that there are no vortexes created
-before the bubble. It can be explained by the fact that the binary-liquid model is simulated
-instead of free-surface interface gas air finger flow.\label{fig:streamlines:pattern}}
+The velocity pattern is known to change its behavior depending on the capillary number. For
+relatively low capillary number $Ca<0.6$ there exists a vortex in front of the bubble in the moving
+frame moving with the bubble \cite{heil-threedim}. For larger ones it is indicated that there is no
+vortex in front of the bubble. The transition capillary number is indicated by
+\citet{heil-threedim} and it equals for the rectangular channel $Ca=0.691$. However, the
+distribution of vorticity strongly depends on Reynolds number \cite{heil-bretherton}, as well the
+pressure distribution. In the case of the bubble train it is indicated by \citet{kreutzer-taylor}
+that the pressure is largely influenced by bubble frequency and slug distance. The present
+simulations are conducted for bubble trains and certain differences in terms of changing streamline
+patterns are expected. We examined velocity patterns to identify the moment of the streamlines
+pattern change. We chose two
+representative capillary numbers as $Ca=0.47$ and $Ca=0.63$. 
+One can
+see a clear transition between associated patterns. The transition capillary number
+\cite{heil-threedim} is slightly higher than the simulation results. In present simulations the
+transition occurs at $Ca=0.5-0.6$.
+\begin{figure}[h]
+\includegraphics[angle=90,width=\textwidth]{Figures/stream_ca47.eps}\\
+\includegraphics[angle=90,width=\textwidth]{Figures/stream_ca63.eps}\\
+\caption{Velocity vector maps for $Ca=0.47$ and $Ca=0.63$. One can see that there are no vortexes
+created
+before the bubble for $Ca=0.63$. The transition happens between $Ca=0.47$ and $Ca=0.63$, which
+is a different value from $Ca=0.69$ \cite{heil-threedim}. \label{fig:streamlines:pattern}}
 \end{figure}
 
+
 \section{Variation bubble length}
-The works of \citet{heil-threedim} of \citet{wang-non-circular} show the variation of the bubble
+The work of \citet{wang-non-circular} shows the variation of the bubble
 thickness through the length of
-bubble. The length variation is presented in Fig.\ref{fig:thickness:variation:ca:ten} and
-Fig.\ref{fig:wang:bubble:shape}. While Fig. \ref{fig:wang:bubble:shape} indicates that the diagonal
-radius has a variation for the rather small capillary numbers as $Ca<0.1$, another profile is
-presented for the $Ca=10$ and shows the variation for the diagonal radius. We examined a bunch of
-different capillaries numbers to present the diagonal radius variations over the length:
-The axis and diagonal radiuses variation over the bubble are shown in Figure
-\ref{fig:bubble:variation:capillaries}. The rather small capillary numbers one can see the increase
-in the rear menisci of the diagonal radius which coincides with the results of
-\citet{wang-non-circular}. One can see that variation over the length can be neglected
-for relatively high $Ca$ numbers. 
-\begin{figure}[ht]
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_36.eps}\hfill
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_46.eps}\\
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_61.eps}\hfill
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_88.eps}\\
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_one.eps}
-\includegraphics[width=0.47\textwidth]{Figures/bubble_length_ca_117.eps}
-\caption{The radiuses variations for the capillary number $Ca=0.46$.
-One can see the diagonal radius different from the axial radius near the front of the tip which is
-somehow coincides with the results of
-\citet{heil-threedim}. The results are presented for the
-capillary numbers (from left to right, top to bottom)
-$0.36$,$0.46$, $0.61$, $0.88$,$1.06$,$1.17$. \label{fig:bubble:variation:capillaries}}
+bubble. The bubble shape in terms of axial and diagonal radii is reconstructed for a number of
+capillary numbers, Fig. \ref{fig:bubble:variation:capillaries}. One can see that for smaller
+capillary numbers the diagonal radius exhibits a small jump near the rear bubble tip. It coincides
+with results of \citet{wang-non-circular}. However, present simulations show smoother behavior of
+the jump.  
+\begin{figure}[h]
+\includegraphics[width=\textwidth]{Figures/bubble_rad_axis.eps}\\
+\includegraphics[width=\textwidth]{Figures/bubble_rad_diag.eps}\\
+\caption{Radii variations along the bubble for different capillary numbers in the plane $x=0$.
+One can see that the diagonal radius shows the jump near the bubble rear tip. It coincides with the
+VOF simulations of \citet{wang-non-circular}. \label{fig:bubble:variation:capillaries}}
 \end{figure}
+
+Another interesting phenomenon for the bubble shape was indicated by \citet{heil-threedim}. In
+their simulations the non-symmetric shape was observed even for larger capillary number $Ca>4$ near
+the bubble front tip. We performed the same simulations. 
+
+
 \begin{figure}
 \includegraphics[width=0.97\textwidth]{Figures/variationoverlength.eps}
 \caption{The variation of the bubble length for capillary number $Ca=10$. The x-axis scaled to
@@ -626,6 +568,19 @@ proper results of simulations}.
 {\color{red} Need to wait results from bugaboo.westgrid.ca under LargeCap simulation}
 
 \section{Capillary number}
+
+While changing the applied force in a manner indicated in Appendix
+\ref{append:scaling} the velocity of the bubble was increased to obtain larger capillary numbers,
+see Fig. \ref{fig:underresolved:capillaries}. One can see that the deviation between the diagonal
+and axial radiuses are quite significant and they coincide only when the interface is resolved
+($Ca\approx 1.0$). In calculations with better grids, i.e. quarter channels simulations on CPU, the
+axial radius coincides with the diagonal in the $0.5\%$ range. Moreover, the capillary number curve
+resembles already published date of \citet{heil-threedim} in a better way, see Fig.
+\ref{fig:capillary:comparison}. 
+
+
+
+
 We performed a number of simulations with quarter CPU code and GPU train simulations and compared
 them with data obtained by \cite{heil-threedim}. After performing the simulations we determine the
 $R_{axis}$, $R_{diag}$ versus calculated
