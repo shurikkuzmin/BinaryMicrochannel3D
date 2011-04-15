@@ -22,8 +22,8 @@ def Analyze_Consequence():
     ax_zeros=[]
     diag_zeros=[]
     capillaries=[]
-    #file_list=["Force0000002/10/phase250000.vts","Velocity/1/phase240000.vts","Moderate/3/phase250000.vts"]
-    file_list=["LargeCap/phase250000.vts"]    
+    file_list=["Force0000002/10/phase250000.vts","Velocity/1/phase240000.vts","Moderate/3/phase250000.vts"]
+    #file_list=["LargeCap/phase250000.vts"]    
     for number,file in enumerate(file_list):
         print file
         print type(number)
@@ -31,10 +31,10 @@ def Analyze_Consequence():
         ax_zeros.append(axis_zero)
         diag_zeros.append(diag_zero)
         capillaries.append(capillary)
-    pylab.figure(1)
-    pylab.ylim(ymin=0.63,ymax=0.7)
-    pylab.xlim(xmax=20)
-    #labels=[r'''$Ca='''+str(ca)[0:4]+r'''$''' for ca in capillaries]
+    fig=pylab.figure(1)
+    #pylab.ylim(ymin=0.63,ymax=0.7)
+    #pylab.xlim(xmax=20)
+    labels=[r'''$Ca='''+str(ca)[0:4]+r'''$''' for ca in capillaries]
     ##pylab.plot(rads_axis,"g-.",linewidth=3,markersize=4)
     ##pylab.plot(rads_diag,"b-",linewidth=3,markersize=4)
     
@@ -42,25 +42,26 @@ def Analyze_Consequence():
     ##pylab.xlim(xmax=5.1)
     ##labels=[r'''$R_{axis}$''',r'''$R_{diag}$''']
     #fig=pylab.figure(1)
-    #pylab.title(r'''$R_{axis}$''',fontsize=30)
-    #leg=pylab.legend(labels)
-    #pylab.xticks(fontsize=16)
-    #pylab.yticks(fontsize=16)
-    #pylab.xlabel(r'''$x$''',fontsize=20)
-    #pylab.ylabel(r'''$y$''',fontsize=20)
-    #fig.subplots_adjust(left=0.15,bottom=0.1)  
-    #pylab.savefig("bubble_rad_axis.eps",dpi=300)
+    pylab.ylabel(r'''$R_{axis}$''',fontsize=20)
+    leg=pylab.legend(labels)
+    pylab.xticks(fontsize=16)
+    pylab.yticks(fontsize=16)
+    pylab.xlabel(r'''$z$''',fontsize=20)
+    #pylab.title(r'''$Ca='''+str(capillaries[0])[0:4]+r'''$''',fontsize=30)
+    #pylab.ylabel(r'''$R_{axis},R_{diag}$''',fontsize=20)
+    fig.subplots_adjust(left=0.15,bottom=0.1)  
+    pylab.savefig("bubble_rad_axis.eps",dpi=300)
     
-    #fig=pylab.figure(2)
-    #pylab.title(r'''$R_{diag}$''',fontsize=30)
-    #leg=pylab.legend(labels)
-    #pylab.xticks(fontsize=16)
-    #pylab.yticks(fontsize=16)
-    #pylab.xlabel(r'''$x$''',fontsize=20)
+    fig=pylab.figure(2)
+    pylab.ylabel(r'''$R_{diag}$''',fontsize=20)
+    leg=pylab.legend(labels)
+    pylab.xticks(fontsize=16)
+    pylab.yticks(fontsize=16)
+    pylab.xlabel(r'''$z$''',fontsize=20)
     #pylab.ylabel(r'''$y$''',fontsize=20)
        
-    #fig.subplots_adjust(left=0.15,bottom=0.1)
-    #pylab.savefig("bubble_rad_diag.eps",dpi=300)
+    fig.subplots_adjust(left=0.15,bottom=0.1)
+    pylab.savefig("bubble_rad_diag.eps",dpi=300)
     
     #legtext = leg.get_texts() # all the text.Text instance in the legend
     #for text in legtext:
@@ -110,8 +111,8 @@ def extract_profiles(name,filenumber):
     #numpy.savetxt("phase.txt",phase_numpy)
 
     #parameters of the binary liquid model
-    k=0.004
-    a=0.004
+    k=0.04
+    a=0.04
     
     center=phase_numpy[0,:]
     z1 = numpy.min(numpy.where(center < 0.0))
@@ -175,9 +176,12 @@ def extract_profiles(name,filenumber):
     pylab.figure(1)
     #pylab.plot(phase_mid[1,1:])    
     x=numpy.arange(0,len(rad_axis))*30.0/dims[2]    
-    pylab.plot(x,rad_axis,styles[filenumber],markersize=2) #styles[number])
-    #pylab.figure(2)    
-    pylab.plot(x,rad_diag,styles[filenumber],markersize=2) #styles[number])
+    pylab.plot(x,rad_axis,styles[filenumber],markersize=8) #styles[number])
+    #pylab.plot(x,rad_axis,"kv",markersize=8) #styles[number])
+    pylab.figure(2)    
+    pylab.plot(x,rad_diag,styles[filenumber],markersize=8) #styles[number])
+    #pylab.plot(x,rad_diag,"k^",markersize=8) #styles[number])
+    #pylab.legend([r'''$R_{axis}$''',r'''$R_{diag}$'''])    
     #pylab.plot(numpy.diag(phase_mid[1:,1:]))
     
     return axis_zero,diag_zero,capillary

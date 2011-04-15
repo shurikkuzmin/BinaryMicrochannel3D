@@ -120,16 +120,22 @@ def Analyze_Consequence():
     ax_zeros=[]
     diag_zeros=[]
     capillaries=[]
-    file_list=["Moderate/3/phase250000.vts","Moderate/7/phase250000.vts","SmallCapGrid/8/phase250000.vts"]
+    reynolds=[]
+    file_list=["Moderate/1/phase250000.vts","Moderate/3/phase250000.vts","Moderate/5/phase250000.vts","Moderate/7/phase250000.vts","Moderate/9/phase250000.vts"]
+               #"SmallCapGrid/8/phase250000.vts"]
+    #file_list=["Velocity/"+str(dir)+"/phase240000.vts" for dir in range(1,11)]    
+    #file_list=["Force0000002x82/2/phase180000.vts","Force0000002x82/4/phase180000.vts"] #,"Force0000005x52/8/phase250000.vts","Force0000005x52/10/phase250000.vts"]    
     for file in file_list:
         print file
-        axis_zero, diag_zero, capillary=extract_profiles(file)
+        axis_zero, diag_zero, capillary,reynolds_value=extract_profiles(file)
         ax_zeros.append(axis_zero)
         diag_zeros.append(diag_zero)
         capillaries.append(capillary)
+        reynolds.append(reynolds_value)
+        
     #pylab.plot(capillaries,ax_zeros)
     #pylab.plot(capillaries,diag_zeros)
-    #numpy.savetxt("steady.txt",zip(capillaries,ax_zeros,diag_zeros))
+    numpy.savetxt("cap_moderate.txt",zip(capillaries,ax_zeros,diag_zeros,reynolds))
     
 def extract_profiles(name):
     
@@ -198,10 +204,11 @@ def extract_profiles(name):
     number=str(capillary*100)[:2]
     if number[1]==".":
         number=number[:1]
-    pylab.savefig("phase_crossection_ca"+number+".eps")    
+    #pylab.savefig("phase_crossection_ca"+number+".eps")    
     #pylab.imshow(array['phi'],cmap="gray",extent=[0.0,15.0,0.0,1.0])
     #pylab.yticks([0.0,0.5,1.0])
 
+    reynolds=vz[0,z2%dims[2]]*2.0*(dims[0]-2)/(2.0/3.0)
     print "Reynolds=",vz[0,z2%dims[2]]*2.0*(dims[0]-2)/(2.0/3.0)
     prof_axis=phase_mid[0,1:]
     prof_diag=numpy.diag(phase_mid[1:,1:])
@@ -215,11 +222,11 @@ def extract_profiles(name):
     print axis_zero,diag_zero
     print "Capillary=",capillary
 
-    pylab.figure()
-    pylab.plot(phase_mid[1,1:])    
+    #pylab.figure()
+    #pylab.plot(phase_mid[1,1:])    
     #pylab.plot(numpy.diag(phase_mid[1:,1:]))
     
-    return axis_zero,diag_zero,capillary
+    return axis_zero,diag_zero,capillary,reynolds
 
     #pylab.show()
 
@@ -452,8 +459,8 @@ def read_vtk_2d(name):
 
 if __name__=="__main__":
     #draw_capillaries()
-    #Analyze_Consequence()
+    Analyze_Consequence()
     #extract_streamlines()
-    name="Force0000002/4/phase240000.vts"    
-    read_vtk_2d(name)    
+    #name="Force0000002/4/phase240000.vts"    
+    #read_vtk_2d(name)    
     pylab.show()

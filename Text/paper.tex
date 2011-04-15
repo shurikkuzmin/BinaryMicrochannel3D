@@ -100,7 +100,7 @@ diagonal radius and the bubble has the non-circular shape in the channel crossec
 the bubble shape mimics the shape of the square and looks like a rounded square. The dependence
 of the diagonal and axial radii on the capillary number is shown in Fig. 
 \ref{fig:heil:three:dim}.
-\begin{figure}[h]
+\begin{figure}[ht]
 \includegraphics[width=\textwidth]{Figures/capillary_width_heil.eps}
 \caption{\citet{heil-threedim} results for the variation of the deposited liquid for the range of
 capillary number. One can see the asymmetry between diagonal and axis diameter for the capillary
@@ -234,14 +234,14 @@ body force in the framework of the LBM but not with the pressure difference. The
 address simulations with upward and downward flows \cite{cerro-bubble-train}. It is assumed that
 the gravity effects are negligible and the flow is in the horizontal direction driven by the body
 force. 
-\begin{figure}[h]
+\begin{figure}[ht]
 \includegraphics*[bb=153 610 405 717,width=\textwidth]{Figures/benchmark_classical.eps} 
 \caption{The classical benchmark layout is presented . The semiinfinite gas bubble
 propagates through the liquid media. The inlet pressure is specified $P_{in}$, the outlet is the
 free outflow. The bubble propagates with constant velocity $U_{\mathrm{bubble}}$. 
 \label{fig:classical:benchmark}}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[ht]
 \includegraphics*[bb=152 470 410 713,width=\textwidth]{Figures/benchmark_lbm.eps}
 \caption{The lattice Boltzmann benchmark layout is used in present calculcations. The dimensions of
 the domain are chosen as $H_{\mathrm{eff}}\times H_{\mathrm{eff}}\times 15 H_{\mathrm{eff}}$. The
@@ -282,8 +282,8 @@ Thus, having limitations of the computational memory and performance requirement
 To further reduce the computational overhead only quarter of the channel is simulated, see Appendix
 \ref{append:sym}. The next section briefly explains the binary liquid lattice Boltzmann model. Then
 the steady-state approach, the dependency of the radii on the moderate capillary number values
-$0.1\leq Ca \leq 1.0$, the velocity pattern, the relative bubble velocity and the aspect ratio are
-examined, see Section \ref{sec:results}.
+$0.1\leq Ca \leq 1.0$, the velocity pattern, and the relative bubble velocity, see Section
+\ref{sec:results}.
 
 \section{Binary liquid lattice Boltzmann model}
 The lattice Boltzmann equation (LBE) operates on a rectangular grid representing the
@@ -347,7 +347,6 @@ fluid equations as:
 \nu\partial_{\beta}\left(\rho\partial_{\alpha}u_{\beta}+\rho\partial_{\beta} u_{\alpha}\right)\\
 &\partial_t \phi + \partial_{\alpha} \phi u_{\alpha}=M \partial^2_{\beta\beta} \mu,
 \end{aligned}
-\label{binary:fluid:system}
 \end{equation}
 where $\nu=c_s^2 (\tau-1/2)$ is the dynamic viscosity,
 $M=\Gamma(\tau_{\phi}-1/2)$ is the mobility parameter, and $\tau=\frac{1}{\omega}$ and $\tau_{\phi}$
@@ -434,8 +433,9 @@ component in Fig. \ref{fig:velocity:contour}. The crossection is a plane $x=0$, 
 towards the reader, $z$ is the streamwise direction. As far as fluxes inside the bubble has
 clockwise and counterclockwise directions, see Section \ref{sec:velocity}, one needs to thoroughly
 examine only the points corresponding to the front and the rear bubble tips. If one finds it equal
-to each other, then it's exactly the velocity with which the bubble propagates in the microchannel. 
-\begin{figure}[h!]
+to each other, then it's exactly the velocity with which the bubble propagates in the microchannel.
+For physical analogy, one can imagine the rotating ball propagating in the streamwise direction. 
+\begin{figure}[ht]
 \includegraphics[width=\textwidth]{Figures/velocity_interface_contour.eps}\\
 \includegraphics[width=\textwidth]{Figures/velocity_interface_values.eps}\\
 \caption{The bubble shape and the corresponding streamwise velocities taken on the bubble
@@ -502,7 +502,7 @@ One can
 see a clear transition between associated patterns. The transition capillary number
 \cite{heil-threedim} is slightly higher than the simulation results. In present simulations the
 transition occurs at $Ca=0.5-0.6$.
-\begin{figure}[h]
+\begin{figure}[ht]
 \includegraphics[angle=90,width=\textwidth]{Figures/stream_ca47.eps}\\
 \includegraphics[angle=90,width=\textwidth]{Figures/stream_ca63.eps}\\
 \caption{Velocity vector maps for $Ca=0.47$ and $Ca=0.63$. One can see that there are no vortexes
@@ -520,125 +520,121 @@ capillary numbers, Fig. \ref{fig:bubble:variation:capillaries}. One can see that
 capillary numbers the diagonal radius exhibits a small jump near the rear bubble tip. It coincides
 with results of \citet{wang-non-circular}. However, present simulations show smoother behavior of
 the jump.  
-\begin{figure}[h]
-\includegraphics[width=\textwidth]{Figures/bubble_rad_axis.eps}\\
-\includegraphics[width=\textwidth]{Figures/bubble_rad_diag.eps}\\
+\begin{figure}[ht]
+\includegraphics[width=0.5\textwidth]{Figures/bubble_rad_axis.eps}
+\includegraphics[width=0.5\textwidth]{Figures/bubble_rad_diag.eps}\\
 \caption{Radii variations along the bubble for different capillary numbers in the plane $x=0$.
 One can see that the diagonal radius shows the jump near the bubble rear tip. It coincides with the
-VOF simulations of \citet{wang-non-circular}. \label{fig:bubble:variation:capillaries}}
+VOF simulations of \citet{wang-non-circular}.Coordinate $z$ increases in the streamwise direction.
+\label{fig:bubble:variation:capillaries}}
 \end{figure}
 
 Another interesting phenomenon for the bubble shape was indicated by \citet{heil-threedim}. In
 their simulations the non-symmetric shape was observed even for larger capillary number $Ca>4$ near
-the bubble front tip. We performed the same simulations. 
-
-
-\begin{figure}
-\includegraphics[width=0.97\textwidth]{Figures/variationoverlength.eps}
-\caption{The variation of the bubble length for capillary number $Ca=10$. The x-axis scaled to
-half-width of the microchannel height.  \label{fig:thickness:variation:ca:ten}}
+the bubble front tip which after certain distance decay to have radii equal to each other. The
+bubble shape was calculated for the large capillary number $Ca=6.43$, see Fig.
+\ref{fig:bubble:ca:large}. However, even the diagonal radius shows the jump near the front tip of
+the bubble and it resembles the shape given by \citet{heil-threedim}, but the difference is around
+$1$ percent and can be attributed to the linear interpolation error used for the interface
+calculation. 
+\begin{figure}[ht]
+\includegraphics[width=\textwidth]{Figures/bubble_ca_large.eps}
+\caption{The bubble shape for the capillary number $Ca=6.43$ is presented.$z$ increases in the
+streamwise direction. One can see that near the front tip (large $z$) the diagonal radius exhibits
+a jump which is relaxed after to the axis radius. Even this resembles
+the shape of the curves obtained by \citet{heil-threedim}, but the
+difference between radii is around $1$ percent and can be attributed to
+the linear interpolation used in the calculation of the interface.\label{fig:bubble:ca:large}}
 \end{figure}
-
-Concerning results indicated in Fig.
-\ref{fig:thickness:variation:ca:ten} simulations are unstable that means one needs to work with
-small surface tension ({\color{red} See results of Pagonabarraga}). One can see that the difference
-between diagonal radius and
-usual radius is of order of $4\%$. That means it's 2 percent of the channel height. If the
-simulation is conducted by the grid $100\mathrm{x}100$ in the cross section that means that we will
-see the difference in two grid nodes. Therefore the grid is $102\mathrm{x}102\mathrm{1500}$. It is
-known from simulations that for the grid $102\mathrm{x}102\mathrm{x}1500$ the largest force gradient
-is $2\mathrm{x}10^{-5}$ with free energy binary liquid parameters $A=0.04$,$k=0.04$ and $Ca\approx
-1.0$. Therefore, we want to keep the same body force but to obtain larger capillary number. That
-can be done through the scaling indicated in Appendix \ref{append:scaling}:
-\begin{equation}
-\frac{\mathrm{d}P}{\mathrm{d}x}\propto \gamma Ca .
-\end{equation}
-Therefore the same body force can stand for capillary number ten times larger if the surface
-tension is ten times smaller:
-\begin{equation}
-\gamma=\sqrt{\frac{8 k A}{9}}.
-\end{equation}
-The following can be satisfied if $A=0.004$ and $k=0.004$. Decreasing surface tension requires
-increasing the mobility of the interface to be able to adjust to the interface
-\cite{pagonabarraga-parameters}. We therefore performed the numerical simulation with those
-parameters and $\Gamma=20$ for the interface to be stable. 
-{\color{red} However, many authors state that increasing mobility kills
-the
-proper results of simulations}.
-{\color{red} Need to wait results from bugaboo.westgrid.ca under LargeCap simulation}
 
 \section{Capillary number}
+The purpose of this section is to compare radii dependence on the capillary number. The film
+thicknesses were extracted from the middle of the bubble. The data presented in Fig.
+\ref{fig:capillary:comparison} is simulated with different techniques including different
+initialization, different grids as $52 \times 52 \times 1500$, $82 \times 82 \times 1500$ and $82
+\times 82 \time 2400$. All the results are consistent. Therefore for the capillary number $Ca\geq
+0.05$ the grid independence is achieved. The results are compared with results of
+\citet{heil-threedim} and of \citet{wang-non-circular}. The data was extracted from the
+correspondent references with the help of the program ``Engauge Digitizer''. The lattice Boltzmann
+can catch the transition between non-symmetric to axisymmetric shape of the bubble. 
 
-While changing the applied force in a manner indicated in Appendix
-\ref{append:scaling} the velocity of the bubble was increased to obtain larger capillary numbers,
-see Fig. \ref{fig:underresolved:capillaries}. One can see that the deviation between the diagonal
-and axial radiuses are quite significant and they coincide only when the interface is resolved
-($Ca\approx 1.0$). In calculations with better grids, i.e. quarter channels simulations on CPU, the
-axial radius coincides with the diagonal in the $0.5\%$ range. Moreover, the capillary number curve
-resembles already published date of \citet{heil-threedim} in a better way, see Fig.
-\ref{fig:capillary:comparison}. 
+Present simulations show that the corresponding critical capillary number is close to
+$\widehat{Ca}=0.1$ which is close to work of \citet{wang-non-circular}. 
+In comparison with
+the continuous method VOF \cite{wang-non-circular} present simulations show less noisy trend and
+more accurate transition. 
 
+For moderate capillary number $Ca\geq 0.2$ radii show less value than the literature results. That
+might be corresponding to the bubble train simulation or the influence of the binary-liquid model. 
+\begin{figure}[ht]
+\includegraphics[width=0.5\textwidth]{Figures/capillaries_comparison_heil.eps}
+\includegraphics[width=0.5\textwidth]{Figures/capillaries_comparison_wang.eps}\\
+\caption{The comparison for the axial and the diagonal radii
+versus capillary numbers between present simulations and the results of \citet{heil-threedim}
+(top), of \citet{wang-non-circular} (bottom). One can see that
+the code mimics
+behavior of the earlier published results.  \label{fig:capillary:comparison}} 
+\end{figure}
 
-
-
-We performed a number of simulations with quarter CPU code and GPU train simulations and compared
-them with data obtained by \cite{heil-threedim}. After performing the simulations we determine the
-$R_{axis}$, $R_{diag}$ versus calculated
-capillary number
+\section{Relative velocity}
+One of the differencies between the flow in tubes and square cappillaries is that the flow has
+different patterns. In square microchannels the main mass flow goes through corners
+\cite{heil-threedim,wang-non-circular}. This affects the mass flow significantly. One of the
+characteristics of the mass flow is the normalized relative velocity dependence on the capillary
+number. Bubble moves always faster than surrounding liquid. The following quantity is defined as
+relative velocity \cite{cerro-bubble-train}:
 \begin{equation}
-Ca=\frac{\mu_{liq} U_{bubble}}{\gamma}.
+W=\frac{U_{\mathrm{bubble}}-U_{ls}}{U_{\mathrm{bubble}}},
 \end{equation}
-To perform simulations we
-started with the following parameters as
-$k=0.04$,$A=0.04$,$\Gamma=1.0$. We performed different grids calculations with GPU and CPU codes.
-The GPU code (see section \ref{section:bubble:train} about bubble train simulations) simulates a
-quarter of the bubble and operates on the grid $100\mathrm{x}100\mathrm{x}1500$. The CPU refined
-grid operates on whole $160\mathrm{x}160\mathrm{x}1500$. In this case we see short bubbles as the
-length to height ratio is $\frac{500}{160}=3.125$. GPU  For GPU grids due to memory constrains we
-chose the grid as $N_x\mathrm{x}N_y\mathrm{x}N_z=52\mathrm{x}52\mathrm{x}750$. One can see the
-comparison presented in Fig. \ref{fig:capillary:comparison}.
-\begin{figure}
-\includegraphics[width=0.97\textwidth]{Figures/capillaries_comparison.eps}
-\caption{The comparison between different runs of codes for the axial and the diagonal radiuses
-versus capillary numbers. \label{fig:capillary:comparison}}. One can see that the code mimics
-behavior of the earlier published results.
-\end{figure}
+where $U_{\mathrm{bubble}}$ is the bubble interface velocity, $U_{ls}$ is the liquid superficial
+velocity. As far as the steady state is achieved one can take the liquid superficial velocity
+exactly at the distance in the middle between bubbles. Then, the liquid superficial velocity is
+defined as:
+\begin{equation}
+U_{ls}=\frac{\int_{A}{U_{liq}dA}}{A}.
+\end{equation}
+The relative velocity was calculated and compared with the results of \citet{wang-non-circular}. 
 
-
-\section{Train simulation}
-\label{section:bubble:train}
-As far as the requirements for the grid are ``heavy'' we performed a bunch of simulations to
-examine how the distance between bubbles influences on the thickness. For this purpose the
-simulation was conducted on the grid 82x82x750. We examined different initialized distances between
-bubbles. The initial lengths of bubbles were chosen as $300$, $350$, $400$, $450$, $500$, $550$
-lattice units. Therefore, the corresponding initial distances between bubbles are
-$450$,$400$,$350$,$300$,$250$ lattice units. On the steady state regime the distances become $386$,
-$317$, $248$,$176$,$99$,$23$ lattice units. The corresponding capillary numbers calculated based on
-the center bubble velocity are as follows $0.905$, $0.986$,$1.08$,$1.19$, $1.33$, $1.49$. The
-calculated radiuses (diagonal radius equal to the axes radius) are as follows
-$0.783$,$0.778$,$0.772$,$0.764$,$0.753$,$0.747$. Thus, one can see the great impact of the bubbles
-on each other velocity for the given body force. However, in terms of the film thicknesses those
-numbers look adequate. One can see the film thicknesses dependency on the capillary number for
-simulations obtained by \citet{heil-threedim} and bubble train simulations data in Fig.
-\ref{fig:capillaries:train} and in Fig. \ref{fig:capillary:comparison}. One can see that the
-results are consistent and in a good agreement.
-Therefore, though the bubble train mutual motion influences on the film thickness by increasing the
-associated capillary number,  however, the film thickness is in accordance with the capillary
-number correlation. Thus, the decrease of the numerical domain is quantified and can be used to
-obtain the data. However, one should be cautious about the initialization, because the Poiseuille
-flow initialization is deviated even further due to mutual motion of bubbles.
-\begin{figure}
-\includegraphics[width=0.97\textwidth]{Figures/capillaries_comparison_train.eps}
-\caption{The comparison for the film thickness between \citet{heil-threedim} data and bubble train
-simulations. Though, one can see that the decrease of the distance between bubbles causes the
-increase in the associated capillary number, however, the correlation dependance between film
-thickness and capillary number stays the same. This can help for simulations to reduce the
-numerical domain. \label{fig:capillaries:train}}
-\end{figure}
+% \section{Train simulation}
+% \label{section:bubble:train}
+% As far as the requirements for the grid are ``heavy'' we performed a bunch of simulations to
+% examine how the distance between bubbles influences on the thickness. For this purpose the
+% simulation was conducted on the grid 82x82x750. We examined different initialized distances
+%between
+% bubbles. The initial lengths of bubbles were chosen as $300$, $350$, $400$, $450$, $500$, $550$
+% lattice units. Therefore, the corresponding initial distances between bubbles are
+% $450$,$400$,$350$,$300$,$250$ lattice units. On the steady state regime the distances become
+%$386$,
+% $317$, $248$,$176$,$99$,$23$ lattice units. The corresponding capillary numbers calculated based
+%on
+% the center bubble velocity are as follows $0.905$, $0.986$,$1.08$,$1.19$, $1.33$, $1.49$. The
+% calculated radiuses (diagonal radius equal to the axes radius) are as follows
+% $0.783$,$0.778$,$0.772$,$0.764$,$0.753$,$0.747$. Thus, one can see the great impact of the bubbles
+% on each other velocity for the given body force. However, in terms of the film thicknesses those
+% numbers look adequate. One can see the film thicknesses dependency on the capillary number for
+% simulations obtained by \citet{heil-threedim} and bubble train simulations data in Fig.
+% \ref{fig:capillaries:train} and in Fig. \ref{fig:capillary:comparison}. One can see that the
+% results are consistent and in a good agreement.
+% Therefore, though the bubble train mutual motion influences on the film thickness by increasing
+%the
+% associated capillary number,  however, the film thickness is in accordance with the capillary
+% number correlation. Thus, the decrease of the numerical domain is quantified and can be used to
+% obtain the data. However, one should be cautious about the initialization, because the Poiseuille
+% flow initialization is deviated even further due to mutual motion of bubbles.
+% \begin{figure}
+% \includegraphics[width=0.97\textwidth]{Figures/capillaries_comparison_train.eps}
+% \caption{The comparison for the film thickness between \citet{heil-threedim} data and bubble train
+% simulations. Though, one can see that the decrease of the distance between bubbles causes the
+% increase in the associated capillary number, however, the correlation dependance between film
+% thickness and capillary number stays the same. This can help for simulations to reduce the
+% numerical domain. \label{fig:capillaries:train}}
+% \end{figure}
 
 \section{Conclusion}
-The present work conducts the binary-liquid simulations with the lattice Boltzman method. The
-method is a continuous interface method. Along with similarity of results with already published
+The present work conducts the binary-liquid three-dimensional simulations with the lattice Boltzman
+method. The
+method is a continuous interface method. The results are similar with the literature  Along with
+similarity of results with already published
 results of \citet{heil-threedim} and \citet{wang-non-circular}, the differencies were found,
 especially in the velocity pattern. Results evedince that the lattice Boltzmann binary liquids
 simulations can be used for simulation of gas bubbles in the microchannel. 
@@ -676,6 +672,34 @@ or in other words th functionality can be extended as:
 \frac{N_{
 y2}^2 }{N_{y1}^2}
 \end{equation}
+
+can be done through the scaling indicated in Appendix \ref{append:scaling}:
+\begin{equation}
+\frac{\mathrm{d}P}{\mathrm{d}x}\propto \gamma Ca .
+\end{equation}
+Therefore the same body force can stand for capillary number ten times larger if the surface
+tension is ten times smaller:
+\begin{equation}
+\gamma=\sqrt{\frac{8 k A}{9}}.
+\end{equation}
+The following can be satisfied if $A=0.004$ and $k=0.004$. Decreasing surface tension requires
+increasing the mobility of the interface to be able to adjust to the interface
+\cite{pagonabarraga-parameters}. We therefore performed the numerical simulation with those
+parameters and $\Gamma=20$ for the interface to be stable. 
+{\color{red} However, many authors state that increasing mobility kills
+the
+proper results of simulations}.
+{\color{red} Need to wait results from bugaboo.westgrid.ca under LargeCap simulation}
+
+To perform simulations we
+started with the following parameters as
+%k=0.04$,$A=0.04$,$\Gamma=1.0$. We performed different grids calculations with GPU and CPU codes.
+%$The GPU code (see section \ref{section:bubble:train} about bubble train simulations) simulates a
+%quarter of the bubble and operates on the grid $100\mathrm{x}100\mathrm{x}1500$. The CPU refined
+%grid operates on whole $160\mathrm{x}160\mathrm{x}1500$. In this case we see short bubbles as the
+%length to height ratio is $\frac{500}{160}=3.125$. GPU  For GPU grids due to memory constrains we
+%chose the grid as $N_x\mathrm{x}N_y\mathrm{x}N_z=52\mathrm{x}52\mathrm{x}750$. One can see the
+%comparison presented in Fig. \ref{fig:capillary:comparison}.
 
 
 \bibliographystyle{unsrtnat}
