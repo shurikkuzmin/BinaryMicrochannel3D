@@ -13,6 +13,10 @@ def draw_velocities_new():
 
     fig=pylab.figure()
 
+    wang=genfromtxt("../Engauge/relative_wang.csv",delimiter=',',dtype=float)
+    pylab.semilogx(wang[:,0],wang[:,1],"ko",markersize=8,markerfacecolor="white")
+    
+    
     for counter,file in enumerate(files):
         
         mat=numpy.loadtxt(file)
@@ -33,8 +37,7 @@ def draw_velocities_new():
     velocities=[]
     
     #read the giavedoni data (not precise though)
-    wang=genfromtxt("../Engauge/relative_wang.csv",delimiter=',',dtype=float)
-
+  
     #print heil
     #print heil.shape
     
@@ -42,7 +45,6 @@ def draw_velocities_new():
     #ax=fig.add_subplot(111)
     #capillaries=numpy.array(velocities)*(2.0/3.0)/math.sqrt(8.0*0.04*0.04/9.0)
     
-    pylab.semilogx(wang[:,0],wang[:,1],"ko",markersize=8,markerfacecolor="white")
     #pylab.semilogx(capillary_theor,radiusses,'o-',markersize=7,linewidth=2)
     #pylab.loglog(giavedoni[:,0],giavedoni[:,1]/2.0,"bD-",linewidth=3,markersize=10)
     #pylab.loglog(capillary_theor,width_theor,"ys--",linewidth=3,markersize=10)
@@ -52,20 +54,20 @@ def draw_velocities_new():
     #pylab.ylim(ymin=0.01)
     #numpy.savetxt("capillary.dat",zip(capillaries,widths))
     
-    #pylab.xticks(fontsize=20)
-    #pylab.yticks(fontsize=20)
+    pylab.xticks(fontsize=20)
+    pylab.yticks(fontsize=20)
     
-    #pylab.ylabel(r'''$R_{diag},R_{axes}$''',fontsize=30)
-    #pylab.xlabel(r'''$Ca$''',fontsize=30)
+    pylab.ylabel(r'''$W$''',fontsize=30)
+    pylab.xlabel(r'''$Ca$''',fontsize=30)
     
     
     
     #labels=[r'''$H_{eff}='''+str(value-2)+r'''$''' for value in ny]
-    #leg=pylab.legend(["CPU results","Refined grid","Large body force","Heil","GPU results"],fancybox=True)
+    leg=pylab.legend(["Liu-Wang Simulations","Simulations"],loc=2,fancybox=True)
     #legtext = leg.get_texts() # all the text.Text instance in the legend
     #for text in legtext:
     #    text.set_fontsize(20) 
-    #fig.subplots_adjust(left=0.17,bottom=0.17) 
+    fig.subplots_adjust(left=0.17,bottom=0.17) 
 
     #for line in ax.yaxis.get_majorticklines():
         # line is a Line2D instance
@@ -100,7 +102,7 @@ def draw_velocities_new():
 
     #pylab.xlim(xmax=15)
     
-    #pylab.savefig("capillaries_comparison.eps",format="EPS",dpi=300)
+    pylab.savefig("relative_velocity.eps",format="EPS",dpi=300)
     #pylab.show()
 
 

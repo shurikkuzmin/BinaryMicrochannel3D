@@ -22,7 +22,8 @@ def Analyze_Consequence():
     ax_zeros=[]
     diag_zeros=[]
     capillaries=[]
-    file_list=["Moderate/3/phase250000.vts","Moderate/7/phase250000.vts","SmallCapGrid/8/phase250000.vts"]
+    #file_list=["ModerateVelocity/3/phase240000.vts","Moderate/5/phase250000.vts","SmallCapGrid/8/phase250000.vts"]
+    file_list=["ModerateVelocity/3/phase240000.vts","Moderate/5/phase250000.vts"]
     for file in file_list:
         print file
         axis_zero, diag_zero, capillary=extract_profiles(file)
@@ -479,7 +480,7 @@ if __name__=="__main__":
     #draw_capillaries()
     #Analyze_Consequence() 
     #name="Velocity/10/phase240000.vts"    
-    name="Force0000002/8/phase250000.vts"    
+    name="VelocityModerate/10/phase240000.vts"    
     pyngl_streamline(name)    
     #extract_streamlines()
     #read_vtk_2d(name)    
