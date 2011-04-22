@@ -14,6 +14,7 @@
 #include "dynamics_none.h"
 #include "dynamics_symmetric.h"
 #include <mpi.h>
+#include <limits>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -120,7 +121,7 @@ Solver<D>::Solver(Geometry * _geom,ParamsList _params_list):
 template<typename D> bool Solver<D>::checkNAN()
 {
     if (mpi_wrapper().get_rank()==0)
-        return isnan(phase[NZ/2*NX*NY+NY*NX/2+NX/2]);
+        return std::isnan(phase[NZ/2*NX*NY+NY*NX/2+NX/2]);
     else
         return false;
 }
