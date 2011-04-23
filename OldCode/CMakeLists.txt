@@ -1,0 +1,49 @@
+CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
+PROJECT (FreeEnergy)
+INCLUDE_DIRECTORIES("/opt/local/include/vtk")
+INClUDE_DIRECTORIES("/usr/local/include/vtk-5.6")
+INCLUDE_DIRECTORIES("/usr/include/vtk-5.2")
+LINK_DIRECTORIES("/opt/local/lib/vtk")
+LINK_DIRECTORIES("/usr/local/lib/vtk-5.6")
+LINK_DIRECTORIES("/usr/lib/vtk5-2")
+SET(CMAKE_CXX_COMPILER mpic++)
+SET(CMAKE_CXX_FLAGS "-Wno-deprecated")
+OPTION(MYPROJECT_DEBUG
+  "Build the project using debugging code and stop for gdb"
+  OFF)
+
+OPTION(WHOLE_PROJECT_DEBUG
+  "Build the project using debugging code"
+  OFF)
+
+OPTION(HYDRODYNAMICS
+    "Build the project using simple hydrodynamics"
+  OFF
+)
+
+OPTION(PERFORMANCE
+    "Build the project with the performance optimization"
+  OFF
+)
+IF(WHOLE_PROJECT_DEBUG)
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wno-deprecated")
+ENDIF(WHOLE_PROJECT_DEBUG)
+
+IF(MYPROJECT_DEBUG)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -DDEBUG -Wno-deprecated")
+ENDIF(MYPROJECT_DEBUG)
+
+IF(HYDRODYNAMICS)
+ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHYDRO ")
+ENDIF(HYDRODYNAMICS)
+
+IF(PERFORMANCE)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 ")
+ENDIF(PERFORMANCE)
+
+
+SET(LIBS vtkCommon vtkIO vtkFiltering)
+ADD_EXECUTABLE(main.out main.cpp mpi_wrapper.cpp mpi_singleton.cpp solver.cpp lattice.cpp dynamics_BGK.cpp
+    dynamics_special.cpp dynamics_simple_BGK.cpp dynamics_simple_special.cpp dynamics_zouhe_pressure.cpp
+    dynamics_zouhe_simple_pressure.cpp)
+TARGET_LINK_LIBRARIES(main.out ${LIBS})
