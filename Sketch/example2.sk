@@ -35,6 +35,25 @@ def joint_sphere {
       sweep { n_joint_faces, rotate(-180.0 / n_joint_faces,[K]) } 
         (sphere2) %line(sphere1)(sphere2)
 }
+def main_axes {
+    def cent (-4.0/5.0*len,2.0,-1.0)
+    def cent_x (-4.0/5.0*len+1.5,2.0,-1.0)
+    def cent_y (-4.0/5.0*len,2.0+1.5,-1.0)
+    def cent_z (-4.0/5.0*len,2.0,-1.0+1.5)
+    %line[arrows=->,line width=1.5pt] (cent)(cent_x)
+    %line[arrows=->,line width=1.5pt] (cent)(cent_y)
+    %line[arrows=->,line width=1.5pt] (cent)(cent_z)
+    special |\draw[arrows=->,line width=1.5pt] #1 -- #2 node[below] {$z$}; |
+         (cent)(cent_x)
+	special |\draw[arrows=->,line width=1.5pt] #1 -- #2 node[above] {$y$}; |
+         (cent)(cent_y)
+	special |\draw[arrows=->,line width=1.5pt] #1 -- #2 node[below] {$x$}; |
+         (cent)(cent_z)
+         
+
+    
+}
+{main_axes}
 def axes {
     def shift (0.0,-0.5,0.0)
     def arr1 (-len,-2.2,-1)
@@ -49,7 +68,7 @@ def axes {
     line[line style=dashed] (p4)(arr5)
     line[line style=dashed] (p1)(arr4)
     line[arrows=<->,line width=1.5pt] (arr2)(arr3)
-    special |\draw[arrows=<->,line width=3pt] #1 -- #2 node[below,sloped,midway] {$W=H_{\mathrm{eff}}$}; |
+    special |\draw[arrows=<->,line width=1.5pt] #1 -- #2 node[below] {$W=H_{\mathrm{eff}}$}; |
          (arr1)(arr2)
 
     %line[arrows=<->,line width=1.5pt] (arr1)(arr2)

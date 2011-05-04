@@ -8,14 +8,15 @@
 \usepackage{tabularx}
 \begin{document}
 \begin{abstract}
-The classical Bretherton problem describes the propagation of gas fingers through liquid media with
-thin liquid films between bubbles and the channel walls. The bubble shape and flow patterns are
+The classical Bretherton problem describes the propagation of gas fingers through liquid media in a
+narrow channel with
+thin liquid films between bubbles and channel walls. The bubble shape and flow patterns are
 complicated functions of the capilary number $Ca$ and Reynolds number $Re$. Recently we investigated
-the applicability and parameters choice for the two-dimensional case of the Bretherton problem (flow
-between plates) using the free-energy binary liquid lattice Boltzmann method (LBM)
+the applicability and parameter choice for the two-dimensional case of the Bretherton problem (flow
+between parallel plates) using the free-energy binary liquid lattice Boltzmann method (LBM)
 \cite{kuzmin-binary2d}. This paper is a continuation of our previous work.  To validate the applicability
 of the LBM to Bretheron phenomena in the moderate range of the capillary number $0.1\leq Ca \leq 1.0$,
-we focus on the simulation of three-dimensional capillaries with square cross section.
+we focus on the simulation of three-dimensional capillaries with square cross sections.
 The flow is driven by a body force, and
 periodic boundary conditions are applied in the streamwise direction. The results show that the
 binary liquid model is able to capture a number of phenomena happening in three-dimensional
@@ -26,33 +27,35 @@ liquid model can be used to simulate the Bretherton problem with good accuracy.
 
 \section{Introduction}
 The Taylor/Bretherton \cite{bretherton} flow deals with long gas bubbles moving through liquid in
-narrow channels. Depending on the geometry it was found that the deposited film thickness
+narrow channels. Depending on the channel geometry it was found that the deposited film thickness
 is a complicated function of the capillary number $Ca$:
 \begin{equation}
 \label{capillary:number:definition}
 Ca=\frac{U_{\mathrm{bubble}} \mu_{\mathrm{liq}}}{\gamma},
 \end{equation}
-where $U_{\mathrm{bubble}}$ is the bubble's propagation velocity, $\mu_{\mathrm{liq}}$ is the
-kinematic liquid viscosity and $\gamma$ is the interfacial surface tension between gas and liquid. 
+where $U_{\mathrm{bubble}}$ is the bubble velocity, $\mu_{\mathrm{liq}}$ is the
+dynamic liquid viscosity and $\gamma$ is the interfacial tension between gas and liquid. 
 
 For example, the deposited film thickness
 is proportional to $Ca^{2/3}$ in the range of small capillary numbers for circular channels
 \cite{bretherton,heil-bretherton}. 
-The problem of predicting flow patterns and associated mass transfers for the Bretheron-type flows
+The problem of predicting flow patterns and associated mass transfers for Bretheron-type flows
 is of significant interest for chemical industry as it is widely used in chemical monolith
 microreactors \cite{kreutzer-pressure-drop}. Large mass transfers can be achieved because of the
-large interfacial area and small diffusion lengths \cite{cerro-bubble-train}. The heat transfer is
-also increased in comparison with one phase flows \cite{fukugata-levelset}. While it
-is possible to calculate the flow analytically for small capillary numbers \cite{bretherton}, the
+large interfacial area and small diffusion lengths \cite{cerro-bubble-train}. Heat transfer is
+also increased in comparison with single phase flow \cite{fukugata-levelset}. While it
+is possible to calculate the flow analytically for small capillary numbers and negligible Reynolds
+number \cite{bretherton}, the
 results cannot be extrapolated to the wider range of capillary and Reynolds numbers used in the
-chemical industry.  Thus, the desire of consistent numerical simulations arises.
+chemical industry.  Thus, the desire for consistent numerical simulations arises.
 
 The two-dimensional geometry (circular tubes, parallel plates) flows are studied extensively in
 experimental works of \citet{aussillous-deposition, cerro-bubble-train} and numerical works of
-\citet{giavedoni-numerical,heil-bretherton}. All abovementioned works found that the Bretherton
+\citet{giavedoni-numerical,heil-bretherton}. All abovementioned works found that the analytical
+Bretherton
 analysis is valid only for small capillary numbers $Ca\leq 0.003$ and deviates from actual
 measurements for larger ones.
-That is caused by complex interplay of the gravitational,
+This is caused by a complex interplay of gravitational,
 interfacial, inertial and viscous forces \cite{gupta-review}. Historically, 
 \citet{bretherton} indicated that inertia effects can be 
 neglected. \citet{giavedoni-numerical} suggested
@@ -62,117 +65,139 @@ are negligible for $Ca \leq 0.05$ and have moderate impact for $Ca>0.05$ in the 
 number from $0$ to $70$ for two-dimensional flows. Later on, \citet{heil-bretherton}
 extended
 the results for the flow between plates upto Reynolds number
-$300$. The author indicates that while the influence of the established film thickness is
+$300$. This author indicates that while the influence on the established film thickness is
 insignificant
-($7$ percent from the film thickness measured at $Re=0$), the change in Reynolds number 
+($7$ percent deviation from the film thickness measured at $Re=0$), the change in Reynolds number 
 influences significantly the pressure distrubution and the flow field near the front bubble tip.
 \citet{cerro-bubble-train} show that the mass transfer is strongly affected by flow direction for
 small capillary numbers in case of upward and downward flows. Thus, to fully describe the
 propagation of the semi-infinite finger in liquid media one needs to take into the account the
-viscous, gravitational, surface and inertia forces \cite{gupta-review}.  
+viscous, gravitational, surface, and inertia forces \cite{gupta-review}.  
 
-In comparison with the two-dimensional Bretherton flow, there is a vast number of experimental
-results available for the three-dimensional case for microchannels with square, triangular and
+In comparison with the two-dimensional Bretherton flows (circular tubes, flow between plates), there
+is a vast number of experimental
+results available for three-dimensional cases of microchannels with square, triangular and
 rectangular cross sections. For instance, \citet{cerro-bubble-train} performed a number of
 experiments for a
 bubble-train flow in capillaries of
-circular and square cross section for horizontal, upward and downward flows.
+circular and square cross sections for horizontal, upward and downward flows.
 \citet{shikazono-square} obtained
 experimental
-results for the deposition length dependency on the
+results for the deposition film thickness dependency on the
 capillary number for ethanol/air and water/air mixtures and for square, circular and triangular
-shaped mirochannels. They also found experimental correlation for the prediction of bubble radii
-based on the capillary number $Ca$ and the Weber number $We=Re\,Ca$. 
+shaped mirochannels. They also presented the experimental correlation for the prediction of bubble
+radii
+based on the capillary number $Ca$ and the Weber number $We=Re\,Ca$, where the Reynolds number is
+defined as:
+\begin{equation}
+Re=\frac{U_{\mathrm{bubble}} H_{\mathrm{eff}}}{\nu_{\mathrm{liq}}},
+\end{equation}
+where $H_{\mathrm{eff}}$ is the channel height and $\nu_{\mathrm{liq}}$ is the kinematic liquid
+viscosity.
 
 The experimental works
 \cite{shikazono-square,cerro-bubble-train} supported by numerical simulations \cite{heil-threedim,
 wang-non-circular} show interesting phenomena in three-dimensional geometries. It was found
 \cite{heil-threedim,wong-films} that for rectangular
-or square-shaped capillaries there is a transition for a
-certain capillary number, where the bubble cross section changes from non-axisymmetric to axisymmetric.
-The non-axisymmetric case is attributed to the axial radius being 
+or square-shaped capillaries there is a transition from an asymmetric to an axisymmetric shape for a
+certain capillary number.
+The non-axisymmetric shape is attributed to the wall normal radius (in Fig.
+\ref{fig:lbm:benchmark} the wall normal radius is measured along $x$ or $y$ axes) being 
 different from the
 diagonal radius and the bubble having a non-circular shape in the channel crossection. In this case
-the bubble shape mimics the shape of the square and looks like a square with rounded corners. The dependence
+the bubble shape mimics the shape of a rectangle and looks like a rectangle with rounded corners.
+From hereon we adapt the convention ``axial`` for the radius measured along the $x$ or $y$ axes,
+see Fig. \ref{fig:lbm:benchmark} \cite{heil-threedim}. The dependency
 of the diagonal and axial radii on the capillary number is shown in Fig. 
 \ref{fig:heil:three:dim}.
 \begin{figure}[ht]
 \includegraphics[width=\textwidth]{Figures/capillary_width_heil.eps}
-\caption{\citet{heil-threedim} results for the variation of the deposited liquid for the range of
-capillary number. One can see the asymmetry between diagonal and axis diameter for the capillary
-number $Ca\leq\hat{Ca}=0.04$. Courtesy of \citet{heil-threedim}. \label{fig:heil:three:dim}}
+\caption{\citet{heil-threedim} results for the variation of the deposited liquid for a range of
+capillary numbers. One can see the asymmetry between diagonal and axial diameters for the capillary
+numbers $Ca\leq\hat{Ca}=0.04$. Courtesy of \citet{heil-threedim}. \label{fig:heil:three:dim}}
 \end{figure}
-The transition capillary number between non-axisymmetric case and symmetric one is indicated in a number of
+The transition capillary number for square channels between non-axisymmetric case and axisymmetric
+one is indicated in a number of
 works as $\widehat{Ca}=0.04$ \cite{cerro-bubble-train},
 $\widehat{Ca}=0.1$
 \cite{cerro-space,wang-non-circular}, $\widehat{Ca}=0.033$ \cite{heil-threedim}. If the capillary
 number is larger
 than
 the critical capillary number, i.e. $Ca>\widehat{Ca}$, then the bubble becomes axisymmetric with the
-radius of the droplet dependant on the capillary number. An example for the bubble radii
+radius of the bubble dependent on the capillary number. An example for the bubble radii
 dependence on the capillary number is presented in Fig. \ref{fig:heil:three:dim}.
 
 There are also a number of numerical works for the three-dimensional case. For instance, 
 \citet{wong-films,wong-pressure} studied
 three-dimensional bubbles in
 polygonal capillaries and calculated bubble shapes for different
-slug and bubble cross sections and menisci appearance.
+slug and channel cross sections.
 \citet{heil-threedim} performed three-dimensional simulations for circular-,
-square- and rectangular-shaped capillaries. They indicated the transition
+square- and rectangular-shaped capillaries. They indicated a transition
 capillary number where the streamlines pattern
 changes from having a vortex in front of the bubble and not having it for larger capilllary
-numbers, {\color{red} Fig. \ref{fig:streamlines:pattern} }. For the square channel the critical
-capillary number is $Ca=0.691$.  The authors also found an empirical correlation which
-makes it possible to put on one curve the results of simlations of rectengular channels with different aspect ratios.
+numbers,  Fig. \ref{fig:streamlines:pattern}. For a square channel the critical
+capillary number for this phenomena is $Ca=0.691$.  \citet{heil-threedim} also found an empirical
+correlation which
+makes it possible to put on one curve the results of radii dependency on the capillary number
+simulations of rectangular channels with different aspect ratios.
 It is also indicated that for microchannels with a certain aspect ratio $\alpha=\frac{a}{b}\geq
-2.04$, the interface can not make up the
-axisymmetric case for any capillary number. \citet{wang-non-circular} performed numerical
-simulations by the VOF technique for the
-non-circular
-shaped capillaries such as square and triangular shaped capillaries. They also investigated the relative
-velocity of the bubble for
-different capillary numbers. 
+2.04$, the interface does not become
+axisymmetric for any capillary number. \citet{wang-non-circular} performed numerical
+simulations using the Volume of Fluid (VOF) technique for
+capillaries with non-circular (square, triangular) cross sections. They also investigated the relative
+velocity of the bubble to the slug liquid velocity  for
+a number of capillary numbers. 
 
 As it is mentioned by \citet{gupta-review}, the most common techniques to simulate the Bretherton
-phenomena are the Volume of Fluid (VOF) method \cite{wang-non-circular}, the level-set method
+phenomena are the VOF method \cite{wang-non-circular}, the level-set method
 \cite{fukugata-levelset} and the finite element methods \cite{kreutzer-taylor,heil-threedim}. It is
-also indicated \cite{gupta-review}, that the new techniques which are still in the development stage
+also indicated \cite{gupta-review} that the new techniques which are still in the development stage
 are the lattice Boltzmann method and phase field methods \cite{anderson-diffuse,gurtin-binary}.
-The finite element methods solve the Bretherton flow as a free-surface problem with a sharp
-interface but without underlying details for gas.  The lattice Boltzmann method on the other hand,
-as a continuous interface method provides more flexibility in simulations involving coalescence and/or
+The finite element method solves the Bretherton flow as a free-surface problem with a sharp
+interface but without underlying details for the gas.  The lattice Boltzmann method on the other
+hand,
+as a continuous interface method, provides more flexibility in simulations involving coalescence
+and/or
 droplet breakup, and thus arises as a promising alternative for simulation of gas finger propagation. 
 
-In our previous work \cite{kuzmin-binary2d} we already covered the Bretherton flow between plates.
+In our previous work \cite{kuzmin-binary2d} we already covered the Bretherton flow between parallel
+plates.
 It was shown that the free-energy binary liquid model, which is a phase field method, simulates
-with reasonable accuracy the Bretherton/Taylor phenomena. The goal of this work is to examine 
+with reasonable accuracy the Bretherton/Taylor phenomenon. The goal of this work is to examine 
 if similar conclusions can be drawn for three-dimensional flows in microchannels with square cross sections,
 simulated using the free-energy binary liquid lattice Boltzmann
-method.
+method. 
+%As it was indicated by \citet{gupta-review} the flow in microchannels is a complex
+%interplay of viscous, gravitational, inertial and surface forces. For the sake of comparison, we
+%specifically design the numerical benchmark to avoid the influence of gravitational and inertial
+%forces.
 
 
 The lattice Boltzmann method has emerged as a successful method to simulate
 a wide variety of phenomena including hydrodynamics \cite{yu}, thermal flows
 \cite{karlin-minimalmodels}, microflows \cite{ansumali-small-knudsen},
 ferrofluids \cite{kuzmin-aniso}, and multiphase flows
-\cite{swift,Shan-chen:extended}. The method is a particle method which allows to simulate physical
+\cite{swift,Shan-chen:extended}. The method is a particle method which allows one to simulate physical
 phenomena on the microscopic level. For instance, the introduction of the force or potential on the
 microscopic level allows to restore multiphase macroscopic equations \cite{swift,
 Shan-chen:extended}.
 
 The binary liquid free-energy LB model due to \citet{swift} we used
 simulates two liquids with the assumption of uniform overall
-density. While the classical Bretherton problem is stated for gas and liquid, which are of
+density. As it was indicated by \citet{gupta-review} the flow in microchannels is a complex
+interplay of viscous, gravitational, inertial and surface forces, and the classical Bretherton
+problem is stated for gas and liquid, which are of
 significantly
-different densities and viscosities, the parameters were carefully chosen as to neglect the inertia
-effects, see Section \ref{sec:numerical:benchmark}. Moreover, the results of
+different densities and viscosities, the parameters in our simulations were carefully chosen to
+avoid  inertia
+effects, see Section \ref{sec:numerical:benchmark}. Moreover, the numerical results of
 \citet{giavedoni-numerical} and \citet{heil-bretherton} show
 negligible Reynolds number effects on the film thickness for a relatively wide range of Reynolds
 numbers. Thus, a major governing factor for microchannel flows is not the density ratio, but
 the
 viscosity ratio, which is why the uniform density binary liquid model is suitable for this kind of
 simulations.
-
 % THIS HAS ALREADY BEEN STATED BEFORE
 % The goal of this work is to do a feasibility study of the LBM
 % binary-liquid model to simulate and correctly predict flow patterns for the Bretherton/Taylor
@@ -181,19 +206,19 @@ simulations.
 % TODO: This sentence should probably be moved to a summary/conclusions section?
 The work results are in good agreement with other simulations \cite{heil-threedim,wang-non-circular}.
 
-One should also acknowledge the works of \citet{pagonabarraga-fingers} on menisci
+One should acknowledge the works of \citet{pagonabarraga-fingers} on menisci
 in thin films for fingering phenomena. \citet{sehgal-microchannel} performed lattice Boltzmann
 simulations of two-dimensional channel flows for relatively large capillary numbers, and
 found discrepancies with the classical Bretherton theory, which
-is limited to the low capillary number regime \cite{giavedoni-numerical}. The Shan-Chen model was
-used to simulate the Bretherton problem, which is sometimes said to contain a thermodynamically
+is limited to the low capillary number regime \cite{giavedoni-numerical}. They used the Shan-Chen model,
+ which is sometimes said to contain a thermodynamically
 inconsistent interface \cite{nourgaliev-breakup}. 
 
 The paper is organized as follows.  First, we explain the simulation benchmark construction
 mainly based on our previous work \cite{kuzmin-binary2d}. Then, the binary liquid lattice
 Boltzmann model is outlined. The simulation results for the three-dimensional case are presented in
 the results section. The results cover the film thickness dependency on the capillary number, the
-relative velocity of the bubble and the vortex profiles. The paper
+relative to the slug liquid velocity of the bubble and the vortex profiles. The paper
 is concluded with a summary of the main findings.
 %The critical capillary numbers for changing velocity pattern depending on the eccentricity
 %parameter $\alpha$ are presented in Table \ref{table:recirculation:data}.
@@ -214,39 +239,42 @@ is concluded with a summary of the main findings.
 The main discussion here follows and is based on the two-dimensional benchmark approach
 \cite{kuzmin-binary2d}. It was indicated that the benchmark layout should have certain
 dimensions to conduct simulations. The classical Bretherton benchmark layout is represented in
-Fig.~\ref{fig:classical:benchmark}. It describes the gas finger propagation through the liquid media.
-The film thickness in this case is measured at the inlet. In the lattice Boltzmann framework such
+Fig.~\ref{fig:classical:benchmark}. It describes the gas finger propagation through the liquid
+medium.
+The film thickness in this case is measured at the inlet. In the lattice Boltzmann framework such a
 formulation has certain challenges \cite{kuzmin-binary2d}. Some of them are attributed to the
 dynamic coupling of the inlet and outlet conditions \cite{giavedoni-numerical}. Instead, we
 proposed the numerical benchmark indicated in Fig.~\ref{fig:lbm:benchmark}. The dimensions of the
 channel are chosen as $H_{\mathrm{eff}}\times H_{\mathrm{eff}} \times 15 H_{\mathrm{eff}}$. The
-initialized bubble length is taken as $5 H_{\mathrm{eff}}$. \citet{giavedoni-numerical} showed that
-the film stabilizes at the distances of $2.6-4.0$ diameters
+initial bubble length is taken as $5 H_{\mathrm{eff}}$. \citet{giavedoni-numerical} showed that
+the film in the two-dimensional geometries stabilizes at distances of $2.6-4.0$ diameters
 from the front tip depending on the Reynolds number. \citet{heil-threedim} measured the bubble radii
-at the distance as $5.5 H_{\mathrm{eff}}$ and indicated it to be sufficient for $Ca\leq 10$. In
-this work the conducted simulations capillary number is not larger than unity $Ca\leq 6$.
-%%% TODO: ^ How is 6 not larger than unity?
-
+at the distance of $5.5 H_{\mathrm{eff}}$ and indicated it to be sufficient for $Ca\leq 10$. In
+this work the following relation holds for all conducted simulations: $0.05 \geq Ca \leq 6$.
 Thus, the
 film thickness is chosen to be measured in the
 middle of the bubble, which is located at least at a distance of $2.5-3$ channel heights from the 
 bubble tip.%at the distances one channel height from the rear tip upto one channel
 
 For simplicity, periodic boundary conditions are applied so that effectively a bubble train is simulated
-intead of a single bubble.  The mutual influence of bubbles on each other is minized by the use of a long
-channel ($15 H_{\mathrm{eff}}$). Periodic boundary conditions imply as well that the fluid is accelerated by a
+instead of a single bubble.  The mutual influence of bubbles on each other is minimized by the use
+of a long
+channel ($15 H_{\mathrm{eff}}$). Periodic boundary conditions imply as well that the fluid is driven
+by a
 body force in the framework of the LBM and not with a pressure difference. Therefore, we can not
-address simulations with upward and downward flows \cite{cerro-bubble-train}. It is assumed that
-the gravity effects are negligible and the flow is in the horizontal direction driven by the body
-force. 
-\begin{figure}[ht]
+address simulations with upward and downward flows \cite{cerro-bubble-train} which require a
+simulataneouse imposement of pressure boundary conditions and the body force. The pressure boundary
+conditions for the binary liquid model is a challenge. Thus, it is assumed the flow is in the
+horizontal direction only and the upward/downward flows with pressure difference imposed are not
+simulated. 
+\begin{figure}[htb!]
 \includegraphics*[bb=153 610 405 717,width=\textwidth]{Figures/benchmark_classical.eps} 
 \caption{The classical benchmark layout is presented. A semiinfinite gas bubble
 propagates through the liquid media. The inlet pressure is specified $P_{in}$, the outlet is the
 free outflow. The bubble propagates with constant velocity $U_{\mathrm{bubble}}$. 
 \label{fig:classical:benchmark}}
 \end{figure}
-\begin{figure}[ht]
+\begin{figure}[htb!]
 \includegraphics*[bb=152 470 410 713,width=\textwidth]{Figures/benchmark_lbm.eps}
 \caption{The lattice Boltzmann benchmark layout as used in present calculations. The dimensions of
 the domain are chosen as $H_{\mathrm{eff}}\times H_{\mathrm{eff}}\times 15 H_{\mathrm{eff}}$. The
@@ -258,16 +286,19 @@ force. \label{fig:lbm:benchmark}}
 It was indicated \cite{kuzmin-binary2d} that the film thickness for two-dimensional simulations should be at least twice as large
 as the interface thickness. The interface thickness in the continuous formulation of the
 free-energy binary liquid formulation occupies $3-5$ nodes. Therefore, the film should be
-resolved at least as $6-10$ nodes. 
+resolved as at least $6-10$ nodes. 
 
-\cite{heil-threedim} specify that the diagonal bubble radius is different from the
-axial bubble radius for $Ca\leq \widehat{Ca}\approx 0.05$. The radii coincide for larger values of
-$Ca$, but the value of bubble radii is $R_{diag}=R_{axis}=0.99 H_{\mathrm{eff}}$. Therefore, taking the minimal requirement for the film thickness to be
-resolved, i.e. $6$ lattice nodes, one can obtain the grid size as $600\times 600 \times 9000 $ to
-properly resolve the binary liquid microchannels bubbles motion. This size implies that relatvely large
+\citet{heil-threedim} specify that the diagonal bubble radius is different from the
+axial bubble radius for $Ca\leq \widehat{Ca}\approx 0.05$. The radii are the same for larger values
+of
+$Ca$ with a value $R_{diag}=R_{axis}=0.99 H_{\mathrm{eff}}$. Therefore, taking the minimal
+requirement for the film thickness to be
+resolved, i.e. $6$ lattice nodes, one would obtain a grid size of $600\times 600 \times 9000 $ to
+properly resolve the binary liquid flow. This size implies that relatively
+large
 computational resources are required to perform the simulations.
 
-One can argue that a non-uniform grid could be used. However, the deposited film thickness is a
+One can argue that a non-uniform grid could be used. However, the film thickness is a
 function of the curvatures of the front bubble tip \cite{bretherton} and the grid would need to
 be refined just at the interface between gas and liquid. This is complicated to achieve for
 dynamic systems where a bubble moves in the streamwise direction.
@@ -275,26 +306,31 @@ To reduce the computational overhead, we decided to take a simpler approach and 
 inherent symmetry of the problem by simulating only a quarter of the channel (see Appendix
 \ref{append:sym} for details).
 
+% TODO: This paragraph should be revisited, somehow it reads a little weirdly..
 It should be noted that the binary liquid model we used has a uniform density. A part of discussion is
 addressed in the introduction that to fully address the Bretherton problem one needs to take into
-the account gravitational, viscous, inertial, and surface tension forces. However, 
-\citet{shikazono-square} indicated that for square shaped capillaries radii have the
-following dependency on the capillary number $Ca$ and the Weber number $We$:
-\begin{equation}
-\label{radii:experimental}
-\begin{aligned}
-&R_{diag}=1.171-\frac{2.43 Ca^{2/3}}{1+7.28 Ca^{2/3}-0.255 We^{0.215}}\\
-&R_{axis}=
-\begin{cases}
-1, &R_{diag}>1\\
-R_{diag}, &R_{diag}\leq 1.
-\end{cases}
-\end{aligned}
-\end{equation}
-Equation (\ref{radii:experimental}) shows that a change in the Reynolds number $0\leq Re \leq 100$
-implies the change of the radii from $R_{diag}=R_{axis}=0.96$ to $0.93$ for $Ca=0.1$ and from
-$R_{diag}=R_{axis}=0.88$ to $0.85$ for $Ca=0.1$. The error of $3$ percent of the channel height is
-acceptable for current simulations where the Reynolds number is less than $10$.
+the account gravitational, viscous, inertial, and surface tension forces. Though many works
+\cite{heil-bretherton,heil-threedim,shikazono-square,kreutzer-taylor} indicate that the inertia
+effects are of significant importance, the results are of quite large deviations  
+
+%However, 
+%\citet{shikazono-square} indicated that for square-shaped capillaries the bubble radii have the
+%following dependency on the capillary number $Ca$ and the Weber number $We$:
+%\begin{equation}
+%\label{radii:experimental}
+%\begin{aligned}
+%&R_{diag}=1.171-\frac{2.43 Ca^{2/3}}{1+7.28 Ca^{2/3}-0.255 We^{0.215}}\\
+%&R_{axis}=
+%\begin{cases}
+%1, &R_{diag}>1\\
+%R_{diag}, &R_{diag}\leq 1.
+%\end{cases}
+%\end{aligned}
+%\end{equation}
+%Equation (\ref{radii:experimental}) shows that a change in the Reynolds number $0\leq Re \leq 100$
+%implies the change of the radii from $R_{diag}=R_{axis}=0.96$ to $0.93$ for $Ca=0.1$ and from
+%$R_{diag}=R_{axis}=0.88$ to $0.85$ for $Ca=1.0$. The error of $3$ percent of the channel height is
+%acceptable for current simulations where the Reynolds number is less than $10$.
 
 % AGAIN, THIS IS REPEATS WHAT HAS ALREADY BEEN SAID
 %Thus, having limitations of the computational memory and performance requirements the focus of the
@@ -302,9 +338,9 @@ acceptable for current simulations where the Reynolds number is less than $10$.
 %microchannel simulations with square crossections conducted in the moderate capillary number range
 %$0.1 \leq Ca \leq 1.0$. We base our work on comparison with the already available studies. 
 
-The next section briefly explains the binary liquid lattice Boltzmann model. Then
-the steady-state approach, the dependency of the radii on the moderate capillary number values
-$0.1\leq Ca \leq 1.0$, the velocity pattern, and the relative bubble velocity, see Section
+The next section briefly explains the binary liquid lattice Boltzmann model.
+The steady-state approach, the dependency of the radii on the moderate capillary number values
+$0.1\leq Ca \leq 1.0$, the velocity pattern, and the relative bubble velocity are discussed in Section
 \ref{sec:results}. 
 
 \section{Binary liquid lattice Boltzmann model}
@@ -336,7 +372,7 @@ mimics the force behavior, Eq. \ref{full:navier:stokes}.
 
 The binary fluid LB model is
 based on a free-energy functional \cite{swift,landau}, and operates with two
-sets of populations: one to track the pressure and the velocity fields, and another to represent the
+sets of populations: one ($f_i$) to track the pressure and the velocity fields, and another ($g_i$) to represent the
 phase field $\phi$ indicating gas or liquid.
 The equilibrium populations \cite{pooley-contact} are defined as:
 \begin{equation}
@@ -350,17 +386,17 @@ p_0 - k \phi \Delta \phi
 &&&+k w_i^{\alpha\beta} \partial_{\alpha} \phi\partial_{\beta} \phi, 1\leq i \leq Q-1\\
 &f_0^{eq}&&=\rho-\sum_{i\neq0}{f_i^{eq}}\\
 &g_i^{eq}&&=w_i\left(\Gamma \mu + \frac{\phi c_{i\alpha} u_{i\alpha}}{c_s^2}+\phi
-\frac{Q_{i\alpha\beta}u_{\alpha}u_{\beta}}{2 c_s^4}\right), \leq i \leq Q-1\\
+\frac{Q_{i\alpha\beta}u_{\alpha}u_{\beta}}{2 c_s^4}\right), 1 \leq i \leq Q-1\\
 &g_0^{eq}&&=\phi-\sum_{i\neq0}{g_i^{eq}}\quad,
 \end{aligned}
 \end{equation}
 where $\Gamma$ is the mobility parameter; the chemical potential
-$\mu=-A\phi+A\phi^3-k\Delta\phi$; $k$ is the parameter related to the surface
-tension; $A$ is the parameter of the free-energy model; $Q$ is the number of the directions ($19$
+$\mu=-A\phi+A\phi^3-k\Delta\phi$; $k$ is a parameter related to the surface
+tension; $A$ is a parameter of the free-energy model; $Q$ is the number of directions ($19$
 for the $D3Q19$ model); the tensor
 $Q_{i\alpha\beta}=c_{i\alpha} c_{i\beta} - c_s^2 \delta_{\alpha\beta}$ with
 the sound speed parameter $c_s^2=1/3$. The bulk pressure
-is expressed as $p_0=c_s^2 \rho +A (-0.5 \phi^2+0.75 \phi^4)$. Velocity set is defined as:
+is expressed as $p_0=c_s^2 \rho +A (-0.5 \phi^2+0.75 \phi^4)$. The discrete velocity set is defined as:
 \begin{equation} 
 \begin{aligned}
 &c_{ix}=\{0,1,-1,0, 0,0, 0,1,-1, 1,-1,0, 0, 0, 0,1,-1, 1,-1\}\\
@@ -402,10 +438,10 @@ supplied velocity from the Navier-Stokes equation.
 
 The system allows the separation of the liquid
 phase with $\phi=1$ and a so-called gas phase with $\phi=-1$. The
-relaxation time is taken as linearly dependent on the relaxation
+relaxation time is taken to be linearly dependent on the relaxation
 times $\tau_{\mathrm{gas}}$ and $\tau_{\mathrm{liq}}$:
-$\tau=\tau_{\mathrm{gas}}+\frac{\phi+1}{2}(\tau_{\mathrm{liq}}-\tau_{\mathrm{gas}})$. This allows
-to smoothly change viscosity from the gas viscosity
+$\tau=\tau_{\mathrm{gas}}+\frac{\phi+1}{2}(\tau_{\mathrm{liq}}-\tau_{\mathrm{gas}})$. This
+makes it possible to smoothly change viscosity from the gas viscosity
 $\nu_{\mathrm{gas}}=\frac{1}{3}\Bigl(\tau_{\mathrm{gas}}-\frac{1}{2}\Bigr)$ to the liquid viscosity
 $\nu_{\mathrm{liq}}=\frac{1}{3}\Bigl(\tau_{\mathrm{liq}}-\frac{1}{2}\Bigr)$ in a region when a
 phase gradient exists. The surface tension in the framework of the binary liquid model is $\sqrt{\frac{8 k
@@ -425,20 +461,19 @@ parameter for the phase field was $\tau_{\phi}=1.0$.
 First, we examine when the steady-state approach is
 achieved. Then, the critical capillary number is identified when the transition from the
 non-symmetrical to axisymmetrical bubble shape occurs. The dependency of the radii on the capillary
-number is presented for the range of moderate capillary numbers $0.1 \leq Ca 1.0$. Results are
+number is presented for the range of moderate capillary numbers $0.1 \leq Ca \leq 1.0$. Results are
 concluded with studies of the velocity pattern.
 
 \subsection{Steady-state approach}
 \label{sec:steady:state}
-We performed different simulations to understand a number of steps required for the simulation to
-settle down to a steady state. The grid to be simulated is $52\mathrm{x}52\mathrm{x}750$ which simulates the
-quarter of the channel with the initial
-width as $6.5$ lattice Boltzmann units together with the body force as
-$\frac{\mathrm{d}P}{\mathrm{d}x}=1.6
-\mathrm{x}10^{-6}$. The simulation was performed for $140000$, $160000$, $180000$, $200000$,
+We performed different simulations to understand the number of steps required for the simulation to
+settle down to a steady state. The grid to be simulated is $52 \times 52 \times 750$ which simulates
+a quarter of the channel with the initial interface
+width of $6.5$ lattice Boltzmann units together with the body force $\frac{\mathrm{d}P}{\mathrm{d}x}=1.6
+\cdot 10^{-6}$. The simulation was performed for $140000$, $160000$, $180000$, $200000$,
 $220000$ and
 $240000$ iterations. The results are summarised in Table \ref{table:steady:state}. While the
-capillary number varies only in the 4th digit, radiuses are one percent accurate. 
+capillary number varies only in the 4th digit, the radii are one percent accurate. 
 \begin{table}
 \begin{tabularx}{\textwidth}{|X|X|X|X|}
 \hline
@@ -462,14 +497,14 @@ steady-state.\label{table:steady:state}}
 \end{table}
 
 To further examine the steady-state the velocity in the streamwise direction is plotted. The values
-of the velocity are taken on the contour where phase values are taken as $\phi=0$. This corresponds
+of the velocity are taken on the contour where $\phi=0$. This corresponds
  to the bubble interface. One can see the contour plot and the corressponing streamwise velocity
 component in Fig. \ref{fig:velocity:contour}. The crossection is a plane $x=0$, where $x$ points
-towards the reader, $z$ is the streamwise direction. As far as fluxes inside the bubble has
+towards the reader, $z$ is the streamwise direction. As fluxes inside the bubble have
 clockwise and counterclockwise directions, see Section \ref{sec:velocity}, one needs to thoroughly
-examine only the points corresponding to the front and the rear bubble tips. If one finds it equal
-to each other, then it's exactly the velocity with which the bubble propagates in the microchannel.
-For physical analogy, one can imagine the rotating ball propagating in the streamwise direction. 
+examine only the points corresponding to the front and the rear bubble tips. If one finds them equal
+to each other, then it is exactly the velocity with which the bubble propagates in the microchannel.
+For a physical analogy, one can imagine the rotating ball propagating in the streamwise direction. 
 \begin{figure}[ht]
 \includegraphics[width=\textwidth]{Figures/velocity_interface_contour.eps}\\
 \includegraphics[width=\textwidth]{Figures/velocity_interface_values.eps}\\
@@ -522,10 +557,10 @@ with the right one. The transition happens for $Ca\approx 0.09$.\label{fig:cross
 \section{Velocity pattern}
 \label{sec:velocity}
 The velocity pattern is known to change its behavior depending on the capillary number. For
-relatively low capillary number $Ca<0.6$ there exists a vortex in front of the bubble in the moving
-frame moving with the bubble \cite{heil-threedim}. For larger ones it is indicated that there is no
-vortex in front of the bubble. The transition capillary number is indicated by
-\citet{heil-threedim} and it equals for the rectangular channel $Ca=0.691$. However, the
+relatively low capillary numbers $Ca<0.6$, in the frame comoving with the bubble there exists a vortex 
+in front of it \cite{heil-threedim}. For larger capillary numbers it is indicated that there is no
+vortex in front of the bubble. The transition capillary number specified by
+\citet{heil-threedim} for the rectangular channel is $Ca=0.691$. However, the
 distribution of vorticity strongly depends on Reynolds number \cite{heil-bretherton}, as well the
 pressure distribution. In the case of the bubble train it is indicated by \citet{kreutzer-taylor}
 that the pressure is largely influenced by bubble frequency and slug distance. The present
@@ -550,7 +585,7 @@ capillary number $\widehat{Ca}$ is not well imposed and varies from $\widehat{Ca
 \end{figure}
 
 
-\section{Variation bubble length}
+\section{Bubble length variation}
 The work of \citet{wang-non-circular} shows the variation of the bubble
 thickness through the length of
 bubble. The bubble shape in terms of axial and diagonal radii is reconstructed for a number of
@@ -568,7 +603,7 @@ VOF simulations of \citet{wang-non-circular}.Coordinate $z$ increases in the str
 \end{figure}
 
 Another interesting phenomenon for the bubble shape was indicated by \citet{heil-threedim}. In
-their simulations the non-symmetric shape was observed even for larger capillary number $Ca>4$ near
+their simulations the non-symmetric shape was observed even for larger capillary numbers $Ca>4$ near
 the bubble front tip which after certain distance decay to have radii equal to each other. The
 bubble shape was calculated for the large capillary number $Ca=6.43$, see Fig.
 \ref{fig:bubble:ca:large}. However, even the diagonal radius shows the jump near the front tip of
@@ -589,21 +624,22 @@ the linear interpolation used in the calculation of the interface.\label{fig:bub
 The purpose of this section is to compare radii dependence on the capillary number. The film
 thicknesses were extracted from the middle of the bubble. The data presented in Fig.
 \ref{fig:capillary:comparison} is simulated with different techniques including different
-initialization, different grids as $52 \times 52 \times 1500$, $82 \times 82 \times 1500$ and $82
+initialization, and different grids: $52 \times 52 \times 1500$, $82 \times 82 \times 1500$ and $82
 \times 82 \time 2400$. All the results are consistent. Therefore for the capillary number $Ca\geq
-0.05$ the grid independence is achieved. The results are compared with results of
+0.05$ grid independence is achieved. The results are compared with the results of
 \citet{heil-threedim} and of \citet{wang-non-circular}. The data was extracted from the
-correspondent references with the help of the program ``Engauge Digitizer''. The lattice Boltzmann
-can catch the transition between non-symmetric to axisymmetric shape of the bubble. 
+correspondent references with the help of the program ``Engauge Digitizer''. We observe that
+lattice Boltzmann simulations exhibit 
+the transition between non-symmetric and axisymmetric shape of the bubble. 
 
 Present simulations show that the corresponding critical capillary number is close to
 $\widehat{Ca}=0.1$ which is close to work of \citet{wang-non-circular}. 
 In comparison with
-the continuous method VOF \cite{wang-non-circular} present simulations show less noisy trend and
-more accurate transition. 
+the continuous method VOF \cite{wang-non-circular} present simulations show a less noisy trend and
+a more accurate transition. 
 
-For moderate capillary number $Ca\geq 0.2$ radii show less value than the literature results. That
-might be corresponding to the bubble train simulation or the influence of the binary-liquid model. 
+For moderate capillary numbers $Ca\geq 0.2$, the radii are smaller than the literature results. This
+may be caused by the bubble train simulation or the influence of the binary-liquid model. 
 \begin{figure}[ht]
 \includegraphics[width=0.5\textwidth]{Figures/capillaries_comparison_heil.eps}
 \includegraphics[width=0.5\textwidth]{Figures/capillaries_comparison_wang.eps}\\
@@ -619,12 +655,12 @@ One of the differencies between the flow in tubes and square cappillaries is tha
 different patterns. In square microchannels the main mass flow goes through corners
 \cite{heil-threedim,wang-non-circular}. This affects the mass flow significantly. One of the
 characteristics of the mass flow is the normalized relative velocity dependence on the capillary
-number. Bubble moves always faster than surrounding liquid. The following quantity is defined as
+number. THe bubble always moves faster than the surrounding liquid. The following quantity is defined as
 relative velocity \cite{cerro-bubble-train}:
 \begin{equation}
 W=\frac{U_{\mathrm{bubble}}-U_{ls}}{U_{\mathrm{bubble}}},
 \end{equation}
-where $U_{\mathrm{bubble}}$ is the bubble interface velocity, $U_{ls}$ is the liquid superficial
+where $U_{\mathrm{bubble}}$ is the bubble interface velocity, and $U_{ls}$ is the liquid superficial
 velocity. As far as the steady state is achieved one can take the liquid superficial velocity
 exactly at the distance in the middle between bubbles. Then, the liquid superficial velocity is
 defined as:
@@ -632,7 +668,7 @@ defined as:
 U_{ls}=\frac{\int_{A}{U_{liq}dA}}{A}.
 \end{equation}
 The relative velocity was calculated and compared with the results of \citet{wang-non-circular},
-see Fig. \ref{fig:relative:velocity}. One can see the agreement between simulations indicating that
+see Fig. \ref{fig:relative:velocity}. One can see agreement between the simulations indicating that
 the mass transfer coefficients can be captured accurately. 
 \begin{figure}[ht]
 \includegraphics[width=\textwidth]{Figures/relative_velocity.eps}
@@ -640,12 +676,11 @@ the mass transfer coefficients can be captured accurately.
 \citet{wang-non-circular}. One can see a qualitative agreement. \label{fig:relative:velocity}}
 \end{figure}
 
-The relative velocity is very important quantity in the mass flow characterization
-\cite{kreutzer-taylor,yue-mass}. The frequency of the bubbles \cite{kreutzer-taylor} and the
-inertia effects \citet{heil-bretherton} influence significantly the mass transfer coefficient. The
-scope of this work is the feasibility study of the lattice Boltzmann model to be applied for
-three-dimensional microchannels with square crosssections. The future work is planned to study mass
-transfer coefficient and solve associated advection-diffusion coefficient. However, the preliminary
+The relative velocity is an important quantity in mass flow characterization
+\cite{kreutzer-taylor,yue-mass}. The frequency of the bubbles \cite{kreutzer-taylor} and 
+inertia effects \citet{heil-bretherton} significantly influence the mass transfer coefficient. 
+Future work is planned to study this coefficient and calculate the associated advection-diffusion coefficient.
+ However, preliminary
 studies of the relative velocity show that the binary liquid model can be used for accurate mass
 transfer characterization.
 
@@ -685,40 +720,39 @@ transfer characterization.
 % \end{figure}
 
 \section{Conclusion}
-The present work conducts the binary-liquid simulations for three-dimensional channels with square
-crosssections with the lattice Boltzman method. The
-method is a continuous interface method. By resolving properly the film thickness as twice as the
-interface thickness \cite{kuzmin-binary2d} the results were shown to be in consistence with the
-available in literature results. The film thickness dependency on the capillary number, the
-transition from the axisymmetric to symmetric case, the velocity pattern were investigated. While
-the goal of this work is the feasibility study, the more numerical studies are needed to
+The present work presents results of binary-liquid simulations for three-dimensional channels with square
+cross sections with the lattice Boltzman method. By resolving properly the film thickness as twice the
+interface thickness \cite{kuzmin-binary2d} the results were shown to be consistent with those
+available in the literature. The film thickness dependency on the capillary number, the
+transition from the asymmetric to symmetric case, and the velocity pattern were investigated. While
+the goal of this work is a feasibility study, more numerical studies are needed to
 understand the influence of the slug length, inertia effects, pressure distributions
-\cite{kreutzer-taylor,yue-mass} to design the microchannels. Results evedince that the lattice
+\cite{kreutzer-taylor,yue-mass} on the design of microchannels. Our results show that the lattice
 Boltzmann binary liquid model can be used for simulation of gas bubbles in microchannels. 
 
 \appendix
 \section{Scaling procedure}
 \label{append:scaling}
-The thorough scaling procedure is described in the work \cite{kuzmin-binary2d}. Here only the
-outline is presented on how the simulations are initialized:
+The scaling procedure is thoroughly described in our previous work \cite{kuzmin-binary2d}. Here, we present
+only an outline of how the simulations are initialized:
 \begin{description}
  \item[Capillary number] One first needs to set the capillary number and the Reynolds number for
 simulations. 
  \item[Film thickness] After the capillary number is prescribed, one needs to approximate the axial
 bubble radius $R_{axial}$, the corresponding film thickness is $\delta=1-R_{axial}$. One can use
-correlations of \citet{shikazono-square} or of \citet{kreutzer-taylor}. It can be done either by
+correlations of \citet{shikazono-square} or of \citet{kreutzer-taylor}. It can also be done by
 taking correlations from numerical simulations by
 \citet{heil-bretherton} and \citet{giavedoni-numerical}.  
-\item[Grid choice] After specifying the film thickness, one needs to choose the associate
+\item[Grid choice] After specifying the film thickness, one needs to choose the
 number of nodes to resolve the film thickness. For binary liquid parameters used in simulations,
 $A=0.004,0.04$ and $k=0.004,0.04$ the
 interface is spread over approximately $5$ lattice units. To obtain grid independent results one
 needs to choose the
 film thickness to be $2-2.5$ times larger than the interface thickness \cite{kuzmin-binary2d}.
-Giving the number of nodes to resolve the film thickness and giving the lattice Boltzmann
+Given the number of nodes to resolve the film thickness and given the lattice Boltzmann
 benchmark, see Section \ref{sec:numerical:benchmark}, one can obtain the grid dimensions.
 
-\item[Velocity] The Reynolds and the capillary numbers are supplied from the physical world. We
+\item[Velocity] The Reynolds and capillary numbers are supplied from the physical world. We
 accept the following definitions:
 \begin{equation}
 \label{definitions:numbers}
@@ -732,11 +766,11 @@ the binary liquid model $k$ and $A$, the effective channel height $H_{\mathrm{ef
 from the film thickness resolution, $\mu_{\mathrm{liq}}$ is defined through the relaxation rate
 $\tau_{\mathrm{liq}}$. The relaxation rate $\tau_{liq}$ is prescribed from the gas-liquid viscosity
 ratio $\frac{\mu_{\mathrm{liq}}}{\mu_{\mathrm{gas}}}$, where $\mu_{\mathrm{gas}}$ is defined through
-the gas relaxation rate $\tau_{\mathrm{gas}}$. Parameter $\tau_{\mathrm{gas}}$ have constraints
-$\tau_{gas}\geq 0.5$, therefore constraining the linked parameter $\tau_{\mathrm{liq}}$. Moreover,
+the gas relaxation rate $\tau_{\mathrm{gas}}$. The parameter $\tau_{\mathrm{gas}}\geq 0.5$, therefore
+ constraining the linked parameter $\tau_{\mathrm{liq}}$. Moreover,
 the stability of the lattice Boltzmann scheme is known to deteriorate with the relaxation parameter
 $\tau_{\mathrm{liq},\mathrm{gas}}\approx 0.5$ \cite{kuzmin-trt-stability}. On the other hand the
-accuracy of the lattice Boltzmann liquid model is detiorated as
+accuracy of the lattice Boltzmann liquid model detiorates as
 $\Bigl(\tau_{\mathrm{liq},\mathrm{gas}}-\frac{1}{2}\Bigr)^2$ \cite{ginzburg-trt-simple-hydro}. Thus,
 there is a compromise of the choice of parameters $\tau_{\mathrm{liq}}$ and $\tau_{\mathrm{gas}}$.
 The gas-liquid viscosity ratio in the current simulations was chosen as
@@ -749,7 +783,7 @@ Substituting the bubble velocity $U_{\mathrm{bubble}}$ to the definition of the 
 Eq. (\ref{definitions:numbers}), one can obtain the interface tension which is connected with the
 binary liquid parameters $k$ and $A$. The stability of the lattice Boltzmann scheme implies the
 simultaneous change of $\tau_{\phi}$ with the change of parameters $k$ and $A$
-\cite{pagonabarraga-parameters}. Therefore, the recommendation is if Reynolds number is less than
+\cite{pagonabarraga-parameters}. Therefore, if Reynolds number is less than
 $50-100$ one can neglect the inertia effects and obtain the bubble velocity straight from the
 capillary number limiting the complex interplay of the parameters for the LBM simulations to be
 stable: 
@@ -762,10 +796,10 @@ A}{9}}}{\frac{1}{3}(\tau_{\mathrm{liq}}-\frac{1}{2})}\\
 where usually $k=A=0.004,0.04$.
 
 \item[Body force] 
-It is desired to obtain the prescribed velocity $U_{\mathrm{bubble}}$ in simulations. The
-flow in the simulations is conducted by imposing the body force. Thus, the assumption is needed of
-how the body force is connected with the bubble velocity $U_{\mathrm{bubble}}$. We assume that the
-flow is close to planar Poiseuille flow with $U_{\mathrm{bubble}}$ being the maximum in the
+It is desired to obtain the prescribed velocity $U_{\mathrm{bubble}}$ in simulations. Since the
+flow in the simulations is driven by a body force, a connection between this force and the
+bubble velocity $U_{\mathrm{bubble}}$ has to be established. We assume that the
+flow is close to the planar Poiseuille flow with $U_{\mathrm{bubble}}$ being the maximum in the
 Poiseuille profile for the square shaped microchannels:
 \begin{equation}
 \label{poiseuille:square:profile}
@@ -774,13 +808,13 @@ Poiseuille profile for the square shaped microchannels:
 +1)^2}{W_{\mathrm{eff}}}+\frac{(2 j+1)^2}{H_{\mathrm{eff}^2}}\bigr]}}}.
 \end{equation}
 Though the Poiseuille profile assumption works reasonably well \cite{kuzmin-binary2d}, instead of
-calculating sums (\ref{poiseuille:square:profile})  one is suggested to start simulations with the
+calculating sums (\ref{poiseuille:square:profile}) we suggest to simply start simulations with the
 body force $\frac{\mathrm{d}P}{\mathrm{d}z}=10^{-6}-10^{-5}$ for grids of size $50\times 50 \times
 1500$ and the capillary number $Ca\approx0.1-1.0$.  
 \end{description}
 After imposing the body force the simulations can be run. A typical simulation runs approximately
 $100000-300000$ time steps to reach steady-state, see Section \ref{sec:steady:state}. To design the
-simulations one needs to keep proportianality between parameters through equations above. For
+simulations one needs to keep proportionality between parameters through the equations above. For
 example if one knows the capillary number $Ca_1$ and the corresponding body force
 $\frac{\mathrm{d}P_1}{\mathrm{d}z}$ for simulations conducted on the grid with the characteristic
 number of nodes $N_y^1$ , the body force for another simulation can be calculated as:
@@ -792,46 +826,42 @@ y2}^2 }{N_{y1}^2}
 
 \section{Symmetric boundary conditions}
 \label{append:sym}
-To reduce a computational load in terms of memory and CPU power we performed the simulation of the
-quarter of the channel using the antisymmetric boundary conditions. In the macroscopic variables the
-mirror boundary conditions require to have same scalar fields. For velocity boundary conditions only
-tangential velocities are the same, perpendicular to boundary velocities have opposite
-signs. This implies the following in terms of the
-macroscopic variables:
+To reduce the computational load in terms of memory and CPU power by a factor of 4, we performed the simulation of 
+only a quarter of the channel using symmetric boundary conditions.  The scalar macroscopic variables
+at the boundary nodes have the same values as those of the adjacent fluid nodes.  The same applies
+for tangential velocities $U_{\tau}$, while velocities perpendicular  to the mirror boundary $U_n$ have opposite signs
+to that of the velocity of the fluid node.  This can be summarised as:
 \begin{equation}
 \rho_B = \rho_F, \quad \phi_B = \phi_F \quad U_{B\tau}=U_{F\tau}, U_{B n}=U_{F n}, 
 \end{equation}
-where subscripts $B$ and $F$ stand for the boundary and the nearest fluid node, respectively. 
+where the subscripts $B$ and $F$ stand for the boundary and the nearest fluid node, respectively.
 
 For the lattice Boltzmann model the incoming populations on the boundary node need to be specified.
-For generality we assume that the plane of the symmetry $\alpha=0$, where $\alpha$ is the
+For generality we assume that the symmetry plane is $\alpha=0$, where $\alpha$ is the
 direction $x$ or $y$. Then, for lattice Boltzmann populations the symmetric boundary conditions can
 be expressed through the following steps:
 \begin{description}
-\item[I] The first step is to find the complimentary directions. The complimentary $j$-th direction
-to the $i$-th direction should satisfy three conditions:
+\item[I] Identify complementary directions. For the direction $i'$ to be complementary to the $i$-th
+direction, the following relations must hold:
 \begin{equation}
 \begin{aligned}
-&c_{i\alpha}=-c_{j\alpha}, \text{ where $\alpha=$ is the symmetry plane }\\
-&c_{i\beta}=-c_{j\beta}, \text{ where $\beta\neq\alpha$ }
+&c_{i\alpha}=-c_{i'\alpha}, \text{ where $\alpha=$ is the symmetry plane }\\
+&c_{i\beta}=-c_{i'\beta}, \text{ where $\beta\neq\alpha$ }
 \end{aligned}
 \end{equation}
 
-Note that the complimentary directions for the directions parallel to the symmetry plane coincide
+Note that the complementary directions for the directions parallel to the symmetry plane coincide
 with the original direction.
 
-\item[II] The second step is taking the distribution populations from the nearest fluid node and
-apply them to the boundary node utilizing complimentary directions:
+\item[II] Take the distributions from the nearest fluid node and
+apply them to the boundary node utilizing the complementary directions:
 \begin{equation}
-f_{i,B}=f_{j,F},
+f_{i,B}=f_{i',F}.
 \end{equation}
-where $j$ is the index of the direction complimentary to the $i$-th direction.
 \end{description}
 
-By applying the procedure described above, one can obtain that the scalar fields and the tangential
-velocity are conserved, the normal flux is reversed. In terms of the lattice Boltzmann populations
-this condition improve the performance and memory requirements by a factor of $4$. 
-
+It can easily be seen that the procedure described above conserves the scalar fields and the tangential
+velocity, while reversing the normal flux. 
 \bibliographystyle{unsrtnat}
 \bibliography{paper}
 \end{document}
