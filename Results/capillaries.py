@@ -131,10 +131,12 @@ def Analyze_Consequence():
     capillaries=[]
     file_list=[]
     os.chdir("Force0000002/4")
+    print "Current directory=", os.getcwd()
     for root,dirs,files in os.walk(os.getcwd()):
         for file in files:
             if file[0:5]=="phase":   
                 file_list.append(file)
+    print "File list=", file_list    
     for file in sorted(file_list):
         print os.getcwd()
         print file
@@ -189,10 +191,6 @@ def extract_profiles(name):
             phase_numpy[coory,coorz]=phase.GetTuple1(counter)
 
 
-    numpy.savetxt("vz.txt",vz)
-    numpy.savetxt("vy.txt",vy)
-    numpy.savetxt("phase.txt",phase_numpy)
-
     #parameters of the binary liquid model
     k=0.04
     a=0.04
@@ -218,8 +216,8 @@ def extract_profiles(name):
             counter=mid*dims[0]*dims[1]+coory*dims[0]+coorx
             phase_mid[coorx,coory]= phase.GetTuple1(counter)
     
-    pylab.figure()
-    pylab.imshow(phase_mid[1:,1:])
+    #pylab.figure()
+    #pylab.imshow(phase_mid[1:,1:])
     
     prof_axis=phase_mid[0,1:]
     prof_diag=numpy.diag(phase_mid[1:,1:])
@@ -229,18 +227,18 @@ def extract_profiles(name):
     axis_zero=Get_Zero(prof_axis)/(dims[0]-2.0)
     diag_zero=math.sqrt(2.0)*Get_Zero(prof_diag)/(dims[0]-2.0)
     
-    print "Velx",vx[0,mid]
-    print "Vely",vy[0,mid]
-    print "Velz",vz[0,mid]
+    print "Velx",vx[0,z2%dims[2]]
+    print "Vely",vy[0,z2%dims[2]]
+    print "Velz",vz[0,z2%dims[2]]
     
     #Calculation of the capillary number
-    capillary=vz[0,mid]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
+    capillary=vz[0,z2%dims[2]]*(2.0/3.0)/math.sqrt(8.0*k*a/9.0)    
     
     print axis_zero,diag_zero
     print "Capillary=",capillary
 
-    pylab.figure()
-    pylab.plot(numpy.diag(phase_mid[1:,1:]))
+    #pylab.figure()
+    #pylab.plot(numpy.diag(phase_mid[1:,1:]))
     
     return axis_zero,diag_zero,capillary
 
@@ -273,7 +271,7 @@ def extract_streamlines():
 
 
 if __name__=="__main__":
-    draw_capillaries()
-    #Analyze_Consequence()
+    #draw_capillaries()
+    Analyze_Consequence()
     #extract_streamlines()
-    pylab.show()
+    #pylab.show()

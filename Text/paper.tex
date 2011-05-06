@@ -309,7 +309,16 @@ inherent symmetry of the problem by simulating only a quarter of the channel (se
 % TODO: This paragraph should be revisited, somehow it reads a little weirdly..
 It should be noted that the binary liquid model we used has a uniform density. A part of discussion is
 addressed in the introduction that to fully address the Bretherton problem one needs to take into
-the account gravitational, viscous, inertial, and surface tension forces. Among all the works there is no full agreement between results even in the limit of Reynolds number $0$.  Moreover, as it was indicated by \citet{kreutzer-taylor} and by \citet{cerro-train} the pressure distribution, streamlines and bubble shape are strongly affected by the length of the liquid slug.  Though we try to eliminate 
+the account gravitational, viscous, inertial, and surface tension forces. Among all the works there
+is no full 
+agreement between results even in the limit of Reynolds number $0$.  Moreover, as it was indicated
+by \citet{kreutzer-taylor} and by \citet{cerro-train} the pressure distribution, streamlines and
+bubble shape are strongly affected by the length of the liquid slug and the length of the bubble. 
+In current simulations we minimize the effects of bubbles train and inertia to have a least impact,
+as the largest Reynolds number is not bigger than $10$ and the lengths of a bubble and a channel are
+chosen to be as to minimize mutual effects of bubbles motion on each other and for the film
+thickness to stabilize. However, more thorough studies are needed in order to understand precisely
+the abovementioned effects.
 
 %However, 
 %\citet{shikazono-square} indicated that for square-shaped capillaries the bubble radii have the
@@ -366,7 +375,7 @@ where $\{f,g\}_i$ are the probability distribution functions in the direction $\
 is the
 relaxation parameter, $\omega_{\phi}$ is the phase relaxation parameter, and $F_i$ is the external
 force population which
-mimics the force behavior, Eq. \ref{full:navier:stokes}.
+mimics the force behavior.
 
 The binary fluid LB model is
 based on a free-energy functional \cite{swift,landau}, and operates with two
@@ -427,11 +436,11 @@ fluid equations as:
 &\partial_t \phi + \partial_{\alpha} \phi u_{\alpha}=M \partial^2_{\beta\beta} \mu,
 \end{aligned}
 \end{equation}
-where $\nu=c_s^2 (\tau-1/2)$ is the dynamic viscosity,
+where $\nu=c_s^2 (\tau-1/2)$ is the kinematic viscosity,
 $M=\Gamma(\tau_{\phi}-1/2)$ is the mobility parameter, and $\tau=\frac{1}{\omega}$ and $\tau_{\phi}$
 are the relaxation parameters of density and phase fields. The first equation of system
 (\ref{standard:implementation}) simulates the continuity equation and the Navier-Stokes equation.
-The lattice Boltzmann update rule for the second set $g_i$ simulates the phase propagation with the
+The lattice Boltzmann equation for the second set $g_i$ simulates the phase propagation with the
 supplied velocity from the Navier-Stokes equation.
 
 The system allows the separation of the liquid
@@ -447,13 +456,14 @@ A}{9}}$.
 
 \section{Results}
 \label{sec:results}
-This section describes numerical simulations. One can refer to the Appendix~\ref{append:scaling} for
+This section describes numerical simulations. One can refer to Appendix~\ref{append:scaling} for
 initialization and scaling procedures. The simulations were conducted on the following 
 fluid domain grids $100 \times 100 \times 1500$, $160 \times 160 \times 1500$,
 $160 \times 160 \times 2400$ and $200 \times 200 \times 3000$. Body forces were varied as
-$\frac{\mathrm{d}P}{\mathrm{d}z}=10^{-6}-10^{-4}$. The binary-liquid model parameters were kept in
+$\frac{\mathrm{d}P}{\mathrm{d}z}=10^{-6}-10^{-4}$ lattice units. The binary-liquid model parameters
+were kept in
 the stable region $k=A=0.004,0.04$. The relaxation rates were taken as $\tau_{\mathrm{liq}}=2.5$
-and $\tau_{\mathrm{gas}}=0.7$ giving a gas-liquid dynamic viscosity ratio of $10$. The relaxation
+and $\tau_{\mathrm{gas}}=0.7$ giving a gas-liquid viscosity ratio of $10$. The relaxation
 parameter for the phase field was $\tau_{\phi}=1.0$.
 
 First, we examine when the steady-state approach is
@@ -464,13 +474,13 @@ concluded with studies of the velocity pattern.
 
 \subsection{Steady-state approach}
 \label{sec:steady:state}
-We performed different simulations to understand the number of steps required for the simulation to
+We performed different simulations to understand the number of time steps required for the
+simulation to
 settle down to a steady state. The grid to be simulated is $52 \times 52 \times 750$ which simulates
 a quarter of the channel with the initial interface
 width of $6.5$ lattice Boltzmann units together with the body force $\frac{\mathrm{d}P}{\mathrm{d}x}=1.6
-\cdot 10^{-6}$. The simulation was performed for $140000$, $160000$, $180000$, $200000$,
-$220000$ and
-$240000$ iterations. The results are summarised in Table \ref{table:steady:state}. While the
+\cdot 10^{-6}$. The simulation was performed for $140000-250000$ iterations with the step of
+$10000$ iterations. The results are summarised in Table \ref{table:steady:state}. While the
 capillary number varies only in the 4th digit, the radii are one percent accurate. 
 \begin{table}
 \begin{tabularx}{\textwidth}{|X|X|X|X|}
@@ -478,16 +488,21 @@ capillary number varies only in the 4th digit, the radii are one percent accurat
 $N_{iter}$&$Ca$&$R_{axis}$&$R_{diag}$\\
 \hline
 $140000$&$0.1879$&$0.8657$&$0.8708$\\
+$150000$&$0.1879$&$0.8652$&$0.8704$\\
 $160000$&$0.1878$&$0.8650$&$0.8702$\\
+$170000$&$0.1880$&$0.8648$&$0.8701$\\
 $180000$&$0.1882$&$0.8647$&$0.8700$\\
+$190000$&$0.1885$&$0.8646$&$0.8699$\\
 $200000$&$0.1893$&$0.8645$&$0.8698$\\
+$210000$&$0.1963$&$0.8645$&$0.8697$\\
 $220000$&$0.1925$&$0.8644$&$0.8697$\\
+$230000$&$0.1936$&$0.8644$&$0.8697$\\
 $240000$&$0.1961$&$0.8645$&$0.8697$\\
+$250000$&$0.1932$&$0.8645$&$0.8698$\\
 \hline
 \end{tabularx}
 \caption{Results for the steady-state case. One
-% TODO:structure?
-can see that $200000$ steps are enough to structure
+can see that $200000$ steps are enough to shape
 the bubble and approach the steady state. The small noise in the capillary number is connected to
 the identification of the interface. One needs to address the interpolation and the spurious
 currents existing in the system. All other parameters are relaxed to the
