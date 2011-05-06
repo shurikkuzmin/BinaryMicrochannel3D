@@ -29,7 +29,7 @@
 \newcommand{\Ca}{\mathrm{Ca}}
 
 \title{Lattice Boltzmann Microchannel Simulations via Binary Liquid Model}
-\paperID{CFD11-52}
+\paperID{CFD11-94}
 \author{Alexandr}{Kuzmin} %{forename}{surname}
 \presenting  %the previous author is presenting the paper (name becomes underlined)
 \email{kuzmin@ualberta.ca}%e-mail address of the previous author
@@ -135,7 +135,9 @@ a two-dimensional channel for a range of Reynolds and capillary
 numbers using the finite element method. \citet{giavedoni-numerical} performed cross validation of
 the
 finite element solution with previously published results.
-The solutions were obtained for circular and planar cases. 
+The solutions were obtained for circular and planar cases. Smooth particle hydrodynamics (SPH) is
+presented by \citet{huang-sph}. However except showing that the SPH is able to reproduce the
+gas-liquid interface, there is no thorough study of the deposited film thickness. 
 %The planar case results for the film
 %thickness dependency on the capillary number are indicated in Fig. \ref{fig:giavedoni:planar}.
 %\begin{figure}[ht]
@@ -158,14 +160,14 @@ flow in capillaries of
 circular and square cross section for horizontal, upward and downward flows. The interested reader
 is referred to these works for comprehensive experimental correlations.
 
-The experimental works supported by numerical simulations reveal interesting phenomena happening in
+The experimental works supported by numerical simulations reveal interesting phenomena occuring in
 three-dimensional geometry cases. It was found \cite{heil-threedim,wong-films} that for rectangular
 or square shaped capillaries there is a transition for a
-certain capillary number, where the bubble crosssection changes from the non axisymmetric to axis
-symmetric case,
+certain capillary number, where the bubble crosssection changes from the non-axisymmetric to
+axisymmetric case,
 Fig. \ref{fig:sym:antisym}.
 From hereon, we limit ourselves to the case of microchannels with square crosssections.
-Non axisymmetric case is attributed to the case where the axial radius is different from the
+Non-axisymmetric case is attributed to the situation where the axial radius is different from the
 diagonal radius and the bubble has the non-circular shape in the channel crossection. In this case
 the bubble shape mimics the shape of the square and looks like a rounded square. The dependence
 of the diagonal and axial radii on the capillary number is shown in Fig. 
@@ -173,16 +175,18 @@ of the diagonal and axial radii on the capillary number is shown in Fig.
 \begin{figure}[ht]
 \includegraphics[width=0.5\textwidth]{Figures/capillary_width_heil.eps}
 \caption{\citet{heil-threedim} results for the variation of the deposited liquid for the range of
-capillary number. One can see the asymmetry between diagonal and axis diameter for the capillary
+capillary number. One can see the asymmetry between diagonal ($r_d$) and axial $r_h$ radii for the
+capillary
 number $Ca\leq\hat{Ca}=0.04$. Courtesy of \citet{heil-threedim}. \label{fig:heil:three:dim}}
 \end{figure}
-The transition number between non-axisymmetric case and symmetric is indicated in a number of
+The transition capillary number ($\widehat{Ca}$) between non-axisymmetric case and symmetric is
+indicated in a number of
 works as $\widehat{Ca}=0.04$ \cite{cerro-bubble-train},
 $\widehat{Ca}=0.1$
 \cite{cerro-space}, $\widehat{Ca}=0.033$ \cite{heil-threedim}. If the capillary number is larger
 than
 the critical capillary number, i.e. $Ca>\widehat{Ca}$, then the bubble becomes axisymmetric with the
-radius of the droplet dependant on the capillary number. One of the example for the bubble radii
+radius of the droplet dependant on the capillary number. One example for the bubble radii
 dependence on the capillary number is in Fig. \ref{fig:heil:three:dim}.
 
 \citet{heil-threedim} also indicated another interesting phenomenon. They indicated the transition
@@ -207,7 +211,7 @@ polygonal capillaries and calculated bubble shapes for different
 slug and bubble cross sections and menisci appearance.
 \citet{heil-threedim} performed three-dimensional simulations for circular shaped,
 square and rectangular shaped capillaries. Also, they investigated gravitational effects for
-circular shaped capillaries. They also found an empirical correlation which allows to put
+circular shaped capillaries. They also found an empirical correlation which allows one to place
 different  aspect ratio rectangular channels simulation results on one
 curve. \citet{wang-non-circular} performed numerical simulations by the VOF technique for the
 non-circular
@@ -231,7 +235,7 @@ with the help of the continuous interface binary liquid free energy lattice Bolt
 focus on exploring the parameter range of the binary liquid lattice
 Boltzmann method for correctly resolving the flow in a range of capillary numbers. 
 \vskip .5em
-The lattice Boltzmann method has emerged as a successful method to simulate
+The lattice Boltzmann method (LBM) has emerged as a successful method to simulate
 a wide variety of phenomena including hydrodynamics \cite{yu}, thermal flows
 \cite{karlin-minimalmodels}, microflows \cite{ansumali-small-knudsen},
 ferrofluids \cite{kuzmin-aniso}, and multiphase flows
@@ -357,7 +361,8 @@ interface which needs to have a negligible effect on the results. Also, as far a
 uniform, the binary liquid model can address only different viscosities of gas and liquid.
 Another challenge is boundary conditions because one needs to couple inlet and outlet
 boundary conditions \cite{heil-threedim} for the film thickness to establish.  The geometry of
-the problem is also of concern. Most literature numerical simulations are done for a channel with
+the problem is also of concern. In the literature, most numerical simulations are done
+for a channel with
 circular cross section,
 which is quite difficult to address in terms of lattice Boltzmann framework. We thoroughly discuss
 all the
@@ -486,7 +491,8 @@ $3375$&$227$&$0.0663$&$0.0039$&$0.355$&$450000$\\
 \end{tabularx}
 \caption{The parameters and results for grid resolution. The simulated domain is
 of size $N_x \times N_y$. $U_\mathrm{bubble}$ is the interface velocity of the bubble center
-measured at the front meniscus.  $5\xi$ is the interface thickness. $H_{\mathrm{film}}=\delta
+measured at the front meniscus. $N_{\mathrm{iter}}$ is the number of simulation time iterations. 
+$5\xi$ is the interface thickness. $H_{\mathrm{film}}=\delta
 (N_y-2)$ is the size of the film in
 lattice Boltzmann units.
 \label{table:parameters:grid:refinement}}
@@ -653,7 +659,7 @@ results in terms of capillary number dependence and shape of the bubbles show co
 previously published data in two and three dimensions. The simulations show that in the range of low
 capillary numbers the binary liquid model can be used to
 simulate gas finger/bubbles propagation in the microchannel. The model is able to catch not only
-the film widths but also the velocity patterns change. 
+the film thicknesses but also the change in velocity patterns. 
  An examination of the influence of grid resolution on the
 results allowed
 us to determine that the phase interface should be resolved as at least $50$ percent of the film

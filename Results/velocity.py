@@ -121,7 +121,7 @@ def Analyze_Consequence():
     diag_zeros=[]
     capillaries=[]
     reynolds=[]
-    file_list=["Moderate/1/phase250000.vts","Moderate/3/phase250000.vts","Moderate/5/phase250000.vts","Moderate/7/phase250000.vts","Moderate/9/phase250000.vts"]
+    file_list=["Moderate/1/phase250000.vts","Moderate/3/phase250000.vts","Moderate/5/phase250000.vts","Moderate/6/phase250000.vts","Moderate/7/phase250000.vts","Moderate/9/phase250000.vts"]
                #"SmallCapGrid/8/phase250000.vts"]
     #file_list=["Velocity/"+str(dir)+"/phase240000.vts" for dir in range(1,11)]    
     #file_list=["Force0000002x82/2/phase180000.vts","Force0000002x82/4/phase180000.vts"] #,"Force0000005x52/8/phase250000.vts","Force0000005x52/10/phase250000.vts"]    
