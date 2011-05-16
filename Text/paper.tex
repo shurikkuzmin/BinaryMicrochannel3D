@@ -18,7 +18,8 @@ complicated functions of the capilary number $Ca$ and Reynolds number $Re$. Rece
 the applicability and parameter choice for the two-dimensional case of the Bretherton problem (flow
 between parallel plates) using the free-energy binary liquid lattice Boltzmann method (LBM)
 \cite{kuzmin-binary2d}. This paper is a continuation of our previous work.  To validate the applicability
-of the LBM to Bretheron phenomena in the moderate range of the capillary number $0.1\leq Ca \leq 1.0$,
+of the LBM to Bretheron phenomena in the moderate range of the capillary number $0.05\leq Ca \leq
+6.0$,
 we focus on the simulation of three-dimensional capillaries with square cross sections.
 The flow is driven by a body force, and
 periodic boundary conditions are applied in the streamwise direction. The results show that the
@@ -351,7 +352,7 @@ precisely the abovementioned effects.
 
 The next section briefly explains the binary liquid lattice Boltzmann model.
 The steady-state approach, the dependency of the radii on the moderate capillary number values
-$0.1\leq Ca \leq 1.0$, the velocity pattern, and the relative to the liquid slug bubble velocity 
+$0.05\leq Ca \leq 6.0$, the velocity pattern, and the relative to the liquid slug bubble velocity 
 are discussed in Section
 \ref{sec:results}. 
 
@@ -474,7 +475,7 @@ parameter for the phase field was $\tau_{\phi}=1.0$.
 First, we examine when the steady-state approach is
 achieved. Then, the critical capillary number is identified when the transition from the
 non-symmetrical to axisymmetrical bubble shape occurs. The dependency of the radii on the capillary
-number is presented for the range of moderate capillary numbers $0.1 \leq Ca \leq 1.0$. Results are
+number is presented for the range of moderate capillary numbers $0.05 \leq Ca \leq 6.0$. Results are
 concluded with studies of the velocity pattern.
 
 \subsection{Steady-state approach}
@@ -849,7 +850,7 @@ Poiseuille profile for the square shaped microchannels:
 Though the Poiseuille profile assumption works reasonably well \cite{kuzmin-binary2d}, instead of
 calculating sums (\ref{poiseuille:square:profile}) we suggest to simply start simulations with the
 body force $\frac{\mathrm{d}P}{\mathrm{d}z}=10^{-6}-10^{-5}$ for grids of size $50\times 50 \times
-1500$ and the capillary number $Ca\approx0.1-1.0$.  
+1500$ and the capillary number $Ca\approx0.1-6.0$.  
 \end{description}
 After imposing the body force the simulations can be run. A typical simulation runs approximately
 $100000-300000$ time steps to reach steady-state, see Section \ref{sec:steady:state}. To design the
