@@ -1,0 +1,399 @@
+diff --git a/sailfish/geo.py b/sailfish/geo.py
+index ec7bc42..e25ef63 100644
+--- a/sailfish/geo.py
++++ b/sailfish/geo.py
+@@ -175,6 +175,7 @@ class LBMGeo(object):
+         self._num_velocities = 0
+         self._num_pressures = 0
+         self._fsi_objs = []
++        self._mirror = [[False, False], [False, False], [False, False]]
+ 
+     def reset(self):
+         """Perform a full reset of the geometry."""
+@@ -184,6 +185,9 @@ class LBMGeo(object):
+         self._postprocess_nodes()
+         self._update_map()
+ 
++    def set_mirror(self, axis, end):
++        self._mirror[axis][end] = True
++
+     def get_defines(self):
+         return {'geo_fluid': self.NODE_FLUID,
+                 'geo_wall': self.NODE_WALL,
+@@ -199,6 +203,7 @@ class LBMGeo(object):
+                 'geo_obj_shift': bitLen(len(self.fsi_objects)),
+                 'geo_dir_other': self.NODE_DIR_OTHER,
+                 'geo_num_velocities': self._num_velocities,
++                'mirror': self._mirror,
+                 }
+ 
+     def _get_map(self, location):
+@@ -626,6 +631,21 @@ class LBMGeo3D(LBMGeo):
+     def _postprocess_nodes(self, nodes=None):
+         lat_nx, lat_ny, lat_nz = self.shape
+ 
++        # Define a layer of unused nodes behind any mirror nodes.
++        hz, hy, hx = numpy.mgrid[0:lat_nz, 0:lat_ny, 0:lat_nx]
++        if self._mirror[0][0]:
++            self.set_geo(hx == 0, self.NODE_UNUSED)
++        if self._mirror[0][1]:
++            self.set_geo(hx == lat_nx-1, self.NODE_UNUSED)
++        if self._mirror[1][0]:
++            self.set_geo(hy == 0, self.NODE_UNUSED)
++        if self._mirror[1][1]:
++            self.set_geo(hy == lat_ny-1, self.NODE_UNUSED)
++        if self._mirror[2][0]:
++            self.set_geo(hz == 0, self.NODE_UNUSED)
++        if self._mirror[2][1]:
++            self.set_geo(hz == lat_nz-1, self.NODE_UNUSED)
++
+         if nodes is None:
+             # Detect unused nodes.
+             cnt = numpy.zeros_like(self.map).astype(numpy.int32)
+@@ -637,9 +657,9 @@ class LBMGeo3D(LBMGeo):
+                 a = numpy.roll(a, int(-vec[1]), axis=1)
+                 a = numpy.roll(a, int(-vec[2]), axis=0)
+ 
+-                cnt[(a == self.NODE_WALL)] += 1
++                cnt[numpy.logical_or(a == self.NODE_UNUSED,
++                    a == self.NODE_WALL)] += 1
+ 
+-                # FIXME: Only process the primary 6 directions for now.
+                 # This will not work correctly on domain boundaries, if they are not
+                 # periodic.
+                 if vec.dot(vec) == 1:
+@@ -647,6 +667,21 @@ class LBMGeo3D(LBMGeo):
+                             numpy.logical_and(self.map != self.NODE_FLUID,
+                                 a == self.NODE_FLUID)] = self.sim.grid.vec_to_dir(list(vec))
+ 
++            # Process edges.
++            for i, vec in enumerate(self.sim.grid.basis):
++                a = numpy.roll(self.map, int(-vec[0]), axis=2)
++                a = numpy.roll(a, int(-vec[1]), axis=1)
++                a = numpy.roll(a, int(-vec[2]), axis=0)
++
++                if vec.dot(vec) == 2:
++                    # Only update the orientation for nodes for which another
++                    # orientation (along one of the primary directions) has not
++                    # already been established.
++                    orientation[numpy.logical_and(
++                            orientation == self.NODE_DIR_OTHER,
++                            numpy.logical_and(self.map != self.NODE_FLUID,
++                                    a == self.NODE_FLUID))] = self.sim.grid.vec_to_dir(list(vec))
++
+             self.map[(cnt == self.sim.grid.Q)] = self.NODE_UNUSED
+ 
+             # Postprocess the whole domain here.
+diff --git a/sailfish/sym.py b/sailfish/sym.py
+index 609a5f1..8070998 100644
+--- a/sailfish/sym.py
++++ b/sailfish/sym.py
+@@ -559,8 +559,7 @@ def free_energy_external_force(sim, grid_num=0):
+     for i, ei in enumerate(grid.basis[1:]):
+ #        t = S.wi[i] * (ea.dot(ei) * (1 + 3 * ei.dot(grid.v)) - ea.dot(grid.v)) * (1 - 1 / (2 * tau0))
+         t = S.wi[i] * (ea.dot(ei) + Rational(3,2) * (ei.dot(grid.v) * ei.dot(ea) * 2 - Rational(1,3) * ea.dot(grid.v) *
+-            2))
+-        #* (1 - 1 / (2 * tau0))
++            2)) * (1 - 1 / (2 * tau0))
+         sum_ += t
+         ret.append((t, grid.idx_name[i+1]))
+ 
+@@ -653,12 +652,57 @@ def fill_missing_dists(grid, distp, missing_dir):
+     syms = [Symbol('%s->%s' % (distp, x)) for x in grid.idx_name]
+     ret = []
+ 
++    dir_vec = grid.dir_to_vec(missing_dir)
++
+     for i, sym in enumerate(syms):
+-        sp = grid.basis[i].dot(grid.dir_to_vec(missing_dir))
++        sp = grid.basis[i].dot(dir_vec)
+ 
+         if sp < 0:
+             ret.append((TargetDist(syms[grid.idx_opposite[i]], grid.idx_opposite[i]), sym))
+ 
++        # For directions which do not connect to other nodes, fill them
++        # with the equilibrium values.
++        if dir_vec.dot(dir_vec) > 1 and grid.basis[i].dot(grid.basis[i]) > 1 and sp == 0:
++            ret.append((TargetDist(syms[grid.idx_opposite[i]], grid.idx_opposite[i]), sym))
++
++    return ret
++
++def find_reflected_vecs(grid, dir_vec):
++    """Returns triples of ref_idx, ref_off, orig_idx where:
++    ref_idx: grid index of the reflected (destintion) vector
++    ref_off: offset vector relative to the current (mirror) node
++    orig_idx: grid index of the original (source) vector."""
++    # A set is necessary to avoid duplicate vectors in the output.
++    ret = set()
++    dir_vec = Matrix(tuple(dir_vec),)
++
++    for i, comp in enumerate(dir_vec):
++        if comp == 0:
++            continue
++
++        # Decompose orientation vector into vectors poiting along the
++        # primary directions.
++        partial_dir_vec = Matrix([0] * grid.dim,)
++        partial_dir_vec[i] = comp
++
++        for j, ei in enumerate(grid.basis):
++            if dir_vec.dot(ei) == -2:
++                reflected = copy.deepcopy(ei)
++                offset = list(ei)
++                for k, comp2 in enumerate(dir_vec):
++                    if comp2 != 0:
++                        reflected[k] = -reflected[k]
++                        offset[k] = 0
++                ref_idx = grid.basis.index(reflected)
++                ret.add((ref_idx, tuple(offset), j))
++            elif ei.dot(partial_dir_vec) < 0:
++                reflected = copy.deepcopy(ei)
++                reflected[i] = -reflected[i]
++                offset = list(ei)
++                offset[i] = 0
++                ref_idx = grid.basis.index(reflected)
++                ret.add((ref_idx, tuple(offset), j))
++
+     return ret
+ 
+ def ex_rho(grid, distp, incompressible, missing_dir=None):
+@@ -1144,6 +1188,13 @@ def _prepare_grids():
+                 grid.vecidx2dir[k] = dir
+                 dir += 1
+ 
++        # Index remaining directions.
++        for k, ei in enumerate(grid.basis):
++            if ei.dot(ei) == 2:
++                grid.dir2vecidx[dir] = k
++                grid.vecidx2dir[k] = dir
++                dir += 1
++
+         # If MRT is supported for the current grid, compute the transformation
+         # matrix from the velocity space to moment space.  The procedure is as
+         # follows:
+diff --git a/sailfish/templates/binary_fluid.mako b/sailfish/templates/binary_fluid.mako
+index b47f31b..1fda70c 100644
+--- a/sailfish/templates/binary_fluid.mako
++++ b/sailfish/templates/binary_fluid.mako
+@@ -118,6 +118,85 @@ ${kernel} void SetInitialConditions(
+ 	${init_dist_with_eq()}
+ }
+ 
++<%def name="mirror_propagation_handler(dir_vec)">
++	%for ref_idx, ref_off, orig_idx in sym.find_reflected_vecs(grid, dir_vec):
++		// reflected_vec: ${grid.idx_name[ref_idx]}, offset: ${ref_off}
++		## XXX: properly support PBC
++		%if ref_off[0] != 0 and periodicity[0]:
++			%if ref_off[0] == -1:
++				if (gx == 0) {
++					<% offset = pbc_offsets[0][-1] %>
++					${get_odist('dist1_out', ref_idx, xoff=ref_off[0], yoff=ref_off[1], zoff=ref_off[2], offset=offset)} = d0.${grid.idx_name[orig_idx]};
++					${get_odist('dist2_out', ref_idx, xoff=ref_off[0], yoff=ref_off[1], zoff=ref_off[2], offset=offset)} = d1.${grid.idx_name[orig_idx]};
++				}
++			%else:
++				if (gx == ${lat_nx-1}) {
++					<% offset = pbc_offsets[0][1] %>
++					${get_odist('dist1_out', ref_idx, xoff=ref_off[0], yoff=ref_off[1], zoff=ref_off[2], offset=offset)} = d0.${grid.idx_name[orig_idx]};
++					${get_odist('dist2_out', ref_idx, xoff=ref_off[0], yoff=ref_off[1], zoff=ref_off[2], offset=offset)} = d1.${grid.idx_name[orig_idx]};
++				}
++			%endif
++			else {
++				${get_odist('dist1_out', ref_idx, xoff=ref_off[0], yoff=ref_off[1], zoff=ref_off[2])} = d0.${grid.idx_name[orig_idx]};
++				${get_odist('dist2_out', ref_idx, xoff=ref_off[0], yoff=ref_off[1], zoff=ref_off[2])} = d1.${grid.idx_name[orig_idx]};
++			}
++		%else:
++			${get_odist('dist1_out', ref_idx, xoff=ref_off[0], yoff=ref_off[1], zoff=ref_off[2])} = d0.${grid.idx_name[orig_idx]};
++			${get_odist('dist2_out', ref_idx, xoff=ref_off[0], yoff=ref_off[1], zoff=ref_off[2])} = d1.${grid.idx_name[orig_idx]};
++		%endif
++	%endfor
++</%def>
++
++<%def name="handle_mirror_nodes(handler, min_i=-1, dir_vec=None)">
++	<%
++		from sympy import Matrix
++		coords = 'gx', 'gy', 'gz'
++		if dir_vec is None:
++			dir_vec = [0] * dim
++	%>
++
++	%for i, axis in enumerate(mirror):
++		%if i > min_i:
++			%if axis[0]:
++				if (${coords[i]} == 1) {
++					<% dir_vec[i] = 1 %>
++					${handler(dir_vec)}
++					${handle_mirror_nodes(handler, i, dir_vec)}
++					<% dir_vec[i] = 0 %>
++				}
++			%endif
++
++			%if axis[1]:
++				if (${coords[i]} == ${bnd_limits[i]-2}) {
++					<% dir_vec[i] = -1 %>
++					${handler(dir_vec)}
++					${handle_mirror_nodes(handler, i, dir_vec)}
++					<% dir_vec[i] = 0 %>
++				}
++			%endif
++		%endif
++	%endfor
++</%def>
++
++<%def name="mirror_macro_handler_rho(dir_vec)">
++	orho[gi - (${rel_offset(*dir_vec)})] = out;
++</%def>
++
++<%def name="mirror_macro_handler_phi(dir_vec)">
++	ophi[gi - (${rel_offset(*dir_vec)})] = out;
++
++	## XXX: handle corners/edges properly
++	%if dir_vec == [0, 0, -1]:
++		if (gy == 1) {
++			ophi[gi + (${rel_offset(0, -1, 1)})] = out;
++		}
++	%elif dir_vec == [0, -1, 0]:
++		if (gz == 1) {
++			ophi[gi + (${rel_offset(0, 1, -1)})] = out;
++		}
++	%endif
++</%def>
++
+ ${kernel} void PrepareMacroFields(
+ 	${global_ptr} int *map,
+ 	${global_ptr} float *dist1_in,
+@@ -152,14 +231,16 @@ ${kernel} void PrepareMacroFields(
+ 
+ 	Dist fi;
+ 	float out;
++	int helper_idx = gi;
++
+ 	getDist(&fi, dist1_in, gi);
+ 	get0thMoment(&fi, type, orientation, &out);
+ 	orho[gi] = out;
+ 
+-	int helper_idx = gi;
++	${handle_mirror_nodes(mirror_macro_handler_rho)}
+ 
+ 	%if simtype == 'free-energy':
+-		// Assume neutral wetting for all walls by setting adjusting the phase gradient
++		// Assume neutral wetting for all walls by adjusting the phase gradient
+ 		// near the wall.
+ 		//
+ 		// This wetting boundary condition implementation is as in option 2 in
+@@ -187,8 +268,8 @@ ${kernel} void PrepareMacroFields(
+ 								## rel_offset() needs a 3-vector, so make the z-coordinate 0
+ 								helper_idx += ${rel_offset(*(list(bc_wall_grad_order*grid.dir_to_vec(dir)) + [0]))};
+ 							%endif
+-						## Full BB: F . W | U
+-						##          x ----> y
++						## Half-way BB: F . W | U
++						##              x ----> y
+ 						%elif bc_wall == 'halfbb' and bc_wall_grad_order == 1:
+ 							%if dim == 3:
+ 								helper_idx -= ${rel_offset(*(grid.dir_to_vec(dir)))};
+@@ -219,8 +300,39 @@ ${kernel} void PrepareMacroFields(
+ 		ophi[gi] = out;
+ 		if (helper_idx != gi) {
+ 			ophi[helper_idx] = out - (${bc_wall_grad_order*bc_wall_grad_phase});
++			switch (orientation) {
++				%for dir in grid.dir2vecidx.keys():
++					<% ei = grid.dir_to_vec(dir) %>
++					%if ei.dot(ei) == 2:
++						case ${dir}: {
++							%for i in range(0, dim):
++								%if ei[i] != 0:
++									<%
++										prev_comp = ei[i]
++										ei[i] = 0
++									%>
++									// ${ei}
++									%if dim == 3:
++										helper_idx = gi - ${rel_offset(*list(ei))};
++									%else:
++										helper_idx = gi - ${rel_offset(*(list(ei) + [0]))};
++									%endif
++									// FIXME: this will not restore the gradient correctly.
++									ophi[helper_idx] = out - (${bc_wall_grad_order*bc_wall_grad_phase});
++									<%
++										ei[i] = prev_comp
++									%>
++								%endif
++							%endfor
++							break;
++						}
++					%endif
++				%endfor
++			}
+ 		}
+ 	%endif
++
++	${handle_mirror_nodes(mirror_macro_handler_phi)}
+ }
+ 
+ ${kernel} void CollideAndPropagate(
+@@ -326,6 +438,8 @@ ${kernel} void CollideAndPropagate(
+ 	postcollisionBoundaryConditions(&d0, ncode, type, orientation, &g0m0, v, gi, dist1_out);
+ 	postcollisionBoundaryConditions(&d1, ncode, type, orientation, &g1m0, v, gi, dist2_out);
+ 
++	${handle_mirror_nodes(mirror_propagation_handler)}
++
+ 	%if bc_pressure == 'guo':
+ 		if (isPressureNode(type)) {
+ 			switch (orientation) {
+diff --git a/sailfish/templates/boundary.mako b/sailfish/templates/boundary.mako
+index 251865b..e074fc2 100644
+--- a/sailfish/templates/boundary.mako
++++ b/sailfish/templates/boundary.mako
+@@ -44,7 +44,7 @@
+ 
+ <%def name="fill_missing_distributions()">
+ 	switch (orientation) {
+-		%for i in range(1, grid.dim*2+1):
++		%for i in grid.dir2vecidx.keys():
+ 			case ${i}: {
+ 				%for lvalue, rvalue in sym.fill_missing_dists(grid, 'fi', missing_dir=i):
+ 					${lvalue.var} = ${rvalue};
+@@ -446,9 +446,10 @@ ${device_func} inline void postcollisionBoundaryConditions(Dist *fi, int ncode,
+ 	%if bc_wall == 'halfbb':
+ 		if (isWallNode(node_type)) {
+ 			switch (orientation) {
+-			%for i in range(1, grid.dim*2+1):
+-				case ${i}: {
+-					%for lvalue, rvalue in sym.fill_missing_dists(grid, 'fi', missing_dir=i):
++			%for dir in grid.dir2vecidx.keys():
++				case ${dir}: {
++					%for lvalue, rvalue in sym.fill_missing_dists(grid, 'fi', missing_dir=dir):
++						// ${grid.idx_name[lvalue.idx]}
+ 						${get_odist('dist_out', lvalue.idx)} = ${rvalue};
+ 					%endfor
+ 					break;
+diff --git a/sailfish/templates/relaxation.mako b/sailfish/templates/relaxation.mako
+index 0c50481..c283103 100644
+--- a/sailfish/templates/relaxation.mako
++++ b/sailfish/templates/relaxation.mako
+@@ -143,11 +143,11 @@ ${device_func} void MS_relaxate(Dist *fi, int node_type, float *iv0)
+ 
+ 	%if simtype == 'free-energy':
+ 		float tau0 = tau_b + (phi + 1.0f) * (tau_a - tau_b) / 2.0f;
+-		if (phi < -1.0f) {
++/*		if (phi < -1.0f) {
+ 			tau0 = tau_b;
+ 		} else if (phi > 1.0f) {
+ 			tau0 = tau_a;
+-		}
++		}*/
+ 	%endif
+ 
+ 	%for i, eq in enumerate(bgk_equilibrium):
+diff --git a/sailfish/templates/utils.mako b/sailfish/templates/utils.mako
+index b0d633c..0d27024 100644
+--- a/sailfish/templates/utils.mako
++++ b/sailfish/templates/utils.mako
+@@ -53,7 +53,6 @@
+ </%def>
+ 
+ 
+-
+ <%def name="nonlocal_fld(fld_id)">
+ 	%if fld_id in image_fields:
+ 		%if dim == 3:
