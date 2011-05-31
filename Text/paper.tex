@@ -1,5 +1,8 @@
-\documentclass{article}
-\usepackage[numbers,sort&compress]{natbib}
+\documentclass[preprint,12pt]{elsarticle}
+%\usepackage[numbers,sort&compress]{natbib}
+\usepackage{lineno}
+\journal{Chemical Engineering Journal}
+
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -7,10 +10,26 @@
 \usepackage{color}
 \usepackage{tabularx}
 \usepackage{overpic}
-\title{Binary-liquid lattice Boltzmann simulation of microchannels with square cross sections}
-\author{A.Kuzmin \and M.Januszewski \and D.Eskin \and F.Mostowfi \and J.Derksen}
 \begin{document}
-\maketitle
+\begin{frontmatter}
+\title{Binary-liquid lattice Boltzmann simulation of microchannels with square cross sections}
+\author[uofa]{A.~Kuzmin\corref{cor1}}
+\cortext[cor1]{Corresponding author}
+\ead{kuzmin@ualberta.ca}
+\author[us]{M.~Januszewski}
+\ead{michalj@gmail.com}
+\author[schlum]{D.~Eskin}
+\ead{deskin@slb.com}
+\author[schlum]{F.~Mostowfi}
+\ead{fmostowfi@slb.com}
+\author[uofa]{J.J.~Derksen}
+\ead{jos@ualberta.ca}
+\address[uofa]{Chemical and Materials Engineering, University of Alberta\\ 7th Floor, ECERF, 9107
+116 St, Edmonton, Alberta, T6G
+2V4 Canada}
+\address[us]{Insitute of Physics, University of Silesia, 40-007 Katowice, Poland}
+\address[schlum]{Schlumberger DBR Technology Center\\ 9450 17 Ave NW, Edmonton, Alberta, T6N 1M9
+Canada}
 \begin{abstract}
 The classical Bretherton problem describes the propagation of gas fingers through liquid media in a
 narrow channel with
@@ -32,6 +51,19 @@ capillaries, such as the existence of a vortex in front of the bubble and the de
 of the bubble radii on the capillary number.  We conclude that lattice Boltzmann free energy binary
 liquid model can be used to simulate the Bretherton problem with good accuracy. 
 \end{abstract}
+
+\begin{keyword}
+Taylor/Bretherton problem \sep Microchannel simulation \sep Multiphase flow \sep Lattice Boltzmann
+method
+\sep Binary liquid model \sep Flow in microchannels with square cross sections \sep Gravity driven
+%% keywords here, in the form: keyword \sep keyword
+
+%% MSC codes here, in the form: \MSC code \sep code
+%% or \MSC[2008] code \sep code (2000 is the default)
+\end{keyword}
+
+\end{frontmatter}
+\linenumbers
 
 \section{Introduction}
 The Taylor/Bretherton \cite{bretherton} flow deals with long gas bubbles moving through liquid in
@@ -117,7 +149,7 @@ Further we adapt the convention ``axial`` for the radius measured along the $x$ 
 see Fig. \ref{fig:lbm:benchmark} \cite{heil-threedim}. The dependence
 of the diagonal and axial radii on the capillary number is shown in Fig. 
 \ref{fig:heil:three:dim}.
-\begin{figure}[ht]
+\begin{figure}[htb!]
 \begin{overpic}[width=\textwidth]{Figures/capillary_width_heil.eps}
 \put(50,45){\includegraphics[width=0.4\textwidth]{Figures/inset.eps}}
 \end{overpic}
@@ -495,7 +527,7 @@ simulation to
 settle down to a steady state. The grid  was $52 \times 52 \times 750$ which represents
 a quarter of the channel with the initial film thickness of $6.5$ lattice Boltzmann units together
 with the body force $\frac{\mathrm{d}P}{\mathrm{d}x}=1.6
-\cdot 10^{-6}$. The simulation was performed $250000$ iterations with the step of
+\cdot 10^{-6}$. The simulation was performed for $250000$ iterations with the step of
 $10000$ iterations. The results for time iterations $140000-250000$ are summarised in Table
 \ref{table:steady:state}. While the
 capillary number variation is around $5$ percent, the radii variation is $0.1$ percent. 
@@ -533,30 +565,30 @@ corressponing streamwise velocity
 component. The crossection is a plane $x=0$, where $x$ points
 towards the reader, $z$ is the streamwise direction. As fluxes inside the bubble have
 clockwise and counterclockwise directions, see Section \ref{sec:velocity}, one needs to thoroughly
-examine only the points corresponding to the front and the rear bubble tips. If one finds them equal
-to each other, then it is exactly the velocity with which the bubble propagates in the microchannel.
+examine only the points corresponding to the front and the rear bubble caps. If they are equal, then
+it is exactly the velocity with which the bubble propagates in the microchannel.
 For a physical analogy, one can imagine the rotating ball propagating in the streamwise direction. 
 \begin{figure}[ht]
 \includegraphics[width=\textwidth]{Figures/velocity_interface_contour.eps}\\
 \includegraphics[width=\textwidth]{Figures/velocity_interface_values.eps}\\
 \caption{The bubble shape and the corresponding streamwise velocities taken on the bubble
 interface after $240000$ iterations. Directions $y$ and $z$ are scaled to the half of the channel
-$H_{\mathrm{eff}}/2$. One can see that the bubble front and rear tips are propagating with the
-same velocities, which is actually the bubble velocity. For more details on velocity patterns
+$H_{\mathrm{eff}}/2$. One can see that the bubble front and rear caps are propagating with nearly
+the
+same velocity, that is the actual bubble velocity. For more details on velocity patterns
 see Section \ref{sec:velocity}. \label{fig:velocity:contour}}
 \end{figure}
 
 
 \subsection{Radii transition}
-Due to computer performance issues we can only access the
+Due to computational power restrictions we can only access the
 transition region, i.e. $Ca\geq 0.05$. In this region the proper resolution of the film thickness
-is guaranteed. To identify the critical capillary number $\widehat{Ca}$ a number of simulations
-were conducted. One of the interesting things is that the transition occurs in the region
-computationally accessible for
-current simulations. In comparison with the results of the \citet{heil-threedim}
+is achievable. To identify the critical capillary number $\widehat{Ca}$ a number of simulations
+were conducted. In comparison with the results of the \citet{heil-threedim}
 ($\widehat{Ca}=0.04$) our
 results are more close to the VOF continuous interface method simulation by
-\citet{wang-non-circular} ($\widehat{Ca}=0.1$) and fall within $5$ percent radii variation on the
+\citet{wang-non-circular} ($\widehat{Ca}=0.1$). Our data also fall within $5$ percent radii
+variation on the
 capilllary number of experimental dependency of
 \citet{shikazono-square}. The transition for current simulations happens for $Ca\approx 0.09$, see
 Table
@@ -585,7 +617,7 @@ non-axisymmetric and axisymmetric cases. The transition occurs at $\widehat{Ca}=
 \caption{Crosssections of the phase field in the middle of the bubble for $Ca=0.053$
 (left) and $Ca=1.13$ (right). Crosssections are rescaled on the half channel height. Other
 parameters are indicated in Table \ref{table:transition:results}. One can see that the left picture
-is non-axisymmetric in comparison
+is non-axisymmetric in contrast
 with the right one, i.e. $R_{diag}\neq R_{axis}$. The transition happens at
 $\widehat{Ca}=0.09$.\label{fig:crosssections:sym}}
 \end{figure}
@@ -594,14 +626,14 @@ $\widehat{Ca}=0.09$.\label{fig:crosssections:sym}}
 \subsection{Velocity pattern}
 \label{sec:velocity}
 The velocity pattern is known to change its behavior depending on the capillary number. For
-relatively low capillary numbers $Ca<0.6$, in a reference frame moving with the bubble there
-exists a vortex 
-in front of it \cite{heil-threedim}. For larger capillary numbers it is indicated that there is no
+relatively low capillary numbers $Ca<0.6$, in a reference frame moving with the bubble a vortex 
+is observed \cite{heil-threedim}. For larger capillary numbers it is indicated that there is no
 vortex in front of the bubble. The transition capillary number specified by
 \citet{heil-threedim} for a square channel is $Ca=0.691$. However, the
-distribution of vorticity strongly depends on Reynolds number \cite{heil-bretherton}, as well the
+distribution of vorticity strongly depends on Reynolds number \cite{heil-bretherton}, as well as on
+the
 pressure distribution. In the case of the bubble train it is indicated by \citet{kreutzer-taylor}
-that the pressure is largely influenced by bubble frequency and slug distance. The present
+that the pressure is significantly influenced by bubble frequency and slug distance. The present
 simulations are conducted for bubble trains and certain differences in terms of changing streamline
 patterns are expected. We examined velocity patterns to identify the moment of the streamlines
 pattern change. We chose two
@@ -609,14 +641,15 @@ representative capillary numbers as $Ca=0.47$ and $Ca=0.63$.
 One can
 see in Fig. \ref{fig:streamlines:pattern} a clear transition between associated patterns. The
 transition capillary number of
-\citet{heil-threedim} is slightly higher than the simulation results. In present simulations the
+\citet{heil-threedim} is slightly higher than that in the simulation results. In present simulations
+the                                               
 transition occurs at $Ca=0.6-0.7$, see Fig. \ref{fig:streamlines:pattern}.
 \begin{figure}[ht]
 \includegraphics[angle=90,width=\textwidth]{Figures/stream_ca47.eps}\\
 \includegraphics[angle=90,width=\textwidth]{Figures/stream_ca63.eps}\\
 \caption{Velocity vector maps for $Ca=0.47$ and $Ca=0.63$. One can see that there are no vortexes
 created
-before the bubble for $Ca=0.63$. The transition happens between $Ca=0.47$ and $Ca=0.63$, which
+in front of the bubble for $Ca=0.63$. The transition happens between $Ca=0.47$ and $Ca=0.63$, which
 is a different value from $Ca=0.69$ \cite{heil-threedim}. However, we performed a number of
 different types of simulations (different force, width initialization). The critical transition
 capillary number $\widehat{Ca}$ is not well imposed and varies from $\widehat{Ca}=0.6-0.7$.
@@ -628,14 +661,14 @@ The work of \citet{wang-non-circular} shows the variation of the bubble
 radii along the
 bubble. The bubble shape in terms of axial and diagonal radii is reconstructed for a number of
 capillary numbers, Fig. \ref{fig:bubble:variation:capillaries}. One can see that for smaller
-capillary numbers the diagonal radius exhibits a small jump near the rear bubble tip. It agrees
-with results of \citet{wang-non-circular}. However, present simulations show smoother behavior of
+capillary numbers the diagonal radius exhibits a small jump near the rear bubble cap. That agrees
+with results of \citet{wang-non-circular}. However, our simulations show smoother behavior of
 the jump.  
 \begin{figure}[ht]
 \includegraphics[width=0.5\textwidth]{Figures/bubble_rad_axis.eps}
 \includegraphics[width=0.5\textwidth]{Figures/bubble_rad_diag.eps}\\
 \caption{Radii variations along the bubble for different capillary numbers in the plane $x=0$.
-One can see that the diagonal radius shows the jump near the bubble rear tip. This agrees with the
+One can see that the diagonal radius shows the jump near the bubble rear cap. This agrees with the
 VOF simulations of \citet{wang-non-circular}.Coordinate $z$ increases in the streamwise direction.
 \label{fig:bubble:variation:capillaries}}
 \end{figure}
@@ -643,12 +676,13 @@ VOF simulations of \citet{wang-non-circular}.Coordinate $z$ increases in the str
 Another interesting phenomenon regarding the bubble shape was indicated by \citet{heil-threedim}. In
 their simulations the non-axisymmetric shape was observed even for larger capillary numbers $Ca>4$
 near
-the bubble front tip which after certain distance relaxes to have radii equal to each other. The
+the bubble front cap which after certain distance relaxes to have radii equal to each other. The
 bubble shape was calculated for the large capillary number $Ca=6.43$, see Fig.
 \ref{fig:bubble:ca:large}. However, even the diagonal radius shows the jump near the front tip of
 the bubble and it resembles the shape given by \citet{heil-threedim}, but the difference is around
-$1$ percent and can be attributed to the linear interpolation error used for the interface
-calculation. Therefore, the others do not observe the symmetry breakage for $Ca>4$. 
+$1$ percent and can be explained by error in the linear interpolation used for the
+interface
+calculation. Therefore, we do not observe the symmetry breakage for $Ca>4$. 
 \begin{figure}[ht]
 \includegraphics[width=\textwidth]{Figures/bubble_ca_large.eps}
 \caption{The bubble shape for the capillary number $Ca=6.43$ is presented. $z$ increases in the
@@ -660,24 +694,24 @@ the linear interpolation used in the calculation of the interface.\label{fig:bub
 \end{figure}
 
 \subsection{Capillary number}
-The purpose of this section is to compare radii dependence on the capillary number. The film
+The purpose of this section is to study dependence of the radii on the capillary number. The film
 thicknesses were extracted from the middle of the bubble. The data presented in Fig.
 \ref{fig:capillary:comparison} is simulated with different techniques including different
 initialization, and different grids: $52 \times 52 \times 1500$, $82 \times 82 \times 1500$ and $82
 \times 82 \time 2400$. All the results are consistent. Therefore one can conclude that for the
 capillary number $Ca\geq
 0.05$ grid independence is achieved. The results are compared with the results of
-\citet{heil-threedim} and of \citet{wang-non-circular}. The data was extracted from the
+\citet{heil-threedim} and of \citet{wang-non-circular}. The data were extracted from the
 corresponding references with the help of the program ``Engauge Digitizer''. We observe that
 lattice Boltzmann simulations exhibit 
 the transition between non-axisymmetric and axisymmetric shape of the bubble. 
 
 Present simulations show that the corresponding critical capillary number is close to
-$\widehat{Ca}=0.1$ which is close to work of \citet{wang-non-circular} and is different from the
-work of \citet{heil-threedim}, $\widehat{Ca}=0.04$. However, in the range of the moderate
-capillary numbers the results are more close to the results of \citet{heil-threedim} and exhibit
+$\widehat{Ca}=0.1$ that agrees with the work of \citet{wang-non-circular} and is different from the
+results of \citet{heil-threedim}, $\widehat{Ca}=0.04$. However, in the range of the moderate
+capillary numbers our results are closer to the results of \citet{heil-threedim} and exhibit
 less noisy trend in radii values and a more accurate transition between non-axisymmetric ans
-axisymmetric cases than results of \cite{wang-non-circular}. 
+axisymmetric cases than results of \citet{wang-non-circular}. 
 %For moderate capillary numbers $Ca\geq 0.2$, the radii are smaller than the literature results.
 %This
 %may be caused by the bubble train simulation or the influence of the binary-liquid model. 
@@ -693,9 +727,10 @@ behavior of the earlier published results.  \label{fig:capillary:comparison}}
 
 \subsection{Relative velocity}
 One of the differencies between the flow in tubes and square capillaries is that the flow has
-different streamlines patterns. In square microchannels the main mass flow goes through corners
+different streamline patterns. In square microchannels, the main mass flow occurs through corners
 \cite{heil-threedim,wang-non-circular}. This affects the mass flow significantly. One of the
-characteristics of the mass flow is the normalized relative velocity dependence on the capillary
+characteristics of the mass flow is the normalized dependence of the relative velocity on the
+capillary
 number. The bubble always moves faster than the surrounding liquid. The following quantity is
 defined as
 relative velocity \cite{cerro-bubble-train}:
@@ -704,7 +739,7 @@ W=\frac{U_{\mathrm{bubble}}-U_{ls}}{U_{\mathrm{bubble}}},
 \end{equation}
 where $U_{\mathrm{bubble}}$ is the bubble interface velocity, and $U_{ls}$ is the liquid superficial
 velocity. As far as the steady state is achieved one can take the liquid superficial velocity
-exactly at the distance in the middle between bubbles. Then, the liquid superficial velocity is
+exactly at the distance in the middle between bubbles. The liquid superficial velocity is
 defined as:
 \begin{equation}
 U_{ls}=\frac{\int_{A}{U_{liq}dA}}{A}.
@@ -712,20 +747,21 @@ U_{ls}=\frac{\int_{A}{U_{liq}dA}}{A}.
 The relative velocity was calculated and compared with the results of \citet{wang-non-circular},
 see Fig. \ref{fig:relative:velocity}. One can see an agreement between the simulations indicating
 that
-one of the mass transfer characteristic can be captured accurately. 
+one of the mass transport characteristics can be captured accurately. 
 \begin{figure}[ht]
 \includegraphics[width=\textwidth]{Figures/relative_velocity.eps}
 \caption{Relative velocity comparison between current simulations and simulations of
 \citet{wang-non-circular}. One can see a qualitative agreement. \label{fig:relative:velocity}}
 \end{figure}
 
-The relative velocity is an important quantity in mass flow characterization
+The relative velocity is an important quantity of mass flow characterization
 \cite{kreutzer-taylor,yue-mass}. The frequency of the bubbles \cite{kreutzer-taylor} and 
-inertia effects \citet{heil-bretherton} significantly influence the mass transfer coefficient. 
-Future work is planned to study this coefficient and calculate the associated advection-diffusion coefficient.
- However, preliminary
-studies of the relative velocity show that the binary liquid model can simulate accurately some
-characteristics of mass transfer.
+inertia effects \citet{heil-bretherton} significantly influence  mass transfer. 
+Future work is planned to study this phenomenon and calculate the mass transfer coefficient by
+solving the advection-diffusion equation.
+% Preliminary
+%studies of the relative velocity show that the binary liquid model can simulate accurately some
+%characteristics of mass transfer.
 
 % \section{Train simulation}
 % \label{section:bubble:train}
