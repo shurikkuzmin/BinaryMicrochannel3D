@@ -98,6 +98,8 @@ def extract_profiles(name):
     print Get_Zero(prof_axis_y)
     axis_zero_x=Get_Zero(prof_axis_x)/(dims[1]-2.0)
     axis_zero_y=Get_Zero(prof_axis_y)/(dims[1]-2.0)
+    area_indexes=numpy.where(phase_mid[1:,1:]<=0.0)
+    area=float(len(area_indexes[0]))/((dims[0]-2.0)*(dims[1]-2.0))
     #diag_zero=math.sqrt(2.0)*Get_Zero(prof_diag)/(dims[0]-2.0)
     
     
@@ -121,41 +123,50 @@ def extract_profiles(name):
     #print "Interface=",vz[0,z2%dims[2]]
     #print "Superficial=",superficial
     #return axis_zero,diag_zero,capillary,reynolds,vz[0,z2%dims[2]],superficial
-    return capillary,axis_zero_x,axis_zero_y
+    return capillary,axis_zero_x,axis_zero_y,2.0*math.sqrt(area/math.pi)
     
 def get_radii_rect12():
     dirs=['1','2','4','6','7','8','9','10']
     capillaries=[]
     axis_zeros_x=[]
     axis_zeros_y=[]
+    scales=[]
     for dir in dirs:
         name="Rectangle12/"+dir+"/phase240000.vts"
         print name
-        cap,axis_x,axis_y=extract_profiles(name)
+        cap,axis_x,axis_y,scale=extract_profiles(name)
         capillaries.append(cap)
         axis_zeros_x.append(axis_x)
         axis_zeros_y.append(axis_y)
+        scales.append(scale)
     pylab.figure(1)
     pylab.plot(capillaries,axis_zeros_x,'k-')
     pylab.plot(capillaries,axis_zeros_y,'k--')
-    numpy.savetxt("rectangle12.txt",zip(capillaries,axis_zeros_x,axis_zeros_y))
+    pylab.figure(2)
+    pylab.plot(capillaries,scales,'ks')
+    numpy.savetxt("rectangle12.txt",zip(capillaries,axis_zeros_x,axis_zeros_y,scales))
 
 def get_radii_rect14():
     dirs=['3','4','5','7','8','9']
     capillaries=[]
     axis_zeros_x=[]
     axis_zeros_y=[]
+    scales=[]
     for dir in dirs:
         name="Rectangle14/"+dir+"/phase240000.vts"
         print name
-        cap,axis_x,axis_y=extract_profiles(name)
+        cap,axis_x,axis_y,scale=extract_profiles(name)
         capillaries.append(cap)
         axis_zeros_x.append(axis_x)
         axis_zeros_y.append(axis_y)
+        scales.append(scale)
     pylab.figure(1)
     pylab.plot(capillaries,axis_zeros_x,'k^')
     pylab.plot(capillaries,axis_zeros_y,'kv')
-    numpy.savetxt("rectangle14.txt",zip(capillaries,axis_zeros_x,axis_zeros_y))
+    pylab.figure(2)
+    pylab.plot(capillaries,scales,'ks')
+
+    numpy.savetxt("rectangle14.txt",zip(capillaries,axis_zeros_x,axis_zeros_y,scales))
 
 
 def get_radii_rect16():
@@ -163,39 +174,101 @@ def get_radii_rect16():
     capillaries=[]
     axis_zeros_x=[]
     axis_zeros_y=[]
+    scales=[]
     for dir in dirs:
         name="Rectangle16/"+dir+"/phase240000.vts"
         print name
-        cap,axis_x,axis_y=extract_profiles(name)
+        cap,axis_x,axis_y,scale=extract_profiles(name)
         capillaries.append(cap)
         axis_zeros_x.append(axis_x)
         axis_zeros_y.append(axis_y)
+        scales.append(scale)
     pylab.figure(1)
     pylab.plot(capillaries,axis_zeros_x,'k^')
     pylab.plot(capillaries,axis_zeros_y,'kv')
-    numpy.savetxt("rectangle16.txt",zip(capillaries,axis_zeros_x,axis_zeros_y))
+    pylab.figure(2)
+    pylab.plot(capillaries,scales,'ks')
+
+    numpy.savetxt("rectangle16.txt",zip(capillaries,axis_zeros_x,axis_zeros_y,scales))
 
 def get_radii_rect18():
     dirs=['1','3','4','5','6']
     capillaries=[]
     axis_zeros_x=[]
     axis_zeros_y=[]
+    scales=[]
     for dir in dirs:
         name="Rectangle18/"+dir+"/phase240000.vts"
         print name
-        cap,axis_x,axis_y=extract_profiles(name)
+        cap,axis_x,axis_y,scale=extract_profiles(name)
         capillaries.append(cap)
         axis_zeros_x.append(axis_x)
         axis_zeros_y.append(axis_y)
+        scales.append(scale)
     pylab.figure(1)
     pylab.plot(capillaries,axis_zeros_x,'k^')
     pylab.plot(capillaries,axis_zeros_y,'kv')
-    numpy.savetxt("rectangle18.txt",zip(capillaries,axis_zeros_x,axis_zeros_y))
+    pylab.figure(2)
+    pylab.plot(capillaries,scales,'ks')
+    
+    numpy.savetxt("rectangle18.txt",zip(capillaries,axis_zeros_x,axis_zeros_y,scales))
+
+def summarize_results():
+    styles_x=["k^-","ks-","ko-"]
+    styles_y=["k^--","ks--","ko--"]
+    
+    files=['12','14','16']
+    fig=pylab.figure(1)
+    for counter,filename in enumerate(files):
+        name="rectangle"+filename+".txt"
+        arr=numpy.loadtxt(name)
+        ind=numpy.argsort(arr[:,0])
+        print ind
+        arr=arr[ind]
+        ind2=numpy.where(arr[:,0]<2.0)
+        arr=arr[ind2]
+        pylab.figure(1)
+        pylab.plot(arr[:,0],arr[:,1],styles_x[counter],markersize=7)
+        pylab.plot(arr[:,0],arr[:,2],styles_y[counter],markersize=7,markerfacecolor="white")     
+    pylab.xlim(xmin=0.1,xmax=2.0)
+    pylab.ylim(ymin=0.65,ymax=1.2)
+    pylab.xlabel(r'''$Ca$''',fontsize=20)
+    pylab.ylabel(r'''$R_h,R_v$''',fontsize=20)
+    fig.subplots_adjust(left=0.15,bottom=0.15)
+    pylab.xticks(fontsize=16)
+    pylab.yticks(fontsize=16)
+    legs=[[r'''$R_v,\alpha=1.'''+name[1]+r'''$''',r'''$R_h,\alpha=1.'''+name[1]+r'''$'''] for name in files]
+    legs=numpy.ravel(legs)
+    pylab.legend(legs,fancybox=True)
+    pylab.savefig('rectangle.eps',dpi=300,format="EPS")
+
+def one_curve():
+    styles=["k^","ks","ko"]
+    
+    files=['12','14','16']
+    fig=pylab.figure(1)
+    for counter,filename in enumerate(files):
+        name="rectangle"+filename+".txt"
+        arr=numpy.loadtxt(name)
+        pylab.figure(1)
+        pylab.plot(arr[:,0],arr[:,3],styles[counter],markersize=7)
+    pylab.xlim(xmin=0.1,xmax=2.0)
+    #pylab.ylim(ymin=0.65,ymax=1.2)
+    pylab.xlabel(r'''$Ca$''',fontsize=20)
+    pylab.ylabel(r'''$s_{\infty}$''',fontsize=20)
+    fig.subplots_adjust(left=0.15,bottom=0.15)
+    pylab.xticks(fontsize=16)
+    pylab.yticks(fontsize=16)
+    legs=[r'''$\alpha=1.'''+name[1]+r'''$''' for name in files]
+    pylab.legend(legs,fancybox=True)
+    pylab.savefig('onecurve.eps',dpi=300,format="EPS")
 
 
 if __name__=="__main__":
     #get_radii_rect12()
     #get_radii_rect14()
-    get_radii_rect16()
-    get_radii_rect18()
+    #get_radii_rect16()
+    #get_radii_rect18()
+    #summarize_results()
+    one_curve()
     pylab.show()
