@@ -233,11 +233,11 @@ def summarize_results():
     pylab.xlim(xmin=0.1,xmax=2.0)
     pylab.ylim(ymin=0.65,ymax=1.2)
     pylab.xlabel(r'''$Ca$''',fontsize=20)
-    pylab.ylabel(r'''$R_h,R_v$''',fontsize=20)
+    pylab.ylabel(r'''$R_x,R_y$''',fontsize=20)
     fig.subplots_adjust(left=0.15,bottom=0.15)
     pylab.xticks(fontsize=16)
     pylab.yticks(fontsize=16)
-    legs=[[r'''$R_v,\alpha=1.'''+name[1]+r'''$''',r'''$R_h,\alpha=1.'''+name[1]+r'''$'''] for name in files]
+    legs=[[r'''$R_y,\alpha=1.'''+name[1]+r'''$''',r'''$R_x,\alpha=1.'''+name[1]+r'''$'''] for name in files]
     legs=numpy.ravel(legs)
     pylab.legend(legs,fancybox=True)
     pylab.savefig('rectangle.eps',dpi=300,format="EPS")
@@ -269,6 +269,6 @@ if __name__=="__main__":
     #get_radii_rect14()
     #get_radii_rect16()
     #get_radii_rect18()
-    #summarize_results()
-    one_curve()
+    summarize_results()
+    #one_curve()
     pylab.show()
