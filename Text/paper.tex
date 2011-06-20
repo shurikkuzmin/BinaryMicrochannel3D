@@ -13,7 +13,7 @@
 \usepackage{tikz}
 \begin{document}
 \begin{frontmatter}
-\title{Three-dimensional binary-liquid lattice Boltzmann simulation of microchannels with square
+\title{Three-dimensional binary-liquid lattice Boltzmann simulation of microchannels with rectangular
 cross sections}
 \author[uofa]{A.~Kuzmin\corref{cor1}}
 \cortext[cor1]{Corresponding author}
@@ -42,7 +42,7 @@ an applicability and parameter selection for the two-dimensional Bretherton prob
 (flow
 between parallel plates) using the free-energy binary liquid lattice Boltzmann method (LBM)
 \cite{kuzmin-binary2d}. This paper is the continuation of our previous work with simulations of
-three-dimensional channels with square crosssections in the range of the capillary number $0.05\leq
+three-dimensional channels with rectangular (mostly square) cross sections in the range of the capillary number $0.05\leq
 Ca \leq
 6.0$.
 The flow is driven by a body force, and
@@ -611,7 +611,7 @@ were conducted, see Table \ref{table:transition:results}. In comparison with the
 \citet{heil-threedim}
 ($\widehat{Ca}=0.04$) our
 results are closer to the VOF continuous interface method simulation by
-\citet{wang-non-circular} ($\widehat{Ca}=0.1$). The transition for current simulations
+\citet{wang-non-circular} ($\widehat{Ca}=0.1$). Due to linear approximation we consider a bubble to have a circular cross section if $R_{axis}$ and $R_{diag}$ differ by less than $1\%$. The transition for current simulations
 happens for $Ca\approx 0.09$ calculated as linear interpolation between data presented in Table
 \ref{table:transition:results}. 
 %Our data also fall within $5$ percent radii
@@ -842,20 +842,18 @@ solving the advection-diffusion equation.
 \subsection{Rectangular channel simulations}
 While the main focus of this paper is on the square microchannel simulations, we performed a number
 of simulations for rectangular channels with varying aspect ratio
-$\alpha=\frac{W}{H_{\mathrm{eff}}}$.\citet{heil-threedim} performed a number of simulations for the
+$\alpha=\frac{W}{H_{\mathrm{eff}}}=\frac{a_x}{a_y}$, where $a_x$ and $a_y$ are sides of the rectangular in $x$ and $y$ directions.\citet{heil-threedim} performed a number of simulations for the
 propagation of semi-infinite air finger in the microchannel. They indicated that the radii in $x$
-and $y$ directions depend on the capillary number and are increasing with the aspect ratio $\alpha$
-increases. The same tendenion can be seen for current simulation results, see Fig.
-\ref{fig:aspect:ratio}. One can see that radii do not coincide with each other. The same is
-indicated by \citet{heil-threedim} who mentioned that for radii to coincide one needs to have as
-long as $100$ shorter semi-axis sides bubble length. This is not possible to achieve with the
+and $y$ directions  are increasing with the aspect ratio $\alpha$
+increases. The same trend can be seen for the current simulation results, see Fig.
+\ref{fig:aspect:ratio}. One can see that diagonal and axial radii are not the same as they were in square channels for the capillary number range investigated here. The same is
+indicated by \citet{heil-threedim} who mentioned that for radii to coincide one needs to have really long bubbles, at least $100$ shorter semi-axis bubble length for the aspect ratio $\alpha=1.5$. This is not possible to achieve with the
 current bubble train simulations.
 \begin{figure}[htb!]
 \includegraphics[width=\textwidth]{Figures/rectangle.eps}
-\caption{Radii in $x$ ($R_h$) and $y$ ($R_v$) directions for rectangular microchannels with
-different aspect ratios. Radii are rescaled on the shorter semi-axis value. One can see that with
-the increase of $\alpha$ the radii increase as well. However, due to small bubble lengths
-$R_h\neq R_v$ \cite{heil-threedim}. \label{fig:aspect:ratio}}
+\caption{Radii in $x$ ($R_x$) and $y$ ($R_y$) directions for rectangular microchannels with
+different aspect ratios. Radii are rescaled on the length of channel in $y$ direction. One can see that with
+the increase of $\alpha$ the radii increase as well. However, $R_x\neq R_y$. It was indicated by \citet{heil-threedim} one needs semi-infinite bubble to achieve $R_x=R_y$. \label{fig:aspect:ratio}}
 \end{figure}
 
 They as well indicated that the simulations results with different aspect ratio can be
@@ -871,10 +869,9 @@ finger will have at an infinite distance from the bubble tip):
 \end{equation}
 where $Q$ is the area occupied by air in the crossection. \citet{heil-threedim} indicated a simple
 physical interpretation of this phenomena:  providing that air is injected with the same
-velocity to the channels with different aspect ratio but the same area, the occupied area by bubble
-shouldn't depend on the aspect ratio. The current results, see Fig. \ref{fig:one:curve} show that
-this postulate can be extended for bubble train flows with different radii $R_h \neq R_v$ in
-comparison with the original work \cite{heil-threedim}. 
+velocity to the channels with different aspect ratio but the same area, the resulting occupied area by the bubble
+should not depend on the aspect ratio. That is quite interesting phenomena indicating that if bubbles are infinite long then they would have the same radius and will be circular. The current results, see Fig. \ref{fig:one:curve} show that
+this hypothesis can be extended for bubble train flows with different radii $R_h \neq R_v$. 
 \begin{figure}[htb!]
 \includegraphics[width=\textwidth]{Figures/onecurve.eps}\\
 \caption{The non-dimensional radius $s_{\infty}$ for different aspect ratio
