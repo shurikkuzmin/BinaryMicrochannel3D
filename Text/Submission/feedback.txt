@@ -1,0 +1,52 @@
+Feedback:
+
+Reviewer #1: This manuscript presents a three-dimensional binary-liquid lattice Boltzmann simulation of Bretherton/Taylor flow in microchannels with rectangular cross sections. The topic of this work is interesting. This manuscript can be accepted after some revisions in line with the following comments:
+
+(1) When Re is very small, the authors neglect the density ratio of gas and liquid phase. I think more reasons are still needed to explain the uniform density, especially on the interface. One of the challenges for free-energy LB model is how to meet the Galilean invariance because of the density gradient on the interface.
+
+(2) In Figures 7 and 8, it's better to give the reported curves by Liu and Wang and Hazel and Heil, so that it's easy to find the agreement is well or not.
+
+(3) In Figure 9, the variation of bubble radii in the range of capillary number 0.05<=Ca<=0.6 is still different from the results of Hazel and Heil and of Liu and Wang. The critical capillary number of Liu and Wang is close to 0.8 and the critical capillary number of Hazel and Heil is close to 0.04, but the value of the authors is 0.1. The authors should analyze the reason of the difference.
+
+(4) In Figure 10, there is a deviation of the relative velocity between the present and published data. Can the authors extend the range of capillary numbers as conducted by Liu and Wang?
+
+(5) Check some errors, e.g., on Page 7 Line 137 "0.05>=Ca<=6", on Page 17 Line 300, "82×82×1500 and 82×82", and on Page 24 References 18 and 20.
+
+
+Reviewer 2: 
+
+The manuscript is well-written. The problem is of interest to both microfluidic lab-on-a-chip applications and industrial multiphase tubular flows. The simulations were done with care, and the results are in reasonable agreement with published data. Although I do not agree with the conclusion that the binary lattice Boltzmann method used in this study can be used to study the Taylor-Bretherton gas bubble problem, as the system simulated has its own set of dimensionless parameters (see comments below), the paper is in a good quality and the data are useful for the community. It is especially interesting that by introducing a dimensionless radius the cross-sectional area occupied by the bubble from channels of different cross-sectional shapes can be collapsed on a single line.
+
+Generally speaking, the motion of a drop in a channel is a function of channel shape, drop size, ratio between driving force and surface tension, density ratio, and viscosity ratio.  For the flow of a long gas bubble (Taylor-Bretherton) the density and viscosity ratios are nearly zero, making it possible to fit the film thickness as a function of a single dimensionless number Ca.  In the problem studied in this paper, the bubble is long, the density ratio is unity and the viscosity ratio is 0.1 (gas over liquid).  As such, while the film thickness in this system is also reduced to a function of the Capillary number, I do not think that the system considered by the authors is a Taylor-Bretherton system, as the density and viscosity ratios are different.
+
+The authors used the sensitivity of the film thickness on Re to justify that the sensitivity on density ratio is low (the first paragraph of Page 6).  However, I do not see the one-to-one connection between Re and the density ratio.  Are there any direct numerical/experimental evidence that density ratio has small effect on the film thickness, or evidence that Re is solely (or nearly solely) determined by the density ratio?
+
+Aside from this critique, it looks like the numerical resolution needs some clarifications.  While some numbers and discussions were provided, they seem to be in conflict with each other.  For example, in the discussion given in Page 8 and top of Page 9, the authors stated that the minimum resolution needed to resolve the film is 600x600x9000, and, if a quarter of the domain is simulated, a resolution of 300x300x9000 is needed.  However, the domain sizes presented later are all smaller, e.g. 100x100x1500, 160x160x1500, 160x160x2400, 200x200x3000 (Page 12).  How were these grid resolutions selected, and what is the effect of grid resolution on the result?
+
+A couple of minor issues are listed below:
+Page 4, figure 1 - I suppose the vertical axis is r_d and r_h normalized by H_eff?  The axis label perhaps should be clarified.
+Page 5, line 18 - missing "from" between "capillary number" and "simulations".
+Page 7, line 19 - "0.05 >= Ca <= 6" should be "0.05 <= Ca <= 6".
+Page 10 - On the lattice Boltzmann free energy model, what are the boundary conditions for f and g populations?  Were they simple bounce-back?  Is contact angle implemented in the method?
+Page 12, line 13 - "k = A = 0.004, 0.04".  I do not understand this notation - does this mean k is always equal to A and their values should be between 0.004 and 0.04?
+Page 17, line 17-19 - The text says that Figure 9 contains data with different initializations and different grids.  However, the distinction between data sets cannot be viewed from the figure.  Perhaps different symbols should be used so that the readers can tell one data set from another?
+Page 17, line 40 - "differencies" should be "differences".
+Page 19, line 25 - ". the film thickness as twice the interface thickness".  Please see the previous comment on grid resolution.
+Page 20, line 19 - Again, the notation used for the range of A and k is rather unusual.
+Page 29, line 46 - ". relaxed after to the axis radius" - perhaps a typo in the sentence?
+Finally, I have a question on how the initial distributions of f and g were determined?  Did the simulation start with uniform distributions of f and g populations and they "phase separate" to form the bubble?
+
+Reviewer 3:
+Supplementary report:
+"The work is very interesting and well written.
+Some improvements follow, in order to improve the already good quality of this work.
+1) Check some spelling errors, also in the abstract;
+2) Improve Figure quality: Figs. 4 and above all 5 are hard to read and understand. The ticks should be the same height, those in Fig. 5 are hardly visible.
+3) The bibliography should be improved: when introducing LB, I think that more hints should be given to the applications, for instance to the case of
+     magnetically-driven vaporization in ferrofluids studies or regarding multiphase approach based on pseudopotentials.
+4) Did the Authors perform any comparison with pseudopotential multiphase approaches? I am especially referring to recent advances of pseudopotentials,
+     such as the case of doubly-attractive potentials and to recent papers regarding LB multiphase simulation across scales.
+5) Could the Authors give more hints on the nature of the walls? Are they hydrophilic or hydrophobic and how do the Authors implement such a nature?
+
+With these minor changes, I think that this work is very good and gives an interesting advance in Lattice Boltzmann field"
+

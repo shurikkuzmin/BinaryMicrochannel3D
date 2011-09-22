@@ -237,13 +237,22 @@ density. %As it was indicated by \citet{gupta-review} a flow in microchannels is
 The classical Bretherton
 problem is stated for gas and liquid, which are of
 significantly
-different density and viscosity. However, the numerical results of
+different density and viscosity. {\color{red} The system is simulated in a right manner if all
+non-dimensional parameters are matched in real physical system and simulation system.
+However, one needs to consider the leading non-dimensional numbers which are responsible for
+physical phenomenon. Even, the binary-liquid model cannot match the gas-liquid density ratio, we
+consider it as a non-leading parameter. First of all, the numerical
+results of
 \citet{giavedoni-numerical} and \citet{heil-bretherton} show
 negligible Reynolds number effects on the film thickness for a relatively wide range of Reynolds
 numbers, $Re<70$. The parameters in our simulations were carefully chosen to
 avoid  inertia
 effects, see Section \ref{sec:numerical:benchmark}. The maximum attained
-Reynolds number $Re<10$. Thus, inertia effects can be neglected. Therefore, a major governing
+Reynolds number $Re<10$. The second reason is that density ratio is involved while describing a
+bubble shape change. There is a corresponding number defining the shape change, Bond number. Bond
+number is $Bo=\frac{Ca\,Re}{Fr^2}$. For real microchannel systems the Bond number is less than
+$Bo<0.1$ and we can neglect a bubble shape change.}
+Therefore, a major governing
 factor for microchannel flows is not the density ratio, but
 the
 viscosity ratio. As a result, the uniform density binary liquid model is suitable for this kind of
