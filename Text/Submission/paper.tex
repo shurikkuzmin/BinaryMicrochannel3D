@@ -160,7 +160,8 @@ of the diagonal and axial radii or a square channel on the capillary number is s
 \caption{\citet{heil-threedim} results for the variation of the bubble radii for a range of
 capillary numbers for a square channel. One can see the asymmetry between diagonal and axial
 diameters for the capillary
-numbers $Ca\leq\widehat{Ca}=0.04$. Courtesy of \citet{heil-threedim}. \label{fig:heil:three:dim}}
+numbers $Ca\leq\widehat{Ca}=0.04$. Courtesy of \citet{heil-threedim}. $r_h$ and $r_d$ are scaled on
+the half side length $H_{\mathrm{eff}}/2$. \label{fig:heil:three:dim}}
 \end{figure}
 The capillary number for square channels at which transition between non-axisymmetric case to
 axisymmetric happens is reported in a number of
@@ -185,7 +186,7 @@ certain threshold,  Fig. \ref{fig:streamlines:pattern}. For a square channel the
 capillary number is $Ca=0.691$.  \citet{heil-threedim} also found an empirical
 correlation which
 makes it possible to collapse results of radii dependency on the capillary number
-simulations of rectangular channels with different aspect ratios on a single curve.
+for rectangular channels with different aspect ratios on a single curve.
 It was also found that for microchannels with a certain aspect ratio $\alpha=\frac{a}{b}\geq
 2.04$, the interface does not become
 circular for any capillary number. \citet{wang-non-circular} performed numerical
@@ -228,11 +229,14 @@ ferrofluids \cite{kuzmin-aniso}, and multiphase flows
 \cite{swift,Shan-chen:extended}. The method is a particle method which allows one to simulate physical
 phenomena on the microscopic level. For instance, the introduction of the force or potential on the
 microscopic level allows to restore multiphase macroscopic equations \cite{swift,
-Shan-chen:extended}.
+Shan-chen:extended}. {\color{red} Nowadays the method is finding its way to more practical
+applications, for example magnetically driven droplet break-up and vaporization
+\cite{falcucci-vapour}, mixing in cross-channel flow \cite{jos-mixing}, etc. }
 
 The binary liquid free-energy LB model due to \citet{swift} that we used
 simulates two liquids with the assumption of uniform overall
-density. %As it was indicated by \citet{gupta-review} a flow in microchannels is a complex
+density. 
+ %As it was indicated by \citet{gupta-review} a flow in microchannels is a complex
 %interplay of viscous, gravitational, inertial and surface forces. 
 The classical Bretherton
 problem is stated for gas and liquid, which are of
@@ -257,6 +261,14 @@ factor for microchannel flows is not the density ratio, but
 the
 viscosity ratio. As a result, the uniform density binary liquid model is suitable for this kind of
 simulations.  
+
+{\color{red} Note that other multiphase models can be used which can account for different
+densities, as the pseudopotential based approach \cite{Sbragaglia-Succi} or color model
+\cite{swift}. In the case of the pseudopotential based approach, one needs to use the
+binary-liquid formulation as to avoid possible condensation/evaporation \cite{pooley-mrt-filling}
+and to perform Laplace law simulations to obtain the surface tension as it is not given explicitly.
+For the case of the color model, one needs to use more complicated schemes to reconstruct the
+surface. All other finding of the paper can be applicable for all the abovementioned models.}
 % THIS HAS ALREADY BEEN STATED BEFORE
 % The goal of this work is to do a feasibility study of the LBM
 % binary-liquid model to simulate and correctly predict flow patterns for the Bretherton/Taylor
@@ -311,7 +323,7 @@ initial bubble length is taken as $5 H_{\mathrm{eff}}$. \citet{giavedoni-numeric
 the film in the two-dimensional geometry stabilizes at distances of $2.6-4.0$ diameters
 from the front tip depending on the Reynolds number. \citet{heil-threedim} measured the bubble radii
 at the distance of $5.5 H_{\mathrm{eff}}$ and indicated it to be sufficient for $Ca\leq 10$. In
-this work, the following relation holds for all conducted simulations: $0.05 \geq Ca \leq 6$.
+this work, the following relation holds for all conducted simulations: $0.05 \leq Ca \leq 6$.
 Thus, the
 film thickness is chosen to be measured in the
 middle of the bubble, which is located at least at a distance of $2.5-3$ channel heights from the 
@@ -362,7 +374,10 @@ requirement for the film thickness to be
 resolved, i.e. $6$ lattice nodes, one would obtain a grid size of $600\times 600 \times 9000 $ to
 properly resolve the binary liquid flow. This size implies that relatively
 large
-computational resources are required to perform the simulations.
+computational resources are required to perform the simulations. {\color{red} However, as it will
+be shown later the film thickness in simulations is larger than the example number ($0.49
+H_{\mathrm{eff}}$ for $Ca\approx 0.03$). Therefore, actual grids are smaller (indicated in
+Section \ref{sec:results}) than the computationally demanding grid $600 \times 600 \times 9000$.}
 
 One can argue that a non-uniform grid could be used. However, the film thickness is a
 function of the curvatures of the front bubble tip \cite{bretherton} and the grid would need to
@@ -521,7 +536,8 @@ makes it possible to smoothly change viscosity from the gas viscosity
 $\nu_{\mathrm{gas}}=\frac{1}{3}\Bigl(\tau_{\mathrm{gas}}-\frac{1}{2}\Bigr)$ to the liquid viscosity
 $\nu_{\mathrm{liq}}=\frac{1}{3}\Bigl(\tau_{\mathrm{liq}}-\frac{1}{2}\Bigr)$ in a region where a
 phase gradient exists. The surface tension in the framework of the binary liquid model is $\sqrt{\frac{8 k
-A}{9}}$.
+A}{9}}$. {\color{red} The walls were simulated using the bounce-back rule \cite{yu}. The walls were
+taken with neutral wettability as results do not depend on the wettability \cite{kuzmin-binary2d}.}
 
 \section{Results}
 \label{sec:results}
@@ -529,9 +545,12 @@ This section describes numerical simulations. We refer to \ref{append:scaling} f
 initialization and scaling procedures. The simulations were conducted on the following 
 fluid domain grids $100 \times 100 \times 1500$, $160 \times 160 \times 1500$,
 $160 \times 160 \times 2400$ and $200 \times 200 \times 3000$. Body forces were varied as
-$\frac{\mathrm{d}P}{\mathrm{d}z}=10^{-6}-10^{-4}$ lattice units. The binary-liquid model parameters
+$\frac{\mathrm{d}P}{\mathrm{d}z}=10^{-6}-10^{-4}$ lattice units.{\color{red} The binary-liquid model
+parameters
 were kept in
-the stable region $k=A=0.004,0.04$. The relaxation rates were taken as $\tau_{\mathrm{liq}}=2.5$
+the stable region $k=A=0.04$ for most simulations and $k=A=0.004$ for simulations with $Ca=6.70$. 
+Note that the choice of $k=A$ guarantee that the film thickness is $5$ grid spacings, which is a
+good choice for stability issues. } The relaxation rates were taken as $\tau_{\mathrm{liq}}=2.5$
 and $\tau_{\mathrm{gas}}=0.7$ giving a gas-over-liquid viscosity ratio of $10$. The relaxation
 parameter for the phase field was $\tau_{\phi}=1.0$.
 
@@ -652,11 +671,11 @@ each other. We also included a corresponding Reynolds number to show that inerti
 neglected.
 \label{table:transition:results}}
 \end{table}
-\begin{figure}[ht]
-\includegraphics[width=0.5\textwidth]{phase_crossection_ca5.eps}
-\includegraphics[width=0.5\textwidth]{phase_crossection_ca13.eps}\\
+\begin{figure}[htb!]
+\includegraphics[width=0.8\textwidth]{phase_crossection_ca5.eps}\\
+\includegraphics[width=0.8\textwidth]{phase_crossection_ca13.eps}\\
 \caption{Crosssections of the phase field in the middle of the bubble for $Ca=0.053$
-(left) and $Ca=1.13$ (right). Crosssections are rescaled on the half channel height. Other
+(top) and $Ca=1.13$ (bottom). Crosssections are rescaled on the half channel height. Other
 parameters are indicated in Table \ref{table:transition:results}. One can see that the left picture
 is non-axisymmetric in contrast
 with the right one, i.e. $R_{diag}\neq R_{axis}$. The transition happens at
@@ -712,12 +731,17 @@ capillary numbers, Fig. \ref{fig:bubble:variation:capillaries}. One can see that
 capillary numbers the diagonal radius exhibits a small jump near the rear bubble cap. That agrees
 with results of \citet{wang-non-circular}. However, our simulations show smoother behavior of
 the jump.  
-\begin{figure}[ht]
-\includegraphics[width=0.8\textwidth]{bubble_rad_axis.eps}\\
-\includegraphics[width=0.8\textwidth]{bubble_rad_diag.eps}\\
-\caption{Radii variations along the bubble for different capillary numbers in the plane $x=0$.
+\begin{figure}[htb!]
+\includegraphics[width=0.45\textwidth]{bubble_rad_axis.eps}\hfill
+\includegraphics[width=0.45\textwidth]{bubble_wang_axis.eps}\\
+\includegraphics[width=0.45\textwidth]{bubble_rad_diag.eps}\hfill
+\includegraphics[width=0.45\textwidth]{bubble_wang_diag.eps}\\
+\caption{Simulations radii variations (left)  along the bubble for different capillary numbers in
+the plane $x=0$.
 One can see that the diagonal radius shows the jump near the bubble rear cap. This agrees with the
-VOF simulations of \citet{wang-non-circular}.Coordinate $z$ increases in the streamwise direction.
+VOF simulations of \citet{wang-non-circular} (right).Coordinate $z$ increases in the streamwise
+direction. The discretization of \citet{wang-non-circular} data was performed with ''Engauge
+Digitizer``.
 \label{fig:bubble:variation:capillaries}}
 \end{figure}
 
@@ -732,13 +756,16 @@ $1$ percent and can be explained by error in the linear interpolation used for t
 interface
 calculation. Therefore, we do not observe the symmetry breakage for $Ca>4$. 
 \begin{figure}[ht]
-\includegraphics[width=\textwidth]{bubble_ca_large.eps}
-\caption{The bubble shape for the capillary number $Ca=6.43$ is presented. $z$ increases in the
+\includegraphics[width=0.9\textwidth]{bubble_ca_large.eps}\\
+\includegraphics[width=0.9\textwidth]{bubble_heil_ca10.eps}
+\caption{The bubble shape for the capillary number $Ca=6.43$ is presented (top). $z$ increases in
+the
 streamwise direction. One can see that near the front tip (large $z$) the diagonal radius exhibits
-a jump which is relaxed after to the axis radius. Even this resembles
-the shape of the curves obtained by \citet{heil-threedim}, but the
+a jump which is relaxed to the axis radius (small $z$).{\color{red} Even this resembles
+the shape of the curves obtained by \citet{heil-threedim} (bottom, opposite streamwise direction),
+but the
 difference between radii is around $1$ percent and can be attributed to
-the linear interpolation used in the calculation of the interface.\label{fig:bubble:ca:large}}
+the linear interpolation used in the calculation of the interface.}\label{fig:bubble:ca:large}}
 \end{figure}
 
 \subsection{Capillary number}
@@ -746,7 +773,8 @@ The purpose of this section is to study dependence of the radii on the capillary
 thicknesses were extracted from the middle of the bubble. The data presented in Fig.
 \ref{fig:capillary:comparison} is simulated with different techniques including different
 initialization, and different grids: $52 \times 52 \times 1500$, $82 \times 82 \times 1500$ and $82
-\times 82 \time 2400$. All our results are consistent. Therefore one can conclude that for the
+\times 82 \times 2400$. All our results are consistent {\color{red} and show the grid and
+initialization independency}. Therefore one can conclude that for the
 capillary number $Ca\geq
 0.05$ grid independence is achieved. The results are compared with the results of
 \citet{heil-threedim} and of \citet{wang-non-circular}. The data were extracted from the
@@ -774,7 +802,7 @@ behavior of the earlier published results.  \label{fig:capillary:comparison}}
 \end{figure}
 
 \subsection{Relative velocity}
-One of the differencies between the flow in tubes and square capillaries is that the flow has
+One of the differences between the flow in tubes and square capillaries is that the flow has
 different streamline patterns. In square microchannels, the main mass flow occurs through corners
 \cite{heil-threedim,wang-non-circular}. This affects the mass flow significantly. One of the
 characteristics of the mass flow is the normalized dependence of the relative velocity on the
@@ -926,7 +954,7 @@ taking correlations from numerical simulations by
 \citet{heil-bretherton} and \citet{giavedoni-numerical}.  
 \item[Grid choice] After specifying the film thickness, one needs to choose the
 number of nodes to resolve the film thickness. For binary liquid parameters used in simulations,
-$A=0.004,0.04$ and $k=0.004,0.04$ the
+$k=A=0.04$ and $k=A=0.004$ the
 interface is spread over approximately $5$ lattice units. To obtain grid independent results one
 needs to choose the
 film thickness to be $2-2.5$ times larger than the interface thickness \cite{kuzmin-binary2d}.

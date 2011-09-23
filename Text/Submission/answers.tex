@@ -30,255 +30,187 @@ non-Galilean invariance.
 In Figures 7 and 8, it's better to give the reported curves by Liu and Wang and Hazel and Heil, so
 that it's easy to find the agreement is well or not.
 \end{quotation}
+\textbf{Answer:} We added additional figures. 
 
-\textbf{Answer:} We redrew all the figures. For the figure 8 the data was extracted from the
-figure and rescaled for comparison reasons.
+\textbf{Question:}
+\begin{quotation}
+In Figure 9, the variation of bubble radii in the range of capillary number 0.05<=Ca<=0.6 is
+still different from the results of Hazel and Heil and of Liu and Wang. The critical capillary
+number of Liu and Wang is close to 0.8 and the critical capillary number of Hazel and Heil is close
+to 0.04, but the value of the authors is 0.1. The authors should analyze the reason of the
+difference.
+\end{quotation}
+\textbf{Answer:} The reviewer is right that the critical capillary number of Liu and Wang is close
+to 0.8 as it can be seen from their digitized numbers. However, Liu and Wang state in their paper
+that the critical capillary number is 0.1. That means they used weaker criterion for the axial
+radius to be equal to the diagonal radius. Therefore we consider that the critical number for
+transition is between 0.04 and 0.1. The criterion is not well defined and depends on the flow
+conditions. For example, Hazel and Heil simulate the air finger propagation with the bubble length
+of more than 10 diameters of the channel. In our case, we simulate the bubble train where each
+bubble has a certain variation of the film thickness over the bubble length. We chose to measure the
+film thickness in the middle of the bubble. There is an assumption that the bubble length is long
+enough (3 diameters) for thickness to coincide with the air finger film thicknesses of the infinite
+length \cite{cerro-space}. However, in the case of smaller capillary the film thickness variation
+is quite large. Thus, more defined criteria should be given in papers in order to validate our
+results. Moreover, some formulations like the propagation of the semiinfinite air finger is not
+achievable due to computational resources constraints.
+
+\textbf{Question:}
+\begin{quotation}
+In Figure 10, there is a deviation of the relative velocity between the present and published data.
+Can the authors extend the range of capillary numbers as conducted by Liu and Wang?
+\end{quotation}
+\textbf{Answer:} Unfortunately that requires months with the uniform grids formulations of the
+lattice Boltzmann method or some grid refinement needed. We didn't have aim to go towards smaller
+capillary numbers as they nicely covered by original work of \citet{bretherton}.
+
+\textbf{Question:}
+\begin{quotation}
+Check some errors, e.g., on Page 7 Line 137 "0.05>=Ca<=6", on Page 17 Line 300, "82×82×1500 and
+82×82", and on Page 24 References 18 and 20.
+\end{quotation}
+\textbf{Answer:} Thank you for pointing that. All the errors are corrected. Reference 20 is
+available online and is not published in journals.
 
 \section{Reviewer II}
 
 \textbf{Question:}
 \begin{quotation}
-The main quantity that the paper focuses on is the thickness of the film between the bubbles and the
-wall. As shown by Figure 8 and as mentioned by the Authors in Section 4, the film thickness varies
-along the bubble. However, the Authors do not explain the choice of the location of the measurement
-of the film thickness. This choice is of primary importance when comparing results with those of
-the
-literature and in particular with works on finger propagation in which the film thickness is
-measured
-”at infinity”.
+Generally speaking, the motion of a drop in a channel is a function of channel shape, drop size,
+ratio between driving force and surface tension, density ratio, and viscosity ratio.  For the flow
+of a long gas bubble (Taylor-Bretherton) the density and viscosity ratios are nearly zero, making it
+possible to fit the film thickness as a function of a single dimensionless number Ca.  In the
+problem studied in this paper, the bubble is long, the density ratio is unity and the viscosity
+ratio is 0.1 (gas over liquid).  As such, while the film thickness in this system is also reduced to
+a function of the Capillary number, I do not think that the system considered by the authors is a
+Taylor-Bretherton system, as the density and viscosity ratios are different.
+
+The authors used the sensitivity of the film thickness on Re to justify that the sensitivity on
+density ratio is low (the first paragraph of Page 6).  However, I do not see the one-to-one
+connection between Re and the density ratio.  Are there any direct numerical/experimental evidence
+that density ratio has small effect on the film thickness, or evidence that Re is solely (or nearly
+solely) determined by the density ratio?
 \end{quotation}
 
-\textbf{Answer:} The explanations are added in lines 434-453.
+\textbf{Answer:}  The reviewer is right about not a full compliance with the classical
+Bretherton/Taylor problem. We added more explanations (lines 99-112). The system is governed with
+the non-dimensional numbers. Mainly, apart from geometrical dimensions the system can be fully
+descisribed by the following set of parameters: Re, Ca and Bo (Eo), where the Bond number Bo is
+taken into the account density ratio and is mainly involved in problems for a bubble change.
+However, the Bond number in simulations and real experimental setups is low. That's why we consider
+it as a non-leading non-dimensional parameter. 
  
 \textbf{Question:}
 \begin{quotation}
-It may be appropriate to introduce Figure 8 on thickness variation before the main results on ﬁlm
-thickness.
+Aside from this critique, it looks like the numerical resolution needs some clarifications.  While
+some numbers and discussions were provided, they seem to be in conflict with each other.  For
+example, in the discussion given in Page 8 and top of Page 9, the authors stated that the minimum
+resolution needed to resolve the film is 600x600x9000, and, if a quarter of the domain is simulated,
+a resolution of 300x300x9000 is needed.  However, the domain sizes presented later are all smaller,
+e.g. 100x100x1500, 160x160x1500, 160x160x2400, 200x200x3000 (Page 12).  How were these grid
+resolutions selected, and what is the effect of grid resolution on the result?
 \end{quotation}
 
-\textbf{Answer:} We agree and moved the section before the results on the capillary number
-dependency.
-
+\textbf{Answer:} As an example, the corresponding grid $600\times600\times9000$ was taken to resolve
+$\delta=0.49 H_{\mathrm{eff}}$ for $Ca=0.03$ from reported simulations of \citet{heil-threedim}.
+However, luckily for us for current simulations the value of the film thickness was higher
+than $0.49 H_{\mathrm{eff}}$. That's why the computational resources demand is lower and we used
+smaller grids. The simulation for $600\times 600 \times 9000$ is too much computationally demanding.
+To give account for numbers one simulation with the grid $200\times200\times 3000$ is obtained after
+$24$ days on $32$ CPUs. The values of these grids were chosen to resolve the film thickness for the
+smallest capillary number (film thickness is twice bigger than the interface thickness). We've done
+inextensive grid resolution study (see Fig. 9) to support our results.  We clarified
+this issue on lines 168-171. 
 
 \textbf{Question:}
 \begin{quotation}
-The lines 54-55 indicating that ”numerical simulations and experimental studies showed [...]
-Reynolds
-number effects on the film thickness for capillary numbers larger than 0.003” is in contradiction
-with
-the lines 32-33 which state ”negligible Reynolds number effects on the film thickness for a
-relatively
-wide range of Reynolds numbers.”
+A couple of minor issues are listed below:
+Page 4, figure 1 - I suppose the vertical axis is $r_d$ and $r_h$ normalized by $H_eff$?  The axis
+label perhaps should be clarified.
+Page 5, line 18 - missing "from" between "capillary number" and "simulations".
+Page 7, line 19 - "0.05 >= Ca <= 6" should be "0.05 <= Ca <= 6".
+Page 10 - On the lattice Boltzmann free energy model, what are the boundary conditions for f and g
+populations?  Were they simple bounce-back?  Is contact angle implemented in the method?
+Page 12, line 13 - "k = A = 0.004, 0.04".  I do not understand this notation - does this mean k is
+always equal to A and their values should be between 0.004 and 0.04?
+Page 17, line 17-19 - The text says that Figure 9 contains data with different initializations and
+different grids.  However, the distinction between data sets cannot be viewed from the figure. 
+Perhaps different symbols should be used so that the readers can tell one data set from another?
+Page 17, line 40 - "differencies" should be "differences".
+Page 19, line 25 - ". the film thickness as twice the interface thickness".  Please see the previous
+comment on grid resolution.
+Page 20, line 19 - Again, the notation used for the range of A and k is rather unusual.
+Page 29, line 46 - ". relaxed after to the axis radius" - perhaps a typo in the sentence?
 \end{quotation}
 
-\textbf{Answer:} We elaborate the Reynolds number influence in lines 34-43.
+\textbf{Answer:} Thank you for improving the article. All the corrections are taken into the
+account. We also added more explanations to the text to address the following questions:
+\begin{itemize}
+ \item For $f$ and $g$ populations the wall was simulated using the simple bounce-back rule. We
+showed before that results do not depend on the wettability of the wall
+\cite{kuzmin-binary2d}. Thus, the walls were chosen with neutral wettability. 
+ \item We chose $k$ and $A$ equal to each other as this choice conserves the film thickness ($5$
+grid spacings). $k=A=0.04$ is taken for most simulations. $k=A=0.004$ is taken for simulation with 
+$Ca=6$. Usually for stability issues the choice of $k=A$ is a good one. The values of $k$ and $A$
+can vary in different limits. However, the stability is drastically reduced for $k=A=0.25$ or if
+$k=A \ll 1$. The corresponding text is added (lines 219-221).
+\item Figure 9 shows the results grid independency. It's exactly the reason why we didn't
+distinguish different initializations and grid numbers as proper designed simulations should not
+depend on it. Corresponding text is added (lines 316-317).
+\end{itemize}
 
 \textbf{Question:}
 \begin{quotation}
-Although inertia has been shown to have a minor effect on ﬁlm thickness, inertia does influence
-some flow variables in the Bretherton’s problem (see Ref. 3 for instance). To check whether inertia
-is important or not, and to discuss the assumption of uniform density, the Authors should provide
-the reader with the Reynolds numbers associated with each simulation. This is also required for the
-consistency of Figure 7 in which results are compared with other works of the literature.
+Finally, I have a question on how the initial distributions of f and g were determined?  Did the
+simulation start with uniform distributions of f and g populations and they "phase separate" to form
+the bubble?
 \end{quotation}
 
-\textbf{Answer:} Thank you for pointing this out. We included the discussions of the Reynolds
-effects in the answer to the question above. As well, we added Reynolds numbers to the Table for
-the capillary range regime and the grid depedency study. 
-
+\textbf{Answer:} Initial distributions $f$ and $g$ were taken through equilibrium distribution
+functions, which were constructed from initial phase and density fields. Density was taken uniform
+with the value $1$ across the domain. Bubble was initialized as the rectangular parallelepiped in
+the middle domain. After that the system evolves with time and interplay between surface tension
+and viscous forces form the bubble. It was shown \cite{kuzmin-binary2d} that the final steady-state
+result does not depend on the initialization. 
+ 
+Reviewer III:
 \textbf{Question:}
 \begin{quotation}
-In this work, the diphasic flow is driven by a body force. The body force is therefore the control
-parameter in the simulations. The Authors should give more detail about this body force. Indeed,
-although the estimation of the body force from the pressure gradient is well described, it is not
-clear
-where this body force appears in the governing equations (Equations 2, 3 and 4). Does this body
-force correspond to the variable $F_i$ in Equation 2? Should not this force or its equivalent appear
-in
-the Navier-Stokes equations (Equation 4)?
+Check some spelling errors, also in the abstract;
 \end{quotation}
 
-\textbf{Answer:} We updated equation (4) to include the force contribution. As well, the definition
-of $P_{\alpha\beta}$ is added. $F_i$ is the force population which corresponds to the force
-inclusion $\bm{F}$. We added the citation which describes how the force population is formed and
-how it
-mimics the force behavior.
-
-\textbf{Question:}
-\begin{quotation}
-I would suggest to calculate the Bond number to check if the shapes of the bubbles and the main
-results of the paper are not inﬂuenced.
-\end{quotation}
-
-\textbf{Answer:} 
-The maximum Bond number $Bo=\frac{\rho g N_y^2}{\gamma}$ in the
-current simulation equals to $7$, which is less than the number for which the shape of the bubble is
-affected according to \cite{zheng-large-ratio}.  
-
-\textbf{Question:}
-\begin{quotation}
-The use of the variable $Ca_{lit}$ and the calculation of the corresponding pressure gradient yield
-estimations of the body force to apply and of the film thickness to choose grid resolution. The
-presentation
-of the corresponding procedure is repeated twice in Section 5-1 for $Ca=0.005$ and $Ca=0.05$. It is
-again described in a different way in Section 5-4. Similar equations for the calculation of the
-pressure
-gradient are thus given in Equations 6, 14 and 16. The Authors should summarize these equations
-into one unless they explain their differences. In fact, it would probably be straightforward not to
-detail the calculation of estimated variables since they are intermediary variables which allow the
-design of the benchmark but do not inﬂuence directly the results. Also, the Authors could possibly
-say they control and impose directly the body force without describing all the estimation procedure.
-\end{quotation}
-
-\textbf{Answer:} Thank you for the suggestion. We agree that there is redundant information
-about initialization and this was taken into account by reducing repetitive text and
-introducing step-by-step explanations, see Section about initialization (lines $259-305$). We also
-added
-the
-recommendations for controlling parameters in the same section.  The
-dimensionalization of the problem and proper benchmarking is quite difficult in the lattice
-Boltzmann framework. You can refer to the lbmethod.org/forum where half of all questions related to
-the lattice Boltzmann method are refered to the non-dimensionalization procedure. Therefore, we
-decided to
-keep suggestions for controlling and initialization of simulations as informative guidelines for the
-LBM community.
-
-\textbf{Question:}
-\begin{quotation}
- Moreover, the estimations of the pressure gradient for the initialisation of the scheme are
-obtained
-under the assumption of an axisymmetric Poiseuille flow. However, among the ”Key words”, one can
-read the key word ”Flow between plates” in agreement with the 2D non axisymmetric simulations
-that are done in this work. The Authors should discuss this choice of estimating the pressure
-gradient with the axisymmetric assumption instead of a Hele-Shaw flow (factor 1/12 instead of 1/8
-in Equation 5).
-\end{quotation}
-
-\textbf{Answer:} The factor $1/8$ in Eq. (5) is taken for the maximum velocity for the Poiseille
-flow between
-plates. Our assumption is that the bubble travels with the constant velocity which equals to the
-maximum velocity of the Poiseuille profile between plates. Factor $1/12$ comes from the averaging
-of the flow rate. However, bubble moves faster than the liquid, i.e. the average liquid velocity.
-That is why the factor $1/8$ was chosen. The simulations show that factor $1/8$ works reasonably
-well.
-
-\textbf{Question:}
-\begin{quotation}
-The Section on LBM is concise and this seems a reasonable choice when publishing such a work in a
-journal of applied science. The Authors would improve signiﬁcantly the manuscript by defining more
-rigorously some of the variables of the model. For instance, the Authors refer to surface tension in
-lines 106, 111 and 123 via the parameter k, the weights w and the quantity 8kA/9 respectively.
-A suggestion is to emphasize within an array the links between physical parameters and the model
-parameters. The variables $i$, $f_i^{eq}$ , $g_i$ should be deﬁned and the Equations for $f$ and $g$
-in Equation
-3 should be described (which equation corresponds to continuity equation...). Equation 2 could
-perhaps be rewritten with the use of a generic variable in order to remove any ambiguity with the
-physical variable f of Equation 3. The notation $i = 1 \div 8$ is unusual, it would be clearer to
-use a
-classical notation such as $1 \leq i \leq 8$. The sound speed $c_s^2$ should be deﬁned just after
-its
-introduction in line 107.
-\end{quotation}
-
-\textbf{Answer:} We wrote an additional paragraph emphasizing the connection of the
-physical parameters with the lattice Botlzmann parameters (lines $149-160$). As well more
-explanations are
-put towards the
-interface surface tension description (lines $136-139$). The reference to the
-continuity and the Navier-Stokes equations are added (lines $140-143$). The equation (2) is not
-rewritten in terms of
-generic variables as far as it's a historical LBM notation for the Navier-Stokes and phase
-governing equations. The notations have been corrected.
-
-\textbf{Question:}
-\begin{quotation}
-The name of the Section ”Lattice Boltzmann benchmark” lets the reader think that this Section
-would describe the numerical procedure (assumptions, choice of the geometry and the grid, boundary
-conditions, control parameters, initialization of the scheme). This is not the case because this
-Section
-develops the challenges and the difficulties of using the Lattice Boltzmann method to bubble ﬂows.
-This Section should be renamed or reorganized.
-\end{quotation}
-
-\textbf{Answer:} We renamed the section to ``Approach to benchmark''.
-
-\textbf{Question:}
-\begin{quotation}
-The Authors should make a distinction between variables in lattice units and dimensional or non
-dimensional variables. For instance, in line 195, the definition $H_{eff} = N_y - 2$ where $N_y$ is
-the
-number of nodes in the vertical direction indicates that $H_{eff}$ has lattice units. However, this
-is in
-contradiction with the use of $H_{eff}$ in Equation 5. The Authors should define each variable
-without
-any ambiguity on its units. Besides, the unit of $U_{bubble}$ should also be given. These
-improvements
-would fit well in the Subsection named ”The nondimensionalization and initialization procedure”
-which does not in fact introduce much nondimensionalisation procedure.
-\end{quotation}
-
-\textbf{Answer:} We added a decription paragraph about the approach to units (lines 149-160). In
-fact, all equations are the same in the
-lattice Boltzmann framework or in a physical framework. One can substitute any quantity in
-preferred units as soon as the capillary number is the same in the LBM and the physical world. 
-
-\textbf{Question:}
-\begin{quotation}
-Some notations are unclear. For instance, the film thickness is denoted as $h_{\infty}$ in Equation
-7 whereas
-it is denoted $\delta$ in most of the paper. The notations w or $\delta_{sim}$ are also found before
-line 381 or in
-Table 3 respectively. The thickness of the interface is denoted $\xi$ in Figure 1 but the same
-variable
-is
-denoted $5\xi$ in Table 1. The speed of the bubble is denoted $U_{\mathrm{bubble}}$ in some places
-and $U_b$ in others.
-The variable $Uin$ Equation 5 does not seem to be deﬁned.
-\end{quotation}
-
-\textbf{Answer:} We thoroughly corrected all the inconsistencies.
-
-\textbf{Question:}
-\begin{quotation}
-Three figures in the manuscript are scanned from the litterature (Ref. 3, 10 and 16). This is
-unusual
-for an article which is not a review. I encourage the Authors to remove at least the two ﬁrst ones
-which are not essential.
-\end{quotation}
-
-\textbf{Answer:} We eliminated unnecessary pictures and references to them.
+\textbf{Answer:} We thoroughly corrected all found mistakes.
 
 \textbf{Question:} 
 \begin{quotation}
-In Figure 7, the points of data reported from the numerical work of Ref. 3 exhibit a surprisingly
-noisy trend that corresponds more to an experimental study. The Authors should explain how they
-obtain this data and plot them.
+Improve Figure quality: Figs. 4 and above all 5 are hard to read and understand. The ticks should
+be the same height, those in Fig. 5 are hardly visible.
 \end{quotation}
 
-\textbf{Answer:} We added a description to the figure caption explaining data acquisition.
+\textbf{Answer:} We constructed figures with the same size ticks, title and labels. For better
+readability we rearranged figures to be of larger size.
 
 \textbf{Question:} 
 \begin{quotation}
-The plots of Figure 8 are of less quality than the other figures of the paper.
+The bibliography should be improved: when introducing LB, I think that more hints should be given
+to the applications, for instance to the case of magnetically-driven vaporization in ferrofluids
+studies or regarding multiphase approach based on pseudopotentials.
 \end{quotation}
 
-\textbf{Answer:} Unfortunately, it was not possible to extract data as a picture from the paper by
-\citet{sehgal-microchannel}. Thus, the curves were extracted from the graphs and represented in a
-new figure scaled to the present simulations for comparison reasons.
-
+\textbf{Answer:} We expanded the introduction for industry applications and discussion of
+multiphase models (lines 117-123).
 \textbf{Question:}
 \begin{quotation}
-The work of Yang seems to be close from the present study since it involves the
-solution of Bretherton
-flow with a Lattice Boltzmann method. The Authors should discuss this paper and emphasize the
-differences between their work and this paper.
+Did the Authors perform any comparison with pseudopotential multiphase approaches? I am
+especially referring to recent advances of pseudopotentials, such as the case of doubly-attractive
+potentials and to recent papers regarding LB multiphase simulation across scales.
 \end{quotation}
 
-\textbf{Answer:} We outlined the differences in the introduction section (lines $92-100$).
+\textbf{Answer:} Unfortunately, to our best knowledge there is only one study of the pseudopotential
+model towards the Bretherton-Taylor phenomenon. The study is in 2D and cannot be applicable to this
+case. However we outlined the approaches for pseudopotential models (lines 117-123).
 
-\textbf{Question:} It would be interesting if the Authors could mention a study in which a level-set
-method is used in
-order to complete the bibliography.
+\textbf{Question:}
 
 \textbf{Answer:} We added references to the introduction section [17-19].
 
@@ -352,6 +284,6 @@ Minor corrections...
 \textbf{Answer:} All the corrections are taken into the account.
 
 \bibliographystyle{unsrtnat}
-\bibliography{answers}
+\bibliography{paper}
 
 \end{document}
